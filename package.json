@@ -8,15 +8,17 @@
     "pretest": "tsc",
     "postinstall": "typings install",
     "test": "node out/test/allTests.js",
-    "testonly": "node out/test/allTests.js"
+    "testonly": "node out/test/allTests.js",
+    "prepare-vendor-js": "find out -type f -print|xargs cat|grep -o 'require(.*)'|sort|uniq|grep -v '[.]/' > src/vendor.js"
   },
-  "bin": "bin/json-ref-expand",
-  "main": "out/src/json-ptr.js",
-  "typings": "out/src/json-ptr.d.ts",
+  "bin": "bin/json-ref-expand.js",
+  "main": "out/src/index.js",
+  "typings": "out/src/index.d.ts",
   "keywords": [
     "json",
     "json pointer",
-    "json reference"
+    "json reference",
+    "json reference resolve"
   ],
   "author": "Harald Niesche",
   "license": "MIT",

@@ -5,9 +5,13 @@ import {
 } from "./json-ptr.test";
 
 import {
-  TestAsync
+  TestAsync,
+  TestDescription
 } from "@hn3000/tsunit-async";
 
+function parmNum(t:TestDescription) {
+  return (null != t.parameterSetNumber) ? `[${t.parameterSetNumber}]` : '';
+}
 
 export function runTests() {
   "use strict";
@@ -22,12 +26,12 @@ export function runTests() {
     if (result.errors.length) {
       console.log('---');
       result.errors.forEach((e)=>{
-        console.log(`Failed: ${e.testName}.${e.funcName} - ${e.message}`);
+        console.log(`Failed: ${e.testName}.${e.funcName}${parmNum(e)} - ${e.message}`);
       });
       console.log('---');
       console.log(`ran unit tests, ${result.passes.length} passed, ${result.errors.length} failed`);
     } else {
-      let testnames = result.passes.map((x)=>`${x.testName}.${x.funcName}`).join('\n');
+      let testnames = result.passes.map((x)=>`${x.testName}.${x.funcName}${parmNum(x)}`).join('\n');
       console.log('---');
       console.log(testnames);
       console.log('---');
