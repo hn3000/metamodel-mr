@@ -1,0 +1,31 @@
+{
+  "name": "@hn3000/json-ref",
+  "version": "0.9.0",
+  "description": "simple resolver for json reference and json pointer",
+  "scripts": {
+    "tsc": "tsc",
+    "tsc:w": "tsc -w",
+    "pretest": "tsc",
+    "postinstall": "typings install",
+    "test": "node out/test/allTests.js",
+    "testonly": "node out/test/allTests.js"
+  },
+  "bin": "bin/json-ref-expand",
+  "main": "out/src/json-ptr.js",
+  "typings": "out/src/json-ptr.d.ts",
+  "keywords": [
+    "json",
+    "json pointer",
+    "json reference"
+  ],
+  "author": "Harald Niesche",
+  "license": "MIT",
+  "devDependencies": {
+    "@hn3000/tsunit-async": "^1.0.0",
+    "typescript": "next"
+  },
+  "dependencies": {
+    "es6-promise": "^3.2.1",
+    "isomorphic-fetch": "^2.2.1"
+  }
+}
