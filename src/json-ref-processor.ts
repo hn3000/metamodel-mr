@@ -17,9 +17,9 @@ export class JsonReferenceProcessor {
     this._contents = {};
   }
 
-  fetchRef(url:string):Promise<any> {
+  fetchRef(url:string, base?:string):Promise<any> {
     let ref = new JsonReference(url);
-    var contentPromise = this._fetchContent(ref.filename);
+    var contentPromise = this._fetchContent(ref.filename, base);
     return contentPromise
       .then((x)=>{
         //console.log("fetching refs for ", x, ref.filename);
@@ -131,7 +131,7 @@ export class JsonReferenceProcessor {
       return this._cache[url];
     }
     let result = this._fetch(url).then((x)=>{
-      return JSON.parse(x)
+      return (typeof x === 'string') ? JSON.parse(x) : x
     });
     this._cache[url] = result;
     result.then((x) => (this._contents[url]=x, x));
