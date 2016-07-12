@@ -1,6 +1,6 @@
 #!/usr/local/bin/node
 
-var jp = require('../out/src/json-ptr.js');
+var jp = require('../out/src/index.js');
 var fs = require('fs');
 
 function fetcher(x) {
