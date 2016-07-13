@@ -98,8 +98,19 @@ export class JsonReferenceTest extends TestClass {
     });
   }
 
+  testResolveIndirectRefs() {
+    var fetch = (x:string) => Promise.resolve(fs.readFileSync(x, 'utf-8'));
+    var expander = new JsonReferenceProcessor(fetch);
+    var r = expander.expandRef ("./test/json-ptr.refs.json#/c");
+
+    return r.then ((x:any) => {
+      this.areIdentical(1, x);
+    }, (err:any) => { 
+      this.fail('promise got rejected: '+err);
+    });
+  }
+
   testResolveCycle() {
     var processor = new JsonReferenceProcessor();
-    processor.expandRef
   }
 } 

@@ -40,7 +40,7 @@ var JsonReferenceProcessor = (function () {
         var json = this._contents[filename];
         var obj = ref.pointer.getValue(json);
         if (null != obj && typeof obj === 'object') {
-            return this._expandDynamic(obj, filename, base, []);
+            return this._expandDynamic(obj, filename, null, []);
         }
         if (null == obj) {
             return {
@@ -58,7 +58,7 @@ var JsonReferenceProcessor = (function () {
             return this._expandRefs(obj["$ref"], url);
         }
         else {
-            if (!obj) {
+            if (null == obj) {
                 var error = null;
                 try {
                     throw new Error("here is a stacktrace");
@@ -66,12 +66,12 @@ var JsonReferenceProcessor = (function () {
                 catch (xx) {
                     error = xx;
                 }
-                console.log("expanding undefined? ", obj, filename, base, keypath, error.stack);
+                console.error("expanding undefined? ", obj, url + '#/' + keypath.join('/'), error.stack);
             }
         }
         var result = obj;
         if (typeof obj === 'object' && Array.isArray(obj)) {
-            result = obj.map(function (x) { return _this._expandDynamic(x, url, null, keypath.slice()); });
+            result = obj.map(function (x, ix) { return _this._expandDynamic(x, url, null, keypath.concat(['' + ix])); });
         }
         else if (typeof obj === 'object') {
             result = {};
@@ -135,7 +135,7 @@ var JsonReferenceProcessor = (function () {
             if (null != this._adjusterCache[theBase]) {
                 return this._adjusterCache[theBase];
             }
-            var slashPos = base.lastIndexOf('/');
+            var slashPos = theBase.lastIndexOf('/');
             if (-1 != slashPos) {
                 var prefix_1 = base.substring(0, slashPos + 1);
                 var result = function (x) {
@@ -145,10 +145,22 @@ var JsonReferenceProcessor = (function () {
                     if ('/' === x.substring(0, 1)) {
                         return x;
                     }
+                    console.error("urlAdjuster", x, base, '->', prefix_1 + x);
+                    if (base === x) {
+                        console.error("base == url", new Error());
+                    }
                     return prefix_1 + x;
                 };
                 this._adjusterCache[theBase] = result;
                 return result;
+            }
+            else {
+                return function (x) {
+                    if (null == x || x === "") {
+                        return theBase;
+                    }
+                    return x;
+                };
             }
         }
         return function (x) { return x; };

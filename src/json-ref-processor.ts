@@ -51,7 +51,7 @@ export class JsonReferenceProcessor {
     let obj = ref.pointer.getValue(json);
 
     if (null != obj && typeof obj === 'object') {
-      return this._expandDynamic(obj, filename, base,[]);
+      return this._expandDynamic(obj, filename, null,[]);
     }
 
     if (null == obj) {
@@ -70,19 +70,19 @@ export class JsonReferenceProcessor {
     if (obj && obj.hasOwnProperty && obj.hasOwnProperty("$ref")) {
       return this._expandRefs(obj["$ref"], url);
     } else {
-      if (!obj) {
+      if (null == obj) {
         var error:Error = null;
         try { throw new Error("here is a stacktrace"); }
         catch (xx) {
           error = xx;
         }
-        console.log("expanding undefined? ", obj, filename, base, keypath, error.stack);
+        console.error("expanding undefined? ", obj, url+'#/'+keypath.join('/'), error.stack);
       }
     }
 
     var result = obj; 
     if (typeof obj === 'object' && Array.isArray(obj)) {
-      result = (<any[]>obj).map((x)=>this._expandDynamic(x, url, null, [...keypath]));
+      result = (<any[]>obj).map((x,ix)=>this._expandDynamic(x, url, null, [...keypath, ''+ix]));
     } else if (typeof obj === 'object') {
       result = {};
       var keys = Object.keys(obj);
@@ -154,7 +154,7 @@ export class JsonReferenceProcessor {
         return this._adjusterCache[theBase];
       }
 
-      let slashPos = base.lastIndexOf('/');
+      let slashPos = theBase.lastIndexOf('/');
       if (-1 != slashPos) {
         let prefix = base.substring(0, slashPos+1);
         let result = (x:string) => {
@@ -164,11 +164,23 @@ export class JsonReferenceProcessor {
           if ('/' === x.substring(0,1)) {
             return x;
           }
+          //console.error("urlAdjuster", x, base, '->',prefix+x);
+          /*if (base === x) {
+            console.error("base == url", new Error());
+          }*/
           return prefix + x;
         };
         this._adjusterCache[theBase] = result;
 
         return result;
+      } else {
+        return (x) => {
+          if (null == x || x === "") {
+            return theBase;
+          }
+          return x;
+        };
+
       }
     }
     return (x) => x;
