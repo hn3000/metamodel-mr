@@ -18,7 +18,7 @@ export var jsonSchemaLoader: ICustomLoader = {
     console.log("fetch", load);
     var processor = new JsonReferenceProcessor(fetcher);
 
-    return processor.fetchRef(load.address).then(x => {
+    return processor.expandRef(load.address).then(x => {
       return JSON.stringify(x); 
     });
   },

@@ -5,7 +5,7 @@ exports.jsonSchemaLoader = {
     fetch: function (load) {
         console.log("fetch", load);
         var processor = new json_ref_1.JsonReferenceProcessor(fetcher);
-        return processor.fetchRef(load.address).then(function (x) {
+        return processor.expandRef(load.address).then(function (x) {
             return JSON.stringify(x);
         });
     },
