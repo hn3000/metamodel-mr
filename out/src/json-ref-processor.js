@@ -145,10 +145,10 @@ var JsonReferenceProcessor = (function () {
                     if ('/' === x.substring(0, 1)) {
                         return x;
                     }
-                    console.error("urlAdjuster", x, base, '->', prefix_1 + x);
-                    if (base === x) {
-                        console.error("base == url", new Error());
-                    }
+                    //console.error("urlAdjuster", x, base, '->',prefix+x);
+                    /*if (base === x) {
+                      console.error("base == url", new Error());
+                    }*/
                     return prefix_1 + x;
                 };
                 this._adjusterCache[theBase] = result;
