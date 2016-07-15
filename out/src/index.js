@@ -20,7 +20,8 @@ function jsonReferenceLoader(content) {
 }
 exports.jsonReferenceLoader = jsonReferenceLoader;
 function fetcher(ctx, x) {
-    //console.error("reading ",x);
+    //console.error("reading ", x);
+    //ctx.emitError(`loading json ref: ${x} ${ctx.resource}`);
     if (x == "") {
         var err = new Error("empty filename");
         //console.error(err);
@@ -29,7 +30,13 @@ function fetcher(ctx, x) {
     if (0 == x.lastIndexOf('http://', 8) || 0 == x.lastIndexOf('https://', 8)) {
         return fetch(x, { method: 'GET' }).then(function (response) { return response.text(); });
     }
-    return es6_promise_1.Promise.resolve().then(function () { return fs.readFileSync(x, 'utf-8'); });
+    return es6_promise_1.Promise.resolve().then(function () {
+        var contents = fs.readFileSync(x, 'utf-8');
+        if ('\uFEFF' === contents.charAt(0)) {
+            return contents.substr(1);
+        }
+        return contents;
+    });
 }
 module.exports = jsonReferenceLoader;
 //# sourceMappingURL=index.js.map

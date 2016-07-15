@@ -59,7 +59,8 @@ export function jsonReferenceLoader(content:string) {
 }
 
 function fetcher(ctx:ILoaderContext, x:string):Promise<string> {
-  //console.error("reading ",x);
+  //console.error("reading ", x);
+  //ctx.emitError(`loading json ref: ${x} ${ctx.resource}`);
   if (x == "") {
     let err = new Error("empty filename");
     //console.error(err);
@@ -68,7 +69,13 @@ function fetcher(ctx:ILoaderContext, x:string):Promise<string> {
   if (0 == x.lastIndexOf('http://',8) || 0 == x.lastIndexOf('https://',8)) {
     return fetch(x, { method: 'GET' }).then(response => response.text());
   }
-  return Promise.resolve().then(()=>fs.readFileSync(x,'utf-8'));
+  return Promise.resolve().then(()=>{
+    let contents = fs.readFileSync(x,'utf-8');
+    if ('\uFEFF' === contents.charAt(0)) {
+      return contents.substr(1);
+    }
+    return contents;
+  });
 }
 
 module.exports = jsonReferenceLoader;
