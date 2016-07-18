@@ -136,6 +136,9 @@ var JsonReferenceProcessor = (function () {
                 return this._adjusterCache[theBase];
             }
             var slashPos = theBase.lastIndexOf('/');
+            if (-1 == slashPos) {
+                slashPos = theBase.lastIndexOf('\\');
+            }
             if (-1 != slashPos) {
                 var prefix_1 = base.substring(0, slashPos + 1);
                 var result = function (x) {

@@ -155,6 +155,9 @@ export class JsonReferenceProcessor {
       }
 
       let slashPos = theBase.lastIndexOf('/');
+      if (-1 == slashPos) {
+        slashPos = theBase.lastIndexOf('\\');
+      }
       if (-1 != slashPos) {
         let prefix = base.substring(0, slashPos+1);
         let result = (x:string) => {
