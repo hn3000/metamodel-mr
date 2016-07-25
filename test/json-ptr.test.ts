@@ -14,7 +14,7 @@ export class JsonPointerTest extends TestClass {
   private json: any;
   constructor() {
     super();
-    let tmp = fs.readFileSync('./test/json-ptr.test.json', 'utf-8');
+    let tmp = fs.readFileSync('./test/resource/json-ptr.test.json', 'utf-8');
     this.json = JSON.parse(tmp);
 
     this.parameterizeUnitTest(this.testPointer, [
@@ -27,6 +27,12 @@ export class JsonPointerTest extends TestClass {
       ["/ "    , 7],
       ["/m~0n" , 8]
     ]);
+
+    this.parameterizeUnitTest(this.testToStringIsIdenticalToInput, [
+      [""],
+      ["/a"],
+      ["/a/b"]
+    ]);
   }
 
   testHasJson() {
@@ -34,20 +40,32 @@ export class JsonPointerTest extends TestClass {
     this.areNotIdentical(undefined, this.json);
   }
 
-  testCase1() {
+  testEmptyPointerReturnsOriginalObject() {
     var ptr = new JsonPointer("");
     this.areIdentical(this.json, ptr.getValue(this.json));
   }
-  testCase2() {
+  testSimplePointerReturnsReferencedProperty() {
     var ptr = new JsonPointer("/foo");
     this.areIdentical(this.json.foo, ptr.getValue(this.json));
   }
-  testCase3() {
+  testArrayIndexReturnsArrayElement() {
     var ptr = new JsonPointer("/foo/0");
     this.areIdentical(this.json.foo[0], ptr.getValue(this.json));
     this.areIdentical("bar", ptr.getValue(this.json));
   }
-  testCase4() {
+  testArrayIndexDashReturnsArrayElementAfterLast() {
+    var ptr = new JsonPointer("/-");
+    var arr = [1];
+    (arr as any)['-'] = 'property called minus';
+    this.areIdentical(arr[1], ptr.getValue(arr));
+  }
+  testObjectPropDashReturnsProperty() {
+    var ptr = new JsonPointer("/-");
+    var obj:any = {a:1};
+    obj['-'] = 'property called minus';
+    this.areIdentical(obj['-'], ptr.getValue(obj));
+  }
+  testEmptyPropertyNameWorks() {
     var ptr = new JsonPointer("/");
     this.areIdentical(this.json[""], ptr.getValue(this.json));
     this.areIdentical(0, ptr.getValue(this.json));
@@ -57,60 +75,10 @@ export class JsonPointerTest extends TestClass {
     var ptr = new JsonPointer(p);
     this.areIdentical(v, ptr.getValue(this.json));
   }
-   
+
+  testToStringIsIdenticalToInput(p:string) {
+    var ptr = new JsonPointer(p);
+    this.areIdentical(p, ptr.toString());
+  }
 }
 
-export class JsonReferenceTest extends TestClass {
-  testSimpleReference() {
-    var ref = new JsonReference("");
-
-    this.areIdentical("", ref.filename);
-    this.areCollectionsIdentical([], ref.pointer.keys);
-  }
-  testPointerReference() {
-    var ref = new JsonReference("#/lala");
-
-    this.areIdentical("", ref.filename);
-    this.areCollectionsIdentical(['lala'], ref.pointer.keys);
-  }
-  testFileReference() {
-    var ref = new JsonReference("./test/json-ptr.test.json#/foo");
-
-    this.areIdentical("./test/json-ptr.test.json", ref.filename);
-    this.areCollectionsIdentical(['foo'], ref.pointer.keys);
-  }
-
-  testResolveRefs() {
-    var fetch = (x:string) => Promise.resolve(fs.readFileSync(x, 'utf-8'));
-    var expander = new JsonReferenceProcessor(fetch);
-    var r = expander.expandRef ("./test/json-ptr.test.json#/foo");
-
-    return r.then ((x:any) => {
-      console.log("async test result:")
-      if (Array.isArray(x) && x[0] == 'bar' && x[1] == 'baz') {
-        console.log("success!");
-      } else {
-        console.log("failure, didn't get [ 'bar', 'baz' ] got:", x);
-      }
-      return x;
-    }, (err:any) => { 
-      console.log("failure!", err);
-    });
-  }
-
-  testResolveIndirectRefs() {
-    var fetch = (x:string) => Promise.resolve(fs.readFileSync(x, 'utf-8'));
-    var expander = new JsonReferenceProcessor(fetch);
-    var r = expander.expandRef ("./test/json-ptr.refs.json#/c");
-
-    return r.then ((x:any) => {
-      this.areIdentical(1, x);
-    }, (err:any) => { 
-      this.fail('promise got rejected: '+err);
-    });
-  }
-
-  testResolveCycle() {
-    var processor = new JsonReferenceProcessor();
-  }
-} 

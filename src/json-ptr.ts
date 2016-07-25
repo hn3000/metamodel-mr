@@ -19,8 +19,12 @@ export class JsonPointer {
   }
 
   public static deref(o:any, k:string) {
-    if (Array.isArray(o) && k == '-') {
-      return o[o.length];
+    let isDash = k == '-';
+    if (isDash) {
+      let isArray = Array.isArray(o);
+      if (isArray) {
+        return o[o.length];
+      }
     }
     return o && o[k];
   }
@@ -30,7 +34,7 @@ export class JsonPointer {
   }
 
   asString():string {
-    return '/'+(this._keypath.map(JsonPointer.quote).join('/'));
+    return [''].concat(this._keypath.map(JsonPointer.quote)).join('/');
   }
 
   toString():string {

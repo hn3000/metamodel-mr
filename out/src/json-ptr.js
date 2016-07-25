@@ -15,8 +15,12 @@ var JsonPointer = (function () {
         return result;
     };
     JsonPointer.deref = function (o, k) {
-        if (Array.isArray(o) && k == '-') {
-            return o[o.length];
+        var isDash = k == '-';
+        if (isDash) {
+            var isArray = Array.isArray(o);
+            if (isArray) {
+                return o[o.length];
+            }
         }
         return o && o[k];
     };
@@ -24,7 +28,7 @@ var JsonPointer = (function () {
         return this._keypath.reduce(JsonPointer.deref, obj);
     };
     JsonPointer.prototype.asString = function () {
-        return '/' + (this._keypath.map(JsonPointer.quote).join('/'));
+        return [''].concat(this._keypath.map(JsonPointer.quote)).join('/');
     };
     JsonPointer.prototype.toString = function () {
         return this.asString();
@@ -39,3 +43,4 @@ var JsonPointer = (function () {
     return JsonPointer;
 }());
 exports.JsonPointer = JsonPointer;
+//# sourceMappingURL=json-ptr.js.map

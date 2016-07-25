@@ -1,3 +1,4 @@
+import { JsonReference } from './json-ref';
 export interface Fetcher {
     (url: string, base?: string): Promise<string>;
 }
@@ -5,9 +6,11 @@ export declare class JsonReferenceProcessor {
     constructor(fetch?: Fetcher);
     fetchRef(url: string, base?: string): Promise<any>;
     expandRef(url: string): Promise<any>;
+    expandDynamic(obj: any, ref: JsonReference | string): any;
     _expandRefs(url: string, base?: string): any;
     _expandDynamic(obj: any, filename: string, base?: string, keypath?: string[]): any;
-    _findRefs(x: any): string[];
+    visitRefs(x: any, visitor: (r: string, e: any, p: string[]) => void): void;
+    findRefs(x: any): string[];
     _fetchContent(urlArg: string, base?: string): Promise<any>;
     _adjustUrl(url: string, base?: string): string;
     private _adjusterCache;

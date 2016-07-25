@@ -41,3 +41,4 @@ var JsonReference = (function () {
     return JsonReference;
 }());
 exports.JsonReference = JsonReference;
+//# sourceMappingURL=json-ref.js.map

@@ -28,6 +28,9 @@ var JsonReferenceProcessor = (function () {
             return _this._expandRefs(url);
         });
     };
+    JsonReferenceProcessor.prototype.expandDynamic = function (obj, ref) {
+        return this._expandDynamic(obj, ref.toString());
+    };
     JsonReferenceProcessor.prototype._expandRefs = function (url, base) {
         var ref = new json_ref_1.JsonReference(url);
         var filename = this._adjustUrl(ref.filename, base);
@@ -35,24 +38,25 @@ var JsonReferenceProcessor = (function () {
             throw new Error('invalid reference: no file');
         }
         if (!this._contents.hasOwnProperty(filename)) {
-            throw new Error("file not found: " + filename);
+            throw new Error("file not found in cache: " + filename);
         }
-        var json = this._contents[filename];
+        var json = this._expandDynamic(this._contents[filename], filename);
         var obj = ref.pointer.getValue(json);
         if (null != obj && typeof obj === 'object') {
             return this._expandDynamic(obj, filename, null, []);
         }
         if (null == obj) {
             return {
-                "$ref": ref.toString(),
-                "$filenotfound": json == null,
-                "$refnotfound": obj == null
+                "$$ref": ref.toString(),
+                "$$filenotfound": json == null,
+                "$$refnotfound": obj == null
             };
         }
         return obj;
     };
     JsonReferenceProcessor.prototype._expandDynamic = function (obj, filename, base, keypath) {
         var _this = this;
+        if (keypath === void 0) { keypath = []; }
         var url = this._adjustUrl(filename, base);
         if (obj && obj.hasOwnProperty && obj.hasOwnProperty("$ref")) {
             return this._expandRefs(obj["$ref"], url);
@@ -66,50 +70,55 @@ var JsonReferenceProcessor = (function () {
                 catch (xx) {
                     error = xx;
                 }
-                console.error("expanding undefined? ", obj, url + '#/' + keypath.join('/'), error.stack);
             }
         }
         var result = obj;
-        if (typeof obj === 'object' && Array.isArray(obj)) {
-            result = obj.map(function (x, ix) { return _this._expandDynamic(x, url, null, keypath.concat(['' + ix])); });
-        }
-        else if (typeof obj === 'object') {
-            result = {};
-            var keys = Object.keys(obj);
-            for (var _i = 0, keys_1 = keys; _i < keys_1.length; _i++) {
-                var k = keys_1[_i];
-                //console.log("define property", k, result);
-                Object.defineProperty(result, k, {
-                    enumerable: true,
-                    get: (function (obj, k) { return _this._expandDynamic(obj[k], url, null, keypath.concat([k])); }).bind(this, obj, k)
-                });
+        if (null != obj && typeof obj === 'object') {
+            if (Array.isArray(obj)) {
+                result = obj.map(function (x, ix) { return _this._expandDynamic(x, url, null, keypath.concat(['' + ix])); });
+            }
+            else {
+                result = {};
+                var keys = Object.keys(obj);
+                for (var _i = 0, keys_1 = keys; _i < keys_1.length; _i++) {
+                    var k = keys_1[_i];
+                    //console.log("define property", k, result);
+                    Object.defineProperty(result, k, {
+                        enumerable: true,
+                        get: (function (obj, k) { return _this._expandDynamic(obj[k], url, null, keypath.concat([k])); }).bind(this, obj, k)
+                    });
+                }
             }
         }
         return result;
     };
-    JsonReferenceProcessor.prototype._findRefs = function (x) {
+    JsonReferenceProcessor.prototype.visitRefs = function (x, visitor) {
         var queue = [];
-        var result = [];
         //console.log('findRefs',x);
-        queue.push(x);
-        var _loop_1 = function() {
-            var thisOne = queue.shift();
-            //console.log('findRefs',thisOne);
-            var ref = thisOne["$ref"];
-            if (null != ref) {
-                result.push(ref);
-            }
-            else if (typeof thisOne === 'object') {
-                keys = Object.keys(thisOne);
-                objs = keys.map(function (k) { return thisOne[k]; });
-                queue.push.apply(queue, objs);
-            }
-        };
-        var keys, objs;
-        while (0 != queue.length) {
-            _loop_1();
+        if (x != null) {
+            queue.push({ e: x, p: [] });
         }
-        //console.log('findRefs done',x, result);
+        while (0 != queue.length) {
+            var thisOne = queue.shift();
+            var ref = thisOne.e["$ref"];
+            if (null != ref) {
+                visitor(thisOne.e.$ref, thisOne.e, thisOne.p);
+            }
+            else if (typeof thisOne.e === 'object') {
+                var keys = Object.keys(thisOne.e);
+                for (var _i = 0, keys_2 = keys; _i < keys_2.length; _i++) {
+                    var k = keys_2[_i];
+                    if (thisOne.e[k]) {
+                        queue.push({ e: thisOne.e[k], p: thisOne.p.concat([k]) });
+                    }
+                }
+            }
+        }
+    };
+    JsonReferenceProcessor.prototype.findRefs = function (x) {
+        var result = [];
+        this.visitRefs(x, function (r, e, p) { return result.push(r); });
+        //console.log('findRefs done', x, result);
         return result;
     };
     JsonReferenceProcessor.prototype._fetchContent = function (urlArg, base) {
@@ -118,11 +127,11 @@ var JsonReferenceProcessor = (function () {
         if (this._cache.hasOwnProperty(url)) {
             return this._cache[url];
         }
-        var result = this._fetch(url).then(function (x) {
-            return (typeof x === 'string') ? JSON.parse(x) : x;
-        });
+        var result = es6_promise_1.Promise.resolve(url)
+            .then(function (u) { return _this._fetch(u); })
+            .then(function (x) { return (typeof x === 'string') ? JSON.parse(x) : x; })
+            .then(function (x) { return (_this._contents[url] = x, x); }, function (err) { return (_this._contents[url] = null, null); });
         this._cache[url] = result;
-        result.then(function (x) { return (_this._contents[url] = x, x); });
         return result;
     };
     JsonReferenceProcessor.prototype._adjustUrl = function (url, base) {
@@ -171,22 +180,14 @@ var JsonReferenceProcessor = (function () {
     JsonReferenceProcessor.prototype._fetchRefs = function (x, base) {
         var _this = this;
         var adjuster = this._urlAdjuster(base);
-        var refs = this._findRefs(x);
+        var refs = this.findRefs(x);
         //console.log("found refs ", refs);
         var files = refs.map(function (x) { return adjuster(json_ref_1.JsonReference.getFilename(x)); });
         var filesHash = files.reduce(function (c, f) { c[f] = f; return c; }, {});
         files = Object.keys(filesHash);
         //console.log("found files ", refs, files, " fetching ...");
-        var needThen = false;
-        var filesPromises = files.map(function (x) {
-            if (_this._contents.hasOwnProperty(x)) {
-                return _this._contents[x];
-            }
-            else {
-                needThen = true;
-                return _this._fetchContent(x);
-            }
-        });
+        var needThen = files.some(function (p) { return !_this._contents.hasOwnProperty(p); });
+        var filesPromises = files.map(function (p) { return _this._fetchContent(p); });
         //console.log("got promises ", filesPromises);
         var promise = es6_promise_1.Promise.all(filesPromises);
         if (needThen) {
@@ -204,3 +205,4 @@ var JsonReferenceProcessor = (function () {
     return JsonReferenceProcessor;
 }());
 exports.JsonReferenceProcessor = JsonReferenceProcessor;
+//# sourceMappingURL=json-ref-processor.js.map

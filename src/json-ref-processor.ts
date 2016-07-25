@@ -36,6 +36,10 @@ export class JsonReferenceProcessor {
       });
   }
 
+  expandDynamic(obj:any, ref: JsonReference|string) {
+    return this._expandDynamic(obj, ref.toString());
+  }
+
   _expandRefs(url:string, base?:string):any {
     let ref = new JsonReference(url);
 
@@ -44,10 +48,10 @@ export class JsonReferenceProcessor {
       throw new Error('invalid reference: no file');
     }
     if (!this._contents.hasOwnProperty(filename)) {
-      throw new Error(`file not found: ${filename}`);
+      throw new Error(`file not found in cache: ${filename}`);
     }
 
-    let json = this._contents[filename];
+    let json = this._expandDynamic(this._contents[filename], filename);
     let obj = ref.pointer.getValue(json);
 
     if (null != obj && typeof obj === 'object') {
@@ -56,16 +60,16 @@ export class JsonReferenceProcessor {
 
     if (null == obj) {
       return { 
-        "$ref": ref.toString(), 
-        "$filenotfound": json == null, 
-        "$refnotfound": obj == null  
+        "$$ref": ref.toString(), 
+        "$$filenotfound": json == null, 
+        "$$refnotfound": obj == null  
       };
     }
 
     return obj;
   }
 
-  _expandDynamic(obj:any, filename:string, base?:string, keypath?:string[]) {
+  _expandDynamic(obj:any, filename:string, base?:string, keypath:string[]=[]) {
     var url = this._adjustUrl(filename, base);
     if (obj && obj.hasOwnProperty && obj.hasOwnProperty("$ref")) {
       return this._expandRefs(obj["$ref"], url);
@@ -76,51 +80,61 @@ export class JsonReferenceProcessor {
         catch (xx) {
           error = xx;
         }
-        console.error("expanding undefined? ", obj, url+'#/'+keypath.join('/'), error.stack);
+        //console.error("expanding undefined? ", obj, url+'#/'+keypath.join('/'), error.stack);
       }
     }
 
-    var result = obj; 
-    if (typeof obj === 'object' && Array.isArray(obj)) {
-      result = (<any[]>obj).map((x,ix)=>this._expandDynamic(x, url, null, [...keypath, ''+ix]));
-    } else if (typeof obj === 'object') {
-      result = {};
-      var keys = Object.keys(obj);
-      for (var k of keys) {
-        //console.log("define property", k, result);
-        Object.defineProperty(
-          result,
-          k,
-          {
-            enumerable: true, 
-            get: ((obj:any,k:string)=>this._expandDynamic(obj[k], url,null,[...keypath,k])).bind(this,obj,k)
-          }
-        );
+    var result = obj;
+    if (null != obj && typeof obj === 'object') {
+      if (Array.isArray(obj)) {
+        result = (<any[]>obj).map((x,ix)=>this._expandDynamic(x, url, null, [...keypath, ''+ix]));
+      } else {
+        result = {};
+        var keys = Object.keys(obj);
+        for (var k of keys) {
+          //console.log("define property", k, result);
+          Object.defineProperty(
+            result,
+            k,
+            {
+              enumerable: true, 
+              get: ((obj:any,k:string)=>this._expandDynamic(obj[k], url,null,[...keypath,k])).bind(this,obj,k)
+            }
+          );
+        }
       }
     }
     return result;
-
   }
 
-  _findRefs(x:any) {
-    var queue:any[] = [];
-    var result:string[] = [];
+  visitRefs(x:any, visitor:(r:string, e:any, p:string[])=>void) {
+    var queue:{e:any, p:string[]}[] = [];
     //console.log('findRefs',x);
-    queue.push(x);
-    while (0 != queue.length) {
-      let thisOne = queue.shift();
-      //console.log('findRefs',thisOne);
-      let ref = thisOne["$ref"];
-      if (null != ref) {
-        result.push(ref);
-      } else if (typeof thisOne === 'object') {
-        var keys = Object.keys(thisOne);
-        var objs = keys.map((k) => thisOne[k]);
-        queue.push(...objs);
-      }
+    if (x != null) {
+      queue.push({e:x, p:[]});
     }
 
-    //console.log('findRefs done',x, result);
+    while (0 != queue.length) {
+      var thisOne = queue.shift();
+      var ref = thisOne.e["$ref"];
+      if (null != ref) {
+        visitor(thisOne.e.$ref, thisOne.e, thisOne.p);
+      } else if (typeof thisOne.e === 'object') {
+        var keys = Object.keys(thisOne.e);
+        for (var k of keys) {
+          if (thisOne.e[k]) {
+            queue.push({ e: thisOne.e[k], p:thisOne.p.concat([k])});
+          }
+        }
+      }
+    }
+  }
+
+  findRefs(x:any) {
+    var result:string[] = [];
+    this.visitRefs(x, (r, e, p) => result.push(r));
+
+    //console.log('findRefs done', x, result);
 
     return result;
   }
@@ -130,12 +144,15 @@ export class JsonReferenceProcessor {
     if (this._cache.hasOwnProperty(url)) {
       return this._cache[url];
     }
-    let result = this._fetch(url).then((x)=>{
-      return (typeof x === 'string') ? JSON.parse(x) : x
-    });
-    this._cache[url] = result;
-    result.then((x) => (this._contents[url]=x, x));
+    let result = Promise.resolve(url)
+      .then(u => this._fetch(u))
+      .then((x)=> (typeof x === 'string') ? JSON.parse(x) : x)
+      .then(
+        (x) => (this._contents[url]=x, x),
+        (err) => (this._contents[url]=null,null)
+      );
 
+    this._cache[url] = result;
     return result;
   }
 
@@ -191,7 +208,7 @@ export class JsonReferenceProcessor {
 
   _fetchRefs(x:any, base:string):Promise<any[]> {
     var adjuster = this._urlAdjuster(base);
-    var refs = this._findRefs(x);
+    var refs = this.findRefs(x);
     //console.log("found refs ", refs);
 
     var files = refs.map(x => adjuster(JsonReference.getFilename(x)));
@@ -199,15 +216,9 @@ export class JsonReferenceProcessor {
     files = Object.keys(filesHash);
     //console.log("found files ", refs, files, " fetching ...");
 
-    var needThen = false;
-    var filesPromises = files.map((x) => {
-      if (this._contents.hasOwnProperty(x)) {
-        return this._contents[x];
-      } else {
-        needThen = true;
-        return this._fetchContent(x);
-      }
-    });
+    var needThen = files.some((p) => !this._contents.hasOwnProperty(p));
+
+    var filesPromises = files.map((p) => this._fetchContent(p));
 
     //console.log("got promises ", filesPromises);
 

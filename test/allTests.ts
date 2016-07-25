@@ -1,8 +1,6 @@
 
-import {
-  JsonPointerTest,
-  JsonReferenceTest
-} from "./json-ptr.test";
+import { JsonPointerTest } from "./json-ptr.test";
+import { JsonReferenceTest } from "./json-ref.test";
 
 import {
   TestAsync,

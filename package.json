@@ -6,9 +6,12 @@
     "tsc": "tsc",
     "tsc:w": "tsc -w",
     "pretest": "tsc",
+    "precover": "tsc",
     "postinstall": "typings install",
     "test": "node out/test/allTests.js",
     "testonly": "node out/test/allTests.js",
+    "cover": "istanbul cover out/test/allTests.js",
+    "coveronly": "istanbul cover out/test/allTests.js",
     "prepare-vendor-js": "find out -type f -print|xargs cat|grep -o 'require(.*)'|sort|uniq|grep -v '[.]/' > src/vendor.js"
   },
   "bin": "bin/json-ref-expand.js",
