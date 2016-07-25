@@ -1,4 +1,4 @@
-#!/usr/local/bin/node
+#!/usr/bin/env node
 
 var jp = require('../out/src/index.js');
 var fs = require('fs');

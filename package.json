@@ -14,7 +14,7 @@
     "coveronly": "istanbul cover out/test/allTests.js",
     "prepare-vendor-js": "find out -type f -print|xargs cat|grep -o 'require(.*)'|sort|uniq|grep -v '[.]/' > src/vendor.js"
   },
-  "bin": "bin/json-ref-expand.js",
+  "bin": "bin/json-ref.js",
   "main": "out/src/index.js",
   "typings": "out/src/index.d.ts",
   "keywords": [
