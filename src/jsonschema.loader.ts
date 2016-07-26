@@ -15,7 +15,7 @@ import  { Response } from 'isomorphic-fetch';
 
 export var jsonSchemaLoader: ICustomLoader = {
   fetch(load: IFetchContext) {
-    console.log("fetch", load);
+    //console.log("fetch", load);
     var processor = new JsonReferenceProcessor(fetcher);
 
     return processor.expandRef(load.address).then(x => {
@@ -24,7 +24,7 @@ export var jsonSchemaLoader: ICustomLoader = {
   },
 
   instantiate(load:IInstantiateContext) {
-    console.log("instantiate", load);
+    //console.log("instantiate", load);
     return JSON.parse(load.source);
   }
 }
@@ -36,4 +36,4 @@ function fetcher (url:string) : Promise<string> {
   return promise.then((response: typeof Response ) => response.text());
 }
 
-console.log("jsonschema loader created");
+//console.log("jsonschema loader created");
