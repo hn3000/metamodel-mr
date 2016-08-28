@@ -21,3 +21,12 @@ export declare class JsonReferenceProcessor {
     private _cache;
     private _contents;
 }
+export declare function jsonParse(x: string): any;
+export declare enum CommentKind {
+    NONE = 0,
+    SINGLELINE = 1,
+    MULTILINE = 2,
+    BOTH = 3,
+}
+export declare function removeComments(jsonString: string, kinds?: CommentKind): string;
+export declare function normalizePath(path: string): string;

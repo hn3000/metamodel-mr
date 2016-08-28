@@ -146,7 +146,7 @@ export class JsonReferenceProcessor {
     }
     let result = Promise.resolve(url)
       .then(u => this._fetch(u))
-      .then((x)=> (typeof x === 'string') ? JSON.parse(x) : x)
+      .then((x)=> (typeof x === 'string') ? jsonParse(x) : x)
       .then(
         (x) => (this._contents[url]=x, x),
         (err) => (this._contents[url]=null,null)
@@ -162,10 +162,12 @@ export class JsonReferenceProcessor {
 
   private _adjusterCache:{ [base:string]:(x:string)=>string} = {};
 
-  _urlAdjuster(base:string):(x:string)=>string {
+  _urlAdjuster(base:string): (x:string)=>string {
     if (null != base) {
       let hashPos = base.indexOf('#');
-      var theBase = (hashPos === -1) ? base : base.substring(0, hashPos);
+      let theBase = (hashPos === -1) ? base : base.substring(0, hashPos);
+
+      theBase = normalizePath(theBase);
 
       if (null != this._adjusterCache[theBase]) {
         return this._adjusterCache[theBase];
@@ -175,9 +177,10 @@ export class JsonReferenceProcessor {
       if (-1 == slashPos) {
         slashPos = theBase.lastIndexOf('\\');
       }
+      let result: (x:string)=>string = null;
       if (-1 != slashPos) {
-        let prefix = base.substring(0, slashPos+1);
-        let result = (x:string) => {
+        let prefix = theBase.substring(0, slashPos+1);
+        result = (x:string) => {
           if (null == x || x === "") {
             return theBase;
           }
@@ -188,20 +191,20 @@ export class JsonReferenceProcessor {
           /*if (base === x) {
             console.error("base == url", new Error());
           }*/
-          return prefix + x;
+          return normalizePath(prefix + x);
         };
-        this._adjusterCache[theBase] = result;
-
-        return result;
       } else {
-        return (x) => {
+        result = (x) => {
           if (null == x || x === "") {
             return theBase;
           }
           return x;
         };
-
       }
+
+      this._adjusterCache[theBase] = result;
+
+      return result;
     }
     return (x) => x;
   }
@@ -242,4 +245,63 @@ export class JsonReferenceProcessor {
   private _fetch:Fetcher;
   private _cache:{[k:string]:Promise<any>};
   private _contents:{[k:string]:any};
+}
+
+export function jsonParse(x: string): any {
+  let result: any;
+  try {
+    result = JSON.parse(x);
+  } catch (xx) {
+    let nocomments = removeComments(x);
+    result = JSON.parse(nocomments);
+  }
+
+  return result;
+}
+
+const singleLineCommentRE = /\/\/.*$/gm;
+const multiLineCommentRE = /\/\*(.|[\r\n])*?\*\//g;
+
+export enum CommentKind {
+  NONE       = 0,
+  SINGLELINE = 1,
+  MULTILINE  = 2,
+  BOTH       = SINGLELINE | MULTILINE
+}
+
+export function removeComments(jsonString:string, kinds = CommentKind.BOTH): string {
+  let result = jsonString;
+
+  if (kinds & CommentKind.SINGLELINE) {
+    result = result.replace(singleLineCommentRE, '');
+  }
+  if (kinds & CommentKind.MULTILINE) {
+    result = result.replace(multiLineCommentRE, '');
+  }
+
+  return result;
+}
+
+const redundantDotRE = /[/][.][/]/g;
+const redundantDotDotRE = /(^|[/])[^/.]+[/][.][.][/]/g;
+
+export function normalizePath(path: string) {
+  let result = replaceWhileFound(path, redundantDotRE, '/');
+  result = replaceWhileFound(result, redundantDotDotRE, '/');
+
+  return result;
+}
+
+function replaceWhileFound(input: string, re: RegExp, replacement: string) {
+  let result = input;
+
+  let done = false;
+  while (!done) {
+    let replaced = result.replace(re, replacement);
+    if (replaced === result) {
+      done = true;
+    }
+    result = replaced;
+  }
+  return result;
 }

@@ -7,6 +7,10 @@ import {
 } from "../src/index";
 
 import {
+  normalizePath
+} from '../src/json-ref-processor'
+
+import {
   TestClass
 } from "@hn3000/tsunit-async";
 
@@ -92,6 +96,30 @@ export class JsonReferenceTest extends TestClass {
 
   testResolveCycle() {
     var processor = new JsonReferenceProcessor();
+  }
+
+  testNormalizePathUnchangedForDotlessPath() {
+    let path = './foo/bar/blub.bb';
+    let normalized = normalizePath(path);
+    this.areIdentical(path, normalized);
+  }
+  testNormalizePathHasSingleDotsRemovedPath() {
+    let path = './foo/./bar/././blub.bb';
+    let expected = './foo/bar/blub.bb';
+    let normalized = normalizePath(path);
+    this.areIdentical(expected, normalized);
+  }
+  testNormalizePathHasDoubleDotSegmentsRemovedPath() {
+    let path = './foo/../bar/../../blub.bb';
+    let expected = './../blub.bb';
+    let normalized = normalizePath(path);
+    this.areIdentical(expected, normalized);
+  }
+  testNormalizePathHasSingleAndDoubleDotSegmentsRemovedPath() {
+    let path = './foo/./../bar/.././../blub.bb';
+    let expected = './../blub.bb';
+    let normalized = normalizePath(path);
+    this.areIdentical(expected, normalized);
   }
 } 
 

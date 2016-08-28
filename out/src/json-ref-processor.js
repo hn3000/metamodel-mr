@@ -129,7 +129,7 @@ var JsonReferenceProcessor = (function () {
         }
         var result = es6_promise_1.Promise.resolve(url)
             .then(function (u) { return _this._fetch(u); })
-            .then(function (x) { return (typeof x === 'string') ? JSON.parse(x) : x; })
+            .then(function (x) { return (typeof x === 'string') ? jsonParse(x) : x; })
             .then(function (x) { return (_this._contents[url] = x, x); }, function (err) { return (_this._contents[url] = null, null); });
         this._cache[url] = result;
         return result;
@@ -140,19 +140,21 @@ var JsonReferenceProcessor = (function () {
     JsonReferenceProcessor.prototype._urlAdjuster = function (base) {
         if (null != base) {
             var hashPos = base.indexOf('#');
-            var theBase = (hashPos === -1) ? base : base.substring(0, hashPos);
-            if (null != this._adjusterCache[theBase]) {
-                return this._adjusterCache[theBase];
+            var theBase_1 = (hashPos === -1) ? base : base.substring(0, hashPos);
+            theBase_1 = normalizePath(theBase_1);
+            if (null != this._adjusterCache[theBase_1]) {
+                return this._adjusterCache[theBase_1];
             }
-            var slashPos = theBase.lastIndexOf('/');
+            var slashPos = theBase_1.lastIndexOf('/');
             if (-1 == slashPos) {
-                slashPos = theBase.lastIndexOf('\\');
+                slashPos = theBase_1.lastIndexOf('\\');
             }
+            var result = null;
             if (-1 != slashPos) {
-                var prefix_1 = base.substring(0, slashPos + 1);
-                var result = function (x) {
+                var prefix_1 = theBase_1.substring(0, slashPos + 1);
+                result = function (x) {
                     if (null == x || x === "") {
-                        return theBase;
+                        return theBase_1;
                     }
                     if ('/' === x.substring(0, 1)) {
                         return x;
@@ -161,19 +163,19 @@ var JsonReferenceProcessor = (function () {
                     /*if (base === x) {
                       console.error("base == url", new Error());
                     }*/
-                    return prefix_1 + x;
+                    return normalizePath(prefix_1 + x);
                 };
-                this._adjusterCache[theBase] = result;
-                return result;
             }
             else {
-                return function (x) {
+                result = function (x) {
                     if (null == x || x === "") {
-                        return theBase;
+                        return theBase_1;
                     }
                     return x;
                 };
             }
+            this._adjusterCache[theBase_1] = result;
+            return result;
         }
         return function (x) { return x; };
     };
@@ -205,4 +207,57 @@ var JsonReferenceProcessor = (function () {
     return JsonReferenceProcessor;
 }());
 exports.JsonReferenceProcessor = JsonReferenceProcessor;
+function jsonParse(x) {
+    var result;
+    try {
+        result = JSON.parse(x);
+    }
+    catch (xx) {
+        var nocomments = removeComments(x);
+        result = JSON.parse(nocomments);
+    }
+    return result;
+}
+exports.jsonParse = jsonParse;
+var singleLineCommentRE = /\/\/.*$/gm;
+var multiLineCommentRE = /\/\*(.|[\r\n])*?\*\//g;
+(function (CommentKind) {
+    CommentKind[CommentKind["NONE"] = 0] = "NONE";
+    CommentKind[CommentKind["SINGLELINE"] = 1] = "SINGLELINE";
+    CommentKind[CommentKind["MULTILINE"] = 2] = "MULTILINE";
+    CommentKind[CommentKind["BOTH"] = 3] = "BOTH";
+})(exports.CommentKind || (exports.CommentKind = {}));
+var CommentKind = exports.CommentKind;
+function removeComments(jsonString, kinds) {
+    if (kinds === void 0) { kinds = CommentKind.BOTH; }
+    var result = jsonString;
+    if (kinds & CommentKind.SINGLELINE) {
+        result = result.replace(singleLineCommentRE, '');
+    }
+    if (kinds & CommentKind.MULTILINE) {
+        result = result.replace(multiLineCommentRE, '');
+    }
+    return result;
+}
+exports.removeComments = removeComments;
+var redundantDotRE = /[/][.][/]/g;
+var redundantDotDotRE = /(^|[/])[^/.]+[/][.][.][/]/g;
+function normalizePath(path) {
+    var result = replaceWhileFound(path, redundantDotRE, '/');
+    result = replaceWhileFound(result, redundantDotDotRE, '/');
+    return result;
+}
+exports.normalizePath = normalizePath;
+function replaceWhileFound(input, re, replacement) {
+    var result = input;
+    var done = false;
+    while (!done) {
+        var replaced = result.replace(re, replacement);
+        if (replaced === result) {
+            done = true;
+        }
+        result = replaced;
+    }
+    return result;
+}
 //# sourceMappingURL=json-ref-processor.js.map
