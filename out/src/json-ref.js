@@ -1,6 +1,6 @@
 /* /// <reference path="../typings/index.d.ts" /> */
 "use strict";
-var json_ptr_1 = require('./json-ptr');
+var json_ptr_1 = require("./json-ptr");
 var JsonReference = (function () {
     function JsonReference(ref) {
         var filename = JsonReference.getFilename(ref);

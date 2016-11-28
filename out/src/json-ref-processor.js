@@ -1,7 +1,7 @@
 /* /// <reference path="../typings/index.d.ts" /> */
 "use strict";
-var es6_promise_1 = require('es6-promise');
-var json_ref_1 = require('./json-ref');
+var es6_promise_1 = require("es6-promise");
+var json_ref_1 = require("./json-ref");
 var JsonReferenceProcessor = (function () {
     function JsonReferenceProcessor(fetch) {
         this._adjusterCache = {};
@@ -221,13 +221,13 @@ function jsonParse(x) {
 exports.jsonParse = jsonParse;
 var singleLineCommentRE = /\/\/.*$/gm;
 var multiLineCommentRE = /\/\*(.|[\r\n])*?\*\//g;
+var CommentKind;
 (function (CommentKind) {
     CommentKind[CommentKind["NONE"] = 0] = "NONE";
     CommentKind[CommentKind["SINGLELINE"] = 1] = "SINGLELINE";
     CommentKind[CommentKind["MULTILINE"] = 2] = "MULTILINE";
     CommentKind[CommentKind["BOTH"] = 3] = "BOTH";
-})(exports.CommentKind || (exports.CommentKind = {}));
-var CommentKind = exports.CommentKind;
+})(CommentKind = exports.CommentKind || (exports.CommentKind = {}));
 function removeComments(jsonString, kinds) {
     if (kinds === void 0) { kinds = CommentKind.BOTH; }
     var result = jsonString;

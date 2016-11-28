@@ -14,7 +14,6 @@
     "declaration": true
   },
   "files": [
-    "typings/index.d.ts",
     "src/json-ptr.ts",
     "test/allTests.ts"
   ]

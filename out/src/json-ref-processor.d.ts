@@ -1,3 +1,4 @@
+/// <reference types="es6-promise" />
 import { JsonReference } from './json-ref';
 export interface Fetcher {
     (url: string, base?: string): Promise<string>;

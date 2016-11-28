@@ -27,6 +27,9 @@
   "license": "MIT",
   "devDependencies": {
     "@hn3000/tsunit-async": "github:hn3000/tsunit-async",
+    "@types/es6-promise": "0.0.32",
+    "@types/isomorphic-fetch": "0.0.31",
+    "@types/node": "0.0.0",
     "typescript": "next"
   },
   "dependencies": {
