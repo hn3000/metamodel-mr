@@ -213,8 +213,13 @@ function jsonParse(x) {
         result = JSON.parse(x);
     }
     catch (xx) {
-        var nocomments = removeComments(x);
-        result = JSON.parse(nocomments);
+        try {
+            var nocomments = removeComments(x);
+            result = JSON.parse(nocomments);
+        }
+        catch (xxx) {
+            console.log("attempt to remove comments failed, exceptions before / after were: ", xx, xxx);
+        }
     }
     return result;
 }

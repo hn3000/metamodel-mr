@@ -2,11 +2,15 @@
 import * as fs from 'fs';
 
 import { 
-  JsonPointer, JsonReference, JsonReferenceProcessor 
+  JsonPointer, 
+  JsonReference, 
+  JsonReferenceProcessor 
 } from "../src/index";
 
 import {
-  normalizePath
+  normalizePath,
+  jsonParse,
+  removeComments
 } from '../src/json-ref-processor'
 
 import {
@@ -119,6 +123,43 @@ export class JsonReferenceTest extends TestClass {
     let expected = './../blub.bb';
     let normalized = normalizePath(path);
     this.areIdentical(expected, normalized);
+  }
+
+  testJsonParseUnderstandsCommentedJson() {
+    let json = '{ "x": 1 /* lala */ }';
+    let obj = jsonParse(json);
+
+    this.areIdenticalObjects(obj, { x: 1 });
+  }
+
+  testJsonParseFailsWithIncompatiblyCommentedJson() {
+    let json = '{ "x": "http://a.b" /* lala */ }';
+    let obj = jsonParse(json);
+
+    this.areIdenticalObjects(obj, undefined);
+  }
+
+  areIdenticalObjects(a: any, b: any): void {
+    if (a === b) {
+      return;
+    }
+
+    let ta = typeof(a);
+
+    this.areIdentical(ta, typeof(b));
+
+    if (ta !== 'object') {
+      this.areIdentical(a, b); 
+    }
+    let ka = Object.keys(a);
+    let kb = Object.keys(b);
+
+    this.areIdentical(ka.length, kb.length, "objects have different number of keys: "+JSON.stringify(ka)+" != "+JSON.stringify(kb));
+    ka.sort();
+
+    for (let k of ka) {
+      this.areIdenticalObjects(a[k], b[k]);
+    }
   }
 } 
 

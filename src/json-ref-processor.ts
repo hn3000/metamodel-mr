@@ -252,8 +252,12 @@ export function jsonParse(x: string): any {
   try {
     result = JSON.parse(x);
   } catch (xx) {
-    let nocomments = removeComments(x);
-    result = JSON.parse(nocomments);
+    try {
+      let nocomments = removeComments(x);
+      result = JSON.parse(nocomments);
+    } catch (xxx) {
+      console.log("attempt to remove comments failed, exceptions before / after were: ", xx, xxx);
+    }
   }
 
   return result;
