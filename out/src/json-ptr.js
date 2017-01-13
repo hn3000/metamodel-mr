@@ -1,9 +1,39 @@
 /* /// <reference path="../typings/index.d.ts" /> */
 "use strict";
 var JsonPointer = (function () {
-    function JsonPointer(ref) {
-        this._keypath = (ref || "").split('/').slice(1).map(JsonPointer.unquote);
+    function JsonPointer(ref, extraUnquoted) {
+        if (typeof ref === 'string') {
+            this._keypath = (ref || "").split('/').slice(1).map(JsonPointer.unquote);
+        }
+        else if (Array.isArray(ref)) {
+            this._keypath = ref.slice();
+        }
+        else {
+            this._keypath = ref._keypath.slice();
+        }
+        if (null != extraUnquoted) {
+            this._keypath.push(extraUnquoted);
+        }
     }
+    JsonPointer.prototype.add = function (extraUnquoted) {
+        return new JsonPointer(this, extraUnquoted);
+    };
+    Object.defineProperty(JsonPointer.prototype, "parent", {
+        get: function () {
+            var kp = this._keypath;
+            var len = kp.length;
+            return new JsonPointer(kp.slice(0, len - 1));
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(JsonPointer.prototype, "segments", {
+        get: function () {
+            return this._keypath.slice();
+        },
+        enumerable: true,
+        configurable: true
+    });
     JsonPointer.unquote = function (s) {
         var result = s.replace(/~1/g, '/');
         result = result.replace(/~0/g, '~');
@@ -26,6 +56,30 @@ var JsonPointer = (function () {
     };
     JsonPointer.prototype.getValue = function (obj) {
         return this._keypath.reduce(JsonPointer.deref, obj);
+    };
+    JsonPointer.prototype.setValue = function (obj, val, createPath) {
+        if (createPath === void 0) { createPath = false; }
+        var keys = this._keypath.slice();
+        var last = keys.pop();
+        var start = obj || {};
+        var tmp = start;
+        for (var _i = 0, keys_1 = keys; _i < keys_1.length; _i++) {
+            var k = keys_1[_i];
+            if (null == tmp[k]) {
+                if (createPath || null == obj) {
+                    tmp[k] = {}; // we don't know if it should be an array
+                }
+                else {
+                    tmp = null;
+                    break;
+                }
+            }
+            tmp = tmp[k];
+        }
+        if (null != tmp) {
+            tmp[last] = val;
+        }
+        return start;
     };
     JsonPointer.prototype.asString = function () {
         return [''].concat(this._keypath.map(JsonPointer.quote)).join('/');
