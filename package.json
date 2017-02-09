@@ -6,7 +6,6 @@
     "tsc": "tsc",
     "tsc:w": "tsc -w",
     "pretest": "tsc",
-    "postinstall": "typings install",
     "test": "node out/test/allTests.js",
     "testonly": "node out/test/allTests.js"
   },
