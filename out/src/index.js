@@ -1,7 +1,7 @@
 "use strict";
-var json_ref_1 = require('@hn3000/json-ref');
-var es6_promise_1 = require('es6-promise');
-var fetch = require('isomorphic-fetch');
+var json_ref_1 = require("@hn3000/json-ref");
+var es6_promise_1 = require("es6-promise");
+var fetch = require("isomorphic-fetch");
 var fs = require('fs');
 function jsonReferenceLoader(content) {
     var ctx = this;

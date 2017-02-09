@@ -2,7 +2,6 @@
 import { JsonReferenceProcessor } from '@hn3000/json-ref';
 import  { Promise } from 'es6-promise';
 import  * as fetch from 'isomorphic-fetch';
-import  { Response } from 'isomorphic-fetch';
 var fs = require('fs');
 
 interface ILoaderContext {
