@@ -1,3 +1,4 @@
+/// <reference types="es6-promise" />
 export interface ILoaderMetadata {
     [key: string]: any;
     sourceMap?: any;

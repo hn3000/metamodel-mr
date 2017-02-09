@@ -1,6 +1,6 @@
 "use strict";
-var json_ref_1 = require('@hn3000/json-ref');
-var fetch = require('isomorphic-fetch');
+var json_ref_1 = require("@hn3000/json-ref");
+var fetch = require("isomorphic-fetch");
 exports.jsonSchemaLoader = {
     fetch: function (load) {
         //console.log("fetch", load);
