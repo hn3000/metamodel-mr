@@ -27,6 +27,10 @@ var JsonPointer = (function () {
         enumerable: true,
         configurable: true
     });
+    JsonPointer.prototype.get = function (segment) {
+        var keypath = this._keypath;
+        return keypath[segment + (segment < 0 ? keypath.length : 0)];
+    };
     Object.defineProperty(JsonPointer.prototype, "segments", {
         get: function () {
             return this._keypath.slice();
@@ -80,6 +84,13 @@ var JsonPointer = (function () {
             tmp[last] = val;
         }
         return start;
+    };
+    JsonPointer.prototype.deleteValue = function (obj) {
+        var last = this.get(-1);
+        var parent = this.parent.getValue(obj);
+        if (null != parent) {
+            delete parent[last];
+        }
     };
     JsonPointer.prototype.asString = function () {
         return [''].concat(this._keypath.map(JsonPointer.quote)).join('/');

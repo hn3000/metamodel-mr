@@ -25,6 +25,11 @@ export class JsonPointer {
     return new JsonPointer(kp.slice(0, len-1));
   }
 
+  get(segment:number): string {
+    let keypath = this._keypath;
+    return keypath[segment + (segment < 0 ? keypath.length : 0)];
+  }
+
   get segments():string[] {
     return this._keypath.slice();
   }
@@ -76,6 +81,14 @@ export class JsonPointer {
       tmp[last] = val;
     }
     return start;
+  }
+
+  deleteValue(obj:any) {
+    let last = this.get(-1);
+    let parent = this.parent.getValue(obj);
+    if (null != parent) {
+      delete parent[last];
+    }
   }
 
   asString():string {

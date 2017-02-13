@@ -79,5 +79,24 @@ export class JsonPointerTest extends TestClass {
     var ptr = new JsonPointer(p);
     this.areIdentical(p, ptr.toString());
   }
+
+  testPointerSetValue() {
+    var ptr = new JsonPointer('/lala');
+    var obj = {};
+    this.areCollectionsIdentical([], Object.keys(obj));
+    ptr.setValue(obj, '#');
+    this.areCollectionsIdentical(['lala'], Object.keys(obj));
+  }
+  testPointerDeleteValue() {
+    var ptr = new JsonPointer('/lala');
+    var obj = { 'lala': '#' };
+    this.areCollectionsIdentical(['lala'], Object.keys(obj));
+    ptr.setValue(obj, null);
+    this.areCollectionsIdentical(['lala'], Object.keys(obj));
+    ptr.setValue(obj, undefined);
+    this.areCollectionsIdentical(['lala'], Object.keys(obj));
+    ptr.deleteValue(obj);
+    this.areCollectionsIdentical([], Object.keys(obj));
+  }
 }
 
