@@ -43,7 +43,8 @@ var JsonReferenceProcessor = (function () {
         var json = this._expandDynamic(this._contents[filename], filename);
         var obj = ref.pointer.getValue(json);
         if (null != obj && typeof obj === 'object') {
-            return this._expandDynamic(obj, filename, null, []);
+            //return this._expandDynamic(obj, filename, null,[]);
+            return obj;
         }
         if (null == obj) {
             return {
