@@ -1,7 +1,75 @@
 
 /* /// <reference path="../typings/index.d.ts" /> */
 
+function isSimpleObj(val:any) {
+  return (
+    (val instanceof Date)
+    || (val instanceof String)
+    || (val instanceof RegExp)
+  );
+}
+
+function maybeArrayIndex(val: string) {
+  if ('-' == val) return true;
+  let n = parseFloat(val);
+  return !(isNaN(n) || Math.floor(n) !== n);
+}
+
 export class JsonPointer {
+  public static paths(obj: any, pred?: (x:any) => boolean): string[] {
+    let result:string[] = [];
+
+    if (typeof pred === 'function') {
+      JsonPointer.walkObject(obj, (v, p) => (pred(v) && result.push(p.toString()), false));
+    } else {
+      JsonPointer.walkObject(obj, (_, p) => (result.push(p.toString()), false));
+    }
+
+    return result;
+  }
+
+  public static pointers(obj: any, pred?: (x:any) => boolean): JsonPointer[] {
+    let result:JsonPointer[] = [];
+
+    if (typeof pred === 'function') {
+      JsonPointer.walkObject(obj, (v, p) => (pred(v) && result.push(p), false));
+    } else {
+      JsonPointer.walkObject(obj, (_, p) => (result.push(p), false));
+    }
+
+    return result;
+  }
+
+  /**
+   * walk obj and pass all values and their paths to the walker function
+   * 
+   * stops decending into sub-objects if the walker returns true
+   */
+  public static walkObject(obj: any, walker: (val:any, p:JsonPointer) => boolean) {
+    var queue: {val:any; path:JsonPointer;}[] = [];
+
+    queue.push({ val: obj, path: new JsonPointer('')});
+
+    while (0 != queue.length) {
+      let { val, path } = queue.shift();
+      let keys = Object.keys(val);
+      for (let k of keys) {
+        let thisVal = val[k];
+        let thisPath = path.add(k);
+        let more = !walker(thisVal, thisPath);
+
+        let thisType = typeof(thisVal);
+        if ((thisType === 'object') && more && !isSimpleObj(thisVal)) {
+          queue.push({ val: thisVal, path: thisPath });
+        }
+      }
+    }
+  }
+
+  static deref(p:string, obj:any):any {
+    return new JsonPointer(p).getValue(obj);
+  }
+
   constructor(ref:string|string[]|JsonPointer, extraUnquoted?:string) {
     if (typeof ref === 'string') {
       this._keypath = (ref || "").split('/').slice(1).map(JsonPointer.unquote);
@@ -30,10 +98,6 @@ export class JsonPointer {
     return keypath[segment + (segment < 0 ? keypath.length : 0)];
   }
 
-  get segments():string[] {
-    return this._keypath.slice();
-  }
-
   public static unquote(s:string) {
     var result = s.replace(/~1/g, '/');
     result = result.replace(/~0/g, '~');
@@ -46,7 +110,7 @@ export class JsonPointer {
     return result;
   }
 
-  public static deref(o:any, k:string) {
+  public static _deref(o:any, k:string) {
     let isDash = k == '-';
     if (isDash) {
       let isArray = Array.isArray(o);
@@ -57,28 +121,44 @@ export class JsonPointer {
     return o && o[k];
   }
 
+  public static _set(o:any, k:string, v: any) {
+    let i: string|number = k;
+    if ((k === '-') && Array.isArray(o)) {
+      i = o.length;
+    }
+    o[i] = v;
+  }
+
   getValue(obj:any):any {
-    return this._keypath.reduce(JsonPointer.deref, obj);
+    return this._keypath.reduce(JsonPointer._deref, obj);
   }
 
   setValue(obj:any, val:any, createPath: boolean = false): any {
-    let keys = this._keypath.slice();
-    let last = keys.pop();
-    let start = obj || {};
+    let keys = this._keypath;
+
+    if (keys.length == 0) {
+      return val;
+    }
+
+    let start = obj || (maybeArrayIndex(keys[0]) ? [] : {});
     let tmp = start;
-    for (let k of keys) {
-      if (null == tmp[k]) {
+    let i = 0;
+    for (let n = keys.length-1; i < n; ++i) {
+      let k = keys[i];
+      let ntmp = JsonPointer._deref(tmp, k);
+      if (null == ntmp) {
         if (createPath || null == obj) {
-          tmp[k] = { }; // we don't know if it should be an array
+          ntmp = maybeArrayIndex(keys[i+1]) ? [] : {}
+          JsonPointer._set(tmp, k, ntmp);
         } else {
           tmp = null;
           break;
         }
       }
-      tmp = tmp[k];
+      tmp = ntmp;
     }
     if (null != tmp) {
-      tmp[last] = val;
+      JsonPointer._set(tmp, keys[i], val);
     }
     return start;
   }

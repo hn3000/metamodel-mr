@@ -80,6 +80,18 @@ export class JsonPointerTest extends TestClass {
     this.areIdentical(p, ptr.toString());
   }
 
+  testJsonPointerWalkObject() {
+    let t = { a: { b: 11, c:12 } };
+    let r: {v:any,p:JsonPointer}[] = [];
+    JsonPointer.walkObject(t, (v,p) => (r.push({v,p}),false));
+
+    this.areIdentical(3, r.length);
+    this.areIdentical(t.a,  r[0].v);
+    this.areIdentical('/a', r[0].p.toString());
+    this.areIdentical(11,   r[1].v);
+    this.areIdentical(12,   r[2].v);
+  }
+
   testPointerSetValue() {
     var ptr = new JsonPointer('/lala');
     var obj = {};
@@ -87,6 +99,33 @@ export class JsonPointerTest extends TestClass {
     ptr.setValue(obj, '#');
     this.areCollectionsIdentical(['lala'], Object.keys(obj));
   }
+
+  testPointerSetValueWithMissingIntermediates() {
+    var path = '/a/b/c/0/foo';
+    var ptr = new JsonPointer(path);
+    var obj:any = {};
+    this.areCollectionsIdentical([], JsonPointer.paths(obj, (x) => (typeof x !== 'object')));
+    ptr.setValue(obj, '#', true);
+    this.areCollectionsIdentical([path], JsonPointer.paths(obj, (x) => (typeof x !== 'object')));
+    this.isTrue(Array.isArray(obj.a.b.c), `expected array at /a/b/c, got ${typeof obj.a.b.c}`)
+  }
+
+  testPointerSetValueAppending() {
+    var path = '/a/-';
+    var ptr = new JsonPointer(path);
+    var obj:any = {};
+    this.areCollectionsIdentical([], JsonPointer.paths(obj));
+    ptr.setValue(obj, '1', true);
+    ptr.setValue(obj, '2', true);
+    ptr.setValue(obj, '3', true);
+    this.isTrue(3 == obj.a.length, `found ${JSON.stringify(obj)}`);
+    let paths = JsonPointer.paths(obj, (x) => (typeof x !== 'object'));
+    this.isTrue(3 == paths.length, `found paths ${JSON.stringify(paths)} in ${JSON.stringify(obj)}`);
+    this.areCollectionsIdentical(['/a/0', '/a/1', '/a/2'], paths);
+    this.isTrue(Array.isArray(obj.a), `expected array at /a, got ${typeof obj.a}`)
+    this.areCollectionsIdentical(['1','2','3'], obj.a);
+  }
+
   testPointerDeleteValue() {
     var ptr = new JsonPointer('/lala');
     var obj = { 'lala': '#' };
