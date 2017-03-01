@@ -16,11 +16,11 @@ function maybeArrayIndex(val: string) {
 }
 
 export class JsonPointer {
-  public static paths(obj: any, pred?: (x:any) => boolean): string[] {
+  public static paths(obj: any, pred?: (x:any, p: JsonPointer) => boolean): string[] {
     let result:string[] = [];
 
     if (typeof pred === 'function') {
-      JsonPointer.walkObject(obj, (v, p) => (pred(v) && result.push(p.toString()), false));
+      JsonPointer.walkObject(obj, (v, p) => (pred(v, p) && result.push(p.toString()), false));
     } else {
       JsonPointer.walkObject(obj, (_, p) => (result.push(p.toString()), false));
     }
@@ -28,11 +28,11 @@ export class JsonPointer {
     return result;
   }
 
-  public static pointers(obj: any, pred?: (x:any) => boolean): JsonPointer[] {
+  public static pointers(obj: any, pred?: (x:any, p: JsonPointer) => boolean): JsonPointer[] {
     let result:JsonPointer[] = [];
 
     if (typeof pred === 'function') {
-      JsonPointer.walkObject(obj, (v, p) => (pred(v) && result.push(p), false));
+      JsonPointer.walkObject(obj, (v, p) => (pred(v, p) && result.push(p), false));
     } else {
       JsonPointer.walkObject(obj, (_, p) => (result.push(p), false));
     }

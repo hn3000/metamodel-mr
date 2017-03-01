@@ -29,7 +29,7 @@ var JsonPointer = (function () {
     JsonPointer.paths = function (obj, pred) {
         var result = [];
         if (typeof pred === 'function') {
-            JsonPointer.walkObject(obj, function (v, p) { return (pred(v) && result.push(p.toString()), false); });
+            JsonPointer.walkObject(obj, function (v, p) { return (pred(v, p) && result.push(p.toString()), false); });
         }
         else {
             JsonPointer.walkObject(obj, function (_, p) { return (result.push(p.toString()), false); });
@@ -39,7 +39,7 @@ var JsonPointer = (function () {
     JsonPointer.pointers = function (obj, pred) {
         var result = [];
         if (typeof pred === 'function') {
-            JsonPointer.walkObject(obj, function (v, p) { return (pred(v) && result.push(p), false); });
+            JsonPointer.walkObject(obj, function (v, p) { return (pred(v, p) && result.push(p), false); });
         }
         else {
             JsonPointer.walkObject(obj, function (_, p) { return (result.push(p), false); });

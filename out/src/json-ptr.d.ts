@@ -1,6 +1,6 @@
 export declare class JsonPointer {
-    static paths(obj: any, pred?: (x: any) => boolean): string[];
-    static pointers(obj: any, pred?: (x: any) => boolean): JsonPointer[];
+    static paths(obj: any, pred?: (x: any, p: JsonPointer) => boolean): string[];
+    static pointers(obj: any, pred?: (x: any, p: JsonPointer) => boolean): JsonPointer[];
     /**
      * walk obj and pass all values and their paths to the walker function
      *
