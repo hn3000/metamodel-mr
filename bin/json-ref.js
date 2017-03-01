@@ -4,7 +4,7 @@ var jp = require('../out/src/index.js');
 var fs = require('fs');
 
 function fetcher(x) {
-  console.error("reading ",x);
+  //console.error("reading ",x);
   if (x == "") {
     let err = new Error("empty filename");
     //console.error(err);
