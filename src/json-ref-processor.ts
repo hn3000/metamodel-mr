@@ -146,7 +146,7 @@ export class JsonReferenceProcessor {
     }
     let result = Promise.resolve(url)
       .then(u => this._fetch(u))
-      .then((x)=> (typeof x === 'string') ? jsonParse(x) : x)
+      .then((x)=> (typeof x === 'string') ? jsonParse(x, url) : x)
       .then(
         (x) => (this._contents[url]=x, x),
         (err) => (this._contents[url]=null,null)
@@ -247,7 +247,7 @@ export class JsonReferenceProcessor {
   private _contents:{[k:string]:any};
 }
 
-export function jsonParse(x: string): any {
+export function jsonParse(x: string, url?: string): any {
   let result: any;
   try {
     result = JSON.parse(x);
@@ -256,7 +256,7 @@ export function jsonParse(x: string): any {
       let nocomments = removeComments(x);
       result = JSON.parse(nocomments);
     } catch (xxx) {
-      console.log("attempt to remove comments failed, exceptions before / after were: ", xx, xxx);
+      console.log(`attempt to remove comments ${url ? ('from '+url) : ''} failed, exceptions before / after were: `, xx, xxx);
     }
   }
 
