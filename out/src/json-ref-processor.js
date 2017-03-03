@@ -129,7 +129,7 @@ var JsonReferenceProcessor = (function () {
         }
         var result = es6_promise_1.Promise.resolve(url)
             .then(function (u) { return _this._fetch(u); })
-            .then(function (x) { return (typeof x === 'string') ? jsonParse(x) : x; })
+            .then(function (x) { return (typeof x === 'string') ? jsonParse(x, url) : x; })
             .then(function (x) { return (_this._contents[url] = x, x); }, function (err) { return (_this._contents[url] = null, null); });
         this._cache[url] = result;
         return result;
@@ -207,7 +207,7 @@ var JsonReferenceProcessor = (function () {
     return JsonReferenceProcessor;
 }());
 exports.JsonReferenceProcessor = JsonReferenceProcessor;
-function jsonParse(x) {
+function jsonParse(x, url) {
     var result;
     try {
         result = JSON.parse(x);
@@ -218,7 +218,7 @@ function jsonParse(x) {
             result = JSON.parse(nocomments);
         }
         catch (xxx) {
-            console.log("attempt to remove comments failed, exceptions before / after were: ", xx, xxx);
+            console.log("attempt to remove comments " + (url ? ('from ' + url) : '') + " failed, exceptions before / after were: ", xx, xxx);
         }
     }
     return result;

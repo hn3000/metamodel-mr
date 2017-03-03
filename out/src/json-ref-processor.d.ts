@@ -22,7 +22,7 @@ export declare class JsonReferenceProcessor {
     private _cache;
     private _contents;
 }
-export declare function jsonParse(x: string): any;
+export declare function jsonParse(x: string, url?: string): any;
 export declare enum CommentKind {
     NONE = 0,
     SINGLELINE = 1,
