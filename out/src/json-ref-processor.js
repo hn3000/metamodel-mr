@@ -1,5 +1,5 @@
-/* /// <reference path="../typings/index.d.ts" /> */
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var es6_promise_1 = require("es6-promise");
 var json_ref_1 = require("./json-ref");
 var JsonReferenceProcessor = (function () {
@@ -70,6 +70,7 @@ var JsonReferenceProcessor = (function () {
                 catch (xx) {
                     error = xx;
                 }
+                //console.error("expanding undefined? ", obj, url+'#/'+keypath.join('/'), error.stack);
             }
         }
         var result = obj;

@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var json_ptr_1 = require("./json-ptr");
 exports.JsonPointer = json_ptr_1.JsonPointer;
 var json_ref_1 = require("./json-ref");

@@ -1,5 +1,5 @@
-/* /// <reference path="../typings/index.d.ts" /> */
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 function isSimpleObj(val) {
     return ((val instanceof Date)
         || (val instanceof String)

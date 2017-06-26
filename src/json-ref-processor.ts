@@ -1,6 +1,4 @@
 
-/* /// <reference path="../typings/index.d.ts" /> */
-
 import { Promise } from 'es6-promise';
 
 import { JsonPointer } from './json-ptr';

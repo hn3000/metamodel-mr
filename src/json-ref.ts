@@ -1,6 +1,4 @@
 
-/* /// <reference path="../typings/index.d.ts" /> */
-
 import { JsonPointer } from './json-ptr';
 
 export class JsonReference {

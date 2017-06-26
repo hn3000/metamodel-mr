@@ -1,5 +1,5 @@
-/* /// <reference path="../typings/index.d.ts" /> */
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var json_ptr_1 = require("./json-ptr");
 var JsonReference = (function () {
     function JsonReference(ref) {
