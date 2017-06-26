@@ -15,10 +15,12 @@
     "removeComments": false,
     "noImplicitAny": true,
     "outDir": "out",
-    "declaration": true
+    "declaration": true,
+    "forceConsistentCasingInFileNames": true
   },
-  "files": [
+  "include": [
     "src/json-ptr.ts",
-    "test/allTests.ts"
+    "test/allTests.ts",
+    "node_modules/tsunit.external/*.ts"
   ]
 }
