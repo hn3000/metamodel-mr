@@ -1,6 +1,4 @@
 
-import { Promise } from 'es6-promise';
-
 import { JsonPointer } from './json-ptr';
 import { JsonReference } from './json-ref';
 

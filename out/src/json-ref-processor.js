@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var es6_promise_1 = require("es6-promise");
 var json_ref_1 = require("./json-ref");
 var JsonReferenceProcessor = (function () {
     function JsonReferenceProcessor(fetch) {
@@ -128,7 +127,7 @@ var JsonReferenceProcessor = (function () {
         if (this._cache.hasOwnProperty(url)) {
             return this._cache[url];
         }
-        var result = es6_promise_1.Promise.resolve(url)
+        var result = Promise.resolve(url)
             .then(function (u) { return _this._fetch(u); })
             .then(function (x) { return (typeof x === 'string') ? jsonParse(x, url) : x; })
             .then(function (x) { return (_this._contents[url] = x, x); }, function (err) { return (_this._contents[url] = null, null); });
@@ -192,7 +191,7 @@ var JsonReferenceProcessor = (function () {
         var needThen = files.some(function (p) { return !_this._contents.hasOwnProperty(p); });
         var filesPromises = files.map(function (p) { return _this._fetchContent(p); });
         //console.log("got promises ", filesPromises);
-        var promise = es6_promise_1.Promise.all(filesPromises);
+        var promise = Promise.all(filesPromises);
         if (needThen) {
             return promise.then(this._fetchRefsAll.bind(this, files));
         }
@@ -203,7 +202,7 @@ var JsonReferenceProcessor = (function () {
         for (var i = 0, n = x.length; i < n; ++i) {
             result.push(this._fetchRefs(x[i], files[i]));
         }
-        return es6_promise_1.Promise.all(result);
+        return Promise.all(result);
     };
     return JsonReferenceProcessor;
 }());

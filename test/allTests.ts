@@ -5,7 +5,7 @@ import { JsonReferenceTest } from "./json-ref.test";
 import {
   TestAsync,
   TestDescription
-} from "@hn3000/tsunit-async";
+} from "tsunit.external/tsUnitAsync"
 
 function parmNum(t:TestDescription) {
   return (null != t.parameterSetNumber) ? `[${t.parameterSetNumber}]` : '';
