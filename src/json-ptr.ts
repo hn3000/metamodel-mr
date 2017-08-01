@@ -1,7 +1,8 @@
 
 function isSimpleObj(val:any) {
   return (
-    (val instanceof Date)
+    (null == val)
+    || (val instanceof Date)
     || (val instanceof String)
     || (val instanceof RegExp)
   );
@@ -40,7 +41,7 @@ export class JsonPointer {
 
   /**
    * walk obj and pass all values and their paths to the walker function
-   * 
+   *
    * stops decending into sub-objects if the walker returns true
    */
   public static walkObject(obj: any, walker: (val:any, p:JsonPointer) => boolean) {

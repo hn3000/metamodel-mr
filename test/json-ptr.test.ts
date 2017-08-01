@@ -1,8 +1,8 @@
 
 import * as fs from 'fs';
 
-import { 
-  JsonPointer, JsonReference, JsonReferenceProcessor 
+import {
+  JsonPointer, JsonReference, JsonReferenceProcessor
 } from "../src/index";
 
 import {
@@ -81,15 +81,19 @@ export class JsonPointerTest extends TestClass {
   }
 
   testJsonPointerWalkObject() {
-    let t = { a: { b: 11, c:12 } };
+    let t = { a: { b: 11, c:12, d:null as any } };
     let r: {v:any,p:JsonPointer}[] = [];
     JsonPointer.walkObject(t, (v,p) => (r.push({v,p}),false));
 
-    this.areIdentical(3, r.length);
-    this.areIdentical(t.a,  r[0].v);
-    this.areIdentical('/a', r[0].p.toString());
-    this.areIdentical(11,   r[1].v);
-    this.areIdentical(12,   r[2].v);
+    this.areIdentical(4, r.length);
+    this.areIdentical(t.a,    r[0].v);
+    this.areIdentical('/a',   r[0].p.toString());
+    this.areIdentical(11,     r[1].v);
+    this.areIdentical('/a/b', r[1].p.toString());
+    this.areIdentical(12,     r[2].v);
+    this.areIdentical('/a/c', r[2].p.toString());
+    this.areIdentical(null,   r[3].v);
+    this.areIdentical('/a/d', r[3].p.toString());
   }
 
   testPointerSetValue() {

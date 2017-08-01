@@ -1,7 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 function isSimpleObj(val) {
-    return ((val instanceof Date)
+    return ((null == val)
+        || (val instanceof Date)
         || (val instanceof String)
         || (val instanceof RegExp));
 }
