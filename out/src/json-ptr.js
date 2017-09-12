@@ -76,10 +76,16 @@ var JsonPointer = (function () {
     JsonPointer.prototype.add = function (extraUnquoted) {
         return new JsonPointer(this, extraUnquoted);
     };
+    JsonPointer.prototype.hasParent = function () {
+        return this._keypath.length != 0;
+    };
     Object.defineProperty(JsonPointer.prototype, "parent", {
         get: function () {
             var kp = this._keypath;
             var len = kp.length;
+            if (len == 0) {
+                return null;
+            }
             return new JsonPointer(kp.slice(0, len - 1));
         },
         enumerable: true,

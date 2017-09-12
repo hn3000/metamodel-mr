@@ -10,6 +10,7 @@ export declare class JsonPointer {
     static deref(p: string, obj: any): any;
     constructor(ref: string | string[] | JsonPointer, extraUnquoted?: string);
     add(extraUnquoted: string): JsonPointer;
+    hasParent(): boolean;
     readonly parent: JsonPointer;
     get(segment: number): string;
     static unquote(s: string): string;

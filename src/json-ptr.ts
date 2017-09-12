@@ -86,9 +86,16 @@ export class JsonPointer {
     return new JsonPointer(this, extraUnquoted);
   }
 
+  hasParent(): boolean {
+    return this._keypath.length != 0;
+  }
+
   get parent():JsonPointer {
     let kp = this._keypath;
     let len = kp.length;
+    if (len == 0) {
+      return null;
+    }
     return new JsonPointer(kp.slice(0, len-1));
   }
 
