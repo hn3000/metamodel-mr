@@ -83,6 +83,12 @@ export class APIModel implements IAPIModel, IAPIModelBuilder {
   private _operationsById: { [id: string]: IAPIOperation<any, any>; };
 }
 
+interface IPathOptions {
+  parameters: SwaggerSchema.Parameter[];
+
+  [extensionProp: string]: any;
+};
+
 export class APIModelRegistry implements IAPIModelRegistry {
   constructor(fetchFun?: FetchFun) {
     this._schemas = new ModelSchemaParser();
@@ -90,7 +96,7 @@ export class APIModelRegistry implements IAPIModelRegistry {
     this._jsonRefProcessor = new JsonReferenceProcessor(this._fetchFun);
   }
 
-  parseParameterType(opSpec: SwaggerSchema.Operation, id: string): IAPIRequestModel<any> {
+  parseParameterType(opSpec: SwaggerSchema.Operation, id: string, extraParameters: SwaggerSchema.Parameter[]): IAPIRequestModel<any> {
     let result: IAPIRequestModel<any> = {
       format: "empty",
       locationsByParam: { },
@@ -147,6 +153,7 @@ export class APIModelRegistry implements IAPIModelRegistry {
 
   parseAPIDefinition(spec: SwaggerSchema.Spec, id: string): IAPIModel {
     let operations = [] as IAPIOperation<any,any>[];
+    let currentPathOptions: IPathOptions = null;
 
     JsonPointer.walkObject(spec, (x,p) => {
       let keys = p.keys;
@@ -157,25 +164,35 @@ export class APIModelRegistry implements IAPIModelRegistry {
         if (3 < keys.length) {
           return true;
         }
-        if (3 == keys.length) {
+        if (2 == keys.length) {
+          let pathSpec: any /*SwaggerSchema.Path*/ = x; // Path does not allow extension properties
+          let keys = Object.keys(pathSpec).filter(x => !isMethod(x));
+
+          currentPathOptions = keys.reduce((k:string, o:any) => ({...o, k: pathSpec[k]}), {});
+
+        } else if (3 == keys.length && isMethod(keys[2])) {
           let opSpec: SwaggerSchema.Operation = x;
           let pathPattern = keys[1];
           let method = keys[2];
           let id = opSpec.operationId || pathPattern+'_'+method;
-          let requestModel = this.parseParameterType(opSpec, id);
+          let requestModel = this.parseParameterType(opSpec, id, currentPathOptions.parameters);
 
           let responseModel: IAPIResponseModel<any> = {
-            '200': this._schemas.type('any')
+            '200': null
           };
 
-          for (let status of Object.keys(opSpec.responses)) {
-            let typename = `${id}Response${status}`;
-            let response = opSpec.responses[status];
-            let schema = response && response.schema;
-            if (null != schema) {
-              responseModel[status] = this._schemas.addSchemaObject(typename, schema)
-            } else {
-              responseModel[status] = null;
+          if (null == opSpec.responses) {
+            console.warn(`no responses in ${keys.join('.')}`)
+          } else {
+            for (let status of Object.keys(opSpec.responses)) {
+              let typename = `${id}Response${status}`;
+              let response = opSpec.responses[status];
+              let schema = response && response.schema;
+              if (null != schema) {
+                responseModel[status] = this._schemas.addSchemaObject(typename, schema)
+              } else {
+                responseModel[status] = null;
+              }
             }
           }
 
@@ -235,4 +252,10 @@ function fetchFetcher(url:string):Promise<string> {
     }
     return null;
   });
+}
+
+const methodRE = /^(get|put|post|delete|options|head|patch)$/;
+
+function isMethod(method: string) {
+  return methodRE.test(method);
 }
