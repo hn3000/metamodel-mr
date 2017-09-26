@@ -6,8 +6,10 @@
   "main": "out/src/export.js",
   "types": "out/src/export.d.ts",
   "files": [
+    "src/**",
     "out/**",
-    "test/petstore.json"
+    "test/petstore.json",
+    "test/*.ts"
   ],
   "scripts": {
     "tsc": "tsc",
