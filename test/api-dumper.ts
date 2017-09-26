@@ -7,7 +7,7 @@ import * as fs from 'fs';
 import * as process from 'process';
 
 export class ApiDumper {
-  dumpApi(name: string) {
+  static dumpApi(name: string) {
     let modelregistry = new APIModelRegistry(fetchFile);
     let fn = path.join(process.cwd(), name);
     console.log(fn);
@@ -32,3 +32,11 @@ function fetchFile(x:string) {
 }
 
 
+
+if (process.argv.length > 1) {
+  process.argv.slice(1).forEach(name => {
+    ApiDumper.dumpApi(name);
+  });
+} else {
+  console.error(`usage: ${process.argv0} <apifile>`);
+}
