@@ -1,6 +1,6 @@
 {
   "name": "@hn3000/simpletemplate",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "simplest possible string template engine",
   "repository": {
     "type": "git",
@@ -23,7 +23,6 @@
   "devDependencies": {
     "@hn3000/tsunit-async": "github:hn3000/tsunit-async",
     "@types/node": "^7.0.5",
-    "node": "0.0.0",
     "typescript": "^2.2.1"
   },
   "dependencies": {}

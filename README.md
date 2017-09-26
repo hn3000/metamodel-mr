@@ -1,9 +1,12 @@
 
 # Simple String Templates
 
-The simplest TypeScript / JavaScript string template implementation I could think of. No configuration, no options.
+The simplest TypeScript / JavaScript string template implementation I could
+think of. No configuration, no options. Okay, maybe some configuration. But
+only very little, and all of it completely optional.
 
-Text to be replaced is marked with `{{var}}`, the replacement for variables is provided as a hash.
+Text to be replaced is marked with `{{var}}`, the replacement for variables is
+provided as a hash.
 
 # Examples
 
@@ -18,15 +21,16 @@ Templates can have default values for replacement variables:
     let template = new Template('Hello {{who}}!', {  who: 'world' });
     console.log(template.render(null));
 
-Prints the text `Hello world!`. The argument after the template string provides default values for the replacement variables.
+Prints the text `Hello world!`. The argument after the template string provides
+default values for the replacement variables.
 
-Without the default values, the replacement variable would be echoed, including the surrounding `{{}}`.
-
+Without the default values, the replacement variable would be echoed, including
+the surrounding `{{}}`.
 
     let template = new Template('Hello {{who}}!');
     console.log(template.render(null));
 
-Prints the text `Hello {{who}}!`. 
+Prints the text `Hello {{who}}!`.
 
 Default values can be changed:
 
