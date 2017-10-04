@@ -96,7 +96,7 @@ export class MetaApiClient implements IAPIClient {
     let headers = this._headers(operation, req);
 
     return (
-      fetch(url, { headers, body })
+      fetch(url, { headers, body, method })
       .then((result) => Promise.all([result, result.json()]))
       .then(([result, json]) => this._verify(result, json, operation))
       .then((json) => (new APISuccess(json as TResponse)))
