@@ -1,6 +1,6 @@
 {
   "name": "@hn3000/metaapi",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "api descriptions using @hn3000/metamodel",
   "repository": "git@github.com:hn3000/metamodel",
   "main": "out/src/export.js",
