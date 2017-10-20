@@ -3,5 +3,5 @@ jspm_packages
 .vscode/settings.json
 typings
 npm-debug.log
-out/test
 coverage
+out
