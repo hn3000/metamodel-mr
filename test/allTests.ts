@@ -1,4 +1,5 @@
 import { PetStoreTest } from "./petstore.test";
+import { ApiOperationTest } from "./api-operation.test";
 
 
 import {
@@ -14,6 +15,7 @@ export function runTests() {
   "use strict";
   let test = new TestAsync();
   test.addTestClass(new PetStoreTest(), "PetStoreTest");
+  test.addTestClass(new ApiOperationTest(), "ApiOperationTest");
 
   let promise = test.runAsync();
   promise.then((result) => {

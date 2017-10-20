@@ -90,10 +90,11 @@ export class MetaApiClient implements IAPIClient {
       return Promise.resolve(new APICallMismatch(ctx));
     }
 
-    let url = this._baseUrl + operation.path(req);
-    //let body = operation.(req);
-    let body = this._body(operation, req);
-    let headers = this._headers(operation, req);
+    let url = this._baseUrl + operation.path(req) + operation.query(req);
+    let body = operation.body(req);
+    let headers = operation.headers(req);
+    //let body = this._body(operation, req);
+    //let headers = this._headers(operation, req);
 
     return (
       fetch(url, { headers, body, method })
@@ -113,48 +114,11 @@ export class MetaApiClient implements IAPIClient {
       (error as any)['validation'] = ctx;
       (error as any)['messages'] = ctx.messages;
       throw error;
+    } else {
+      console.log("", result);
     }
     return json;
   }
-
-  private _body<Req, Resp>(operation: IAPIOperation<Req, Resp>, req: any) {
-    let format = operation.requestModel.format;
-    let { paramsByLocation } = operation.requestModel;
-    let result = null;
-    if (null != paramsByLocation.body) {
-      let bodyParams = paramsByLocation.body;
-      result = JSON.stringify(req[bodyParams[0]]);
-    } else if (null != paramsByLocation.formData) {
-      let formParams = paramsByLocation.formData;
-      result = '';
-      for (let p of formParams) {
-        if (0 !== result.length) {
-          result += '&';
-        }
-        result += `${p}=${req[p]}`; // TODO: proper quoting
-      }
-    }
-
-    return result;
-  }
-
-  private _headers<Req, Resp>(operation: IAPIOperation<Req, Resp>, req: any): { [key: string]: string } {
-    let headers: { [key: string]: string } = {};
-    let vars = operation.requestModel.paramsByLocation['header'];
-
-    for (let v of vars) {
-      headers[v] = req[v];
-    }
-    if (operation.requestModel.paramsByLocation['body']) {
-      headers['Content-Type'] = 'application/json';
-    } else if (operation.requestModel.paramsByLocation['formData']) {
-      headers['Content-Type'] = 'application/x-www-form-urlencoded';
-    }
-
-    return headers;
-  }
-
-
   private _apiModel: IAPIModel;
 
   private _baseUrl: string;

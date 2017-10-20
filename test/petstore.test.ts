@@ -16,7 +16,8 @@ export class PetStoreTest extends TestClass {
     console.log(fn);
     let promise = modelregistry.fetchModel(fn, 'petstore');
     promise.then(model => {
-      console.log(model);
+      this.areIdentical(20, model.operations().length);
+      //console.log(model);
     }, err => console.log(err));
   }
 }

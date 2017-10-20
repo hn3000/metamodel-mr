@@ -18,7 +18,7 @@ import {
   ModelSchemaParser
 } from '@hn3000/metamodel';
 
-import { TemplateFactory } from '@hn3000/simpletemplate';
+import { TemplateFactory, Template } from '@hn3000/simpletemplate';
 
 import * as SwaggerSchema from 'swagger-schema-official';
 
@@ -27,6 +27,163 @@ import * as fetch from 'isomorphic-fetch';
 export type FetchFun = (url:string) => Promise<string>;
 
 const templateFactory = new TemplateFactory({ pattern: '{X}'});
+
+interface IParamRenderer<Req> {
+  (req: Req): string[]
+}
+
+export class Operation<Req, Resp> implements IAPIOperation<Req, Resp> {
+  constructor();
+  constructor(initArg: Partial<IAPIOperation<Req,Resp>>);
+  constructor(...args:any[]) {
+    if (args.length === 1 && null != args[0].id) {
+      const initArgs = args[0];
+      this.init(initArgs);
+    }
+  }
+
+  init(initArg: Partial<IAPIOperation<Req,Resp>>) {
+    this._id = initArg.id;
+    this._name = initArg.name;
+    this._method = initArg.method;
+    this._pathPattern = initArg.pathPattern;
+    this._pathTemplate = templateFactory.parse(initArg.pathPattern);
+    this._requestModel = initArg.requestModel;
+    this._responseModel = initArg.responseModel;
+    this._buildParamRenderer();
+  }
+
+  public get id() : string { return this._id; }
+  public get name() : string { return this._name; }
+
+  public get pathPattern(): string { return this._pathPattern; }
+  public get method(): string { return this._method; }
+
+  public get requestModel(): IAPIRequestModel<Req> { return this._requestModel; }
+  public get responseModel(): IAPIResponseModel<Resp> { return this._responseModel; }
+  path(req: Req): string {
+    return this._pathTemplate.render(req);
+  }
+
+  query(req: Req): string {
+    let paramRenderers = this._paramRenderers;
+    if (null == paramRenderers || 0 == paramRenderers.length) {
+      return '';
+    }
+    let items: string[];
+    items = this._paramRenderers.reduce((r, x) => {
+      r.push(...x(req));
+      return r;
+    }, []);
+    return '?'+items.join('&');
+  }
+
+  public body(req: any): string {
+    let format = this.requestModel.format;
+    let { paramsByLocation } = this.requestModel;
+    let result = null;
+    if (null != paramsByLocation.body) {
+      let bodyParams = paramsByLocation.body;
+      result = JSON.stringify(req[bodyParams[0]]);
+    } else if (null != paramsByLocation.formData) {
+      let formParams = paramsByLocation.formData;
+      result = '';
+      for (let p of formParams) {
+        if (0 !== result.length) {
+          result += '&';
+        }
+        result += `${p}=${req[p]}`; // TODO: proper quoting
+      }
+    }
+
+    return result;
+  }
+
+  public headers(req: any): { [key: string]: string } {
+    let headers: { [key: string]: string } = {};
+    let vars = this.requestModel.paramsByLocation['header'];
+
+    for (let v of vars) {
+      if (null != req[v]) {
+        headers[v] = req[v].toString();
+      }
+    }
+    if (this.requestModel.paramsByLocation['body']) {
+      headers['Content-Type'] = 'application/json';
+    } else if (this.requestModel.paramsByLocation['formData']) {
+      headers['Content-Type'] = 'application/x-www-form-urlencoded';
+    }
+
+    return headers;
+  }
+
+  private _buildParamRenderer() {
+    let rqModel = this._requestModel;
+    if (
+      null == rqModel
+      || null == rqModel.paramsType
+      || null == rqModel.paramsByLocation
+      || null == rqModel.paramsByLocation.query
+    ) {
+      return;
+    }
+
+    let rqType = rqModel.paramsType as IModelTypeComposite<Req>;
+    let queryParams = rqModel.paramsByLocation.query;
+
+    this._paramRenderers = rqModel.paramsByLocation.query.map(
+      function mapName2Renderer (name: string) {
+      let pt = rqType.itemType(name);
+      if (pt.kind === 'array') {
+        let schema = pt.propGet('schema');
+        let format = schema && schema.format;
+        switch (format) {
+          case 'multi': return arrayMultiRenderer(name);
+          case 'tsv': return arraySSVRenderer(name, '\t');
+          case 'ssv': return arraySSVRenderer(name, ' ');
+          case 'csv':
+          default:
+            return arraySSVRenderer(name, ',');
+        }
+      }
+      return stringRenderer(name);
+    });
+  }
+
+  private _id: string;
+  private _name: string;
+  private _method: string;
+  private _pathPattern: string;
+  private _pathTemplate: Template;
+  private _paramRenderers: IParamRenderer<Req>[];
+  private _requestModel: IAPIRequestModel<Req>;
+  private _responseModel: IAPIResponseModel<Resp>;
+}
+
+
+function arraySSVRenderer<Req>(name: string, sep: String): (req: Req) => string[] {
+  return (req: Req) => {
+    let v = (req as any)[name];
+
+    return [ `${name}=${v.join(sep)}` ];
+  };
+}
+
+function arrayMultiRenderer<Req>(name: string): (req: Req) => string[] {
+  return (req: Req) => {
+    let v = (req as any)[name] as string[];
+
+    return v.map(x => `${name}=${x}` );
+  };
+}
+
+function stringRenderer<Req>(name: string): (req: Req) => string[] {
+  return (req: Req) => {
+    let v = (req as any)[name] as any;
+
+    return [ `${name}=${v.toString()}` ];
+  };
+}
 
 export class APIModel implements IAPIModel, IAPIModelBuilder {
 
@@ -138,6 +295,7 @@ export class APIModelRegistry implements IAPIModelRegistry {
         type = this._schemas.itemType(pp.type);
       }
       if (type != null) {
+        type.propSet('schema', p);
         composite.addItem(name, type, required);
       }
     });
@@ -165,7 +323,7 @@ export class APIModelRegistry implements IAPIModelRegistry {
           return true;
         }
         if (2 == keys.length) {
-          let pathSpec: any /*SwaggerSchema.Path*/ = x; // Path does not allow extension properties
+          let pathSpec: any /*SwaggerSchema.Path*/ = x; // declaration of Path does not allow extension properties
           let keys = Object.keys(pathSpec).filter(x => !isMethod(x));
 
           currentPathOptions = keys.reduce((k:string, o:any) => ({...o, k: pathSpec[k]}), {});
@@ -198,14 +356,22 @@ export class APIModelRegistry implements IAPIModelRegistry {
 
           let pathTemplate = templateFactory.parse(pathPattern);
 
-          operations.push({
+          /*
+          {
             id,
             name: id,
             pathPattern, method,
             requestModel,
             responseModel,
             path: pathTemplate.render.bind(pathTemplate)
-          });
+          }          */
+          operations.push(new Operation({
+            id,
+            name: id,
+            pathPattern, method,
+            requestModel,
+            responseModel
+          }));
         }
       }
 

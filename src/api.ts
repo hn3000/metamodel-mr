@@ -28,6 +28,10 @@ export interface IAPIOperation<Req, Resp> {
   readonly responseModel: IAPIResponseModel<Resp>;
   path: (req: any) => string; // replaces path parameters
 
+  query: (req: any) => string; // returns query parameters
+  headers(req: any): { [key: string]: string };
+  body(req: any): string;
+
 }
 
 export interface IAPIModel {
