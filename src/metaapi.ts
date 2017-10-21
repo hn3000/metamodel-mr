@@ -292,11 +292,17 @@ export class APIModelRegistry implements IAPIModelRegistry {
         type = this._schemas.addSchemaObject(`${id}-${name}`, pp);
       } else {
         let pp = p as SwaggerSchema.PathParameter;
-        type = this._schemas.itemType(pp.type);
+        type = this._schemas.addSchemaObject(`${id}-${name}`, pp);
+        if (!required) {
+          console.warn(`path parameter should be required: ${id}-${name}`);
+          required = true;
+        }
       }
       if (type != null) {
         type.propSet('schema', p);
         composite.addItem(name, type, required);
+      } else {
+        console.warn(`no type found for ${id}-${name} / ${p}`);
       }
     });
 

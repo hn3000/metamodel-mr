@@ -86,8 +86,11 @@ export class MetaApiClient implements IAPIClient {
     const ctx = new ModelParseContext(req, requestModel.paramsType);
     requestModel.paramsType.validate(ctx);
 
-    if (ctx.hasMessagesForCurrentValue()) {
+    if (0 != ctx.errors.length) {
       return Promise.resolve(new APICallMismatch(ctx));
+    }
+    if (0 != ctx.messages.length) {
+      console.warn(`validation messages for ${operation.id}`, ctx.messages);
     }
 
     let url = this._baseUrl + operation.path(req) + operation.query(req);
@@ -115,7 +118,7 @@ export class MetaApiClient implements IAPIClient {
       (error as any)['messages'] = ctx.messages;
       throw error;
     } else {
-      console.log("", result);
+      console.log(`validated response from ${result.url}`, result);
     }
     return json;
   }
