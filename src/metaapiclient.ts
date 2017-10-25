@@ -99,9 +99,17 @@ export class MetaApiClient implements IAPIClient {
     //let body = this._body(operation, req);
     //let headers = this._headers(operation, req);
 
+    let requestInit = {
+      body,
+      headers,
+      method,
+      mode: 'cors' as RequestMode
+    };
+
     return (
-      fetch(url, { headers, body, method })
-      .then((result) => Promise.all([result, result.json()]))
+      fetch(url, requestInit)
+      .then((result) => Promise.all([ result, result.text() ]) )
+      .then(([result, text]) => [ result, text !== "" ? JSON.parse(text) : {} ])
       .then(([result, json]) => this._verify(result, json, operation))
       .then((json) => (new APISuccess(json as TResponse)))
       .then(null, (error) => new APIFailure(error))
@@ -110,6 +118,10 @@ export class MetaApiClient implements IAPIClient {
 
   private _verify<Req, Resp>(result: Response, json: any, operation: IAPIOperation<Req, Resp>) {
     const resultType = operation.responseModel[result.status];
+    if (null == resultType) {
+      //console.log(`no result type found for ${operation.method} ${result.url} -> ${result.status}`);
+      return json;
+    }
     const ctx = new ModelParseContext(json, json);
     resultType.validate(ctx);
     if (ctx.messages.length) {
@@ -118,7 +130,7 @@ export class MetaApiClient implements IAPIClient {
       (error as any)['messages'] = ctx.messages;
       throw error;
     } else {
-      console.log(`validated response from ${result.url}`, result);
+      console.log(`validated response (successfully) from ${result.url}`, result);
     }
     return json;
   }
