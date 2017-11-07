@@ -165,6 +165,10 @@ function arraySSVRenderer<Req>(name: string, sep: String): (req: Req) => string[
   return (req: Req) => {
     let v = (req as any)[name];
 
+    if (null == v) {
+      return [ ];
+    }
+
     return [ `${name}=${v.join(sep)}` ];
   };
 }
@@ -174,7 +178,7 @@ function arrayMultiRenderer<Req>(name: string): (req: Req) => string[] {
     let v = (req as any)[name] as string[];
 
     if (null == v) {
-      return [];
+      return [ ];
     }
 
     return v.map(x => `${name}=${x}` );
