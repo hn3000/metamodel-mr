@@ -173,6 +173,10 @@ function arrayMultiRenderer<Req>(name: string): (req: Req) => string[] {
   return (req: Req) => {
     let v = (req as any)[name] as string[];
 
+    if (null == v) {
+      return [];
+    }
+
     return v.map(x => `${name}=${x}` );
   };
 }
@@ -180,6 +184,10 @@ function arrayMultiRenderer<Req>(name: string): (req: Req) => string[] {
 function stringRenderer<Req>(name: string): (req: Req) => string[] {
   return (req: Req) => {
     let v = (req as any)[name] as any;
+
+    if (!v) {
+      return [ ];
+    }
 
     return [ `${name}=${v.toString()}` ];
   };
