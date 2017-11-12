@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var json_ref_1 = require("./json-ref");
-var JsonReferenceProcessor = (function () {
+var JsonReferenceProcessor = /** @class */ (function () {
     function JsonReferenceProcessor(fetch) {
         this._adjusterCache = {};
         this._fetch = fetch;
@@ -26,6 +26,10 @@ var JsonReferenceProcessor = (function () {
             //console.log("expanding refs for ", x, ref.filename);
             return _this._expandRefs(url);
         });
+    };
+    JsonReferenceProcessor.prototype.expandRefs = function (json, baseUrl) {
+        return this._fetchRefs(json, baseUrl)
+            .then();
     };
     JsonReferenceProcessor.prototype.expandDynamic = function (obj, ref) {
         return this._expandDynamic(obj, ref.toString());

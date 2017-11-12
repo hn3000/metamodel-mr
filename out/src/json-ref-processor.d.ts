@@ -6,6 +6,7 @@ export declare class JsonReferenceProcessor {
     constructor(fetch?: Fetcher);
     fetchRef(url: string, base?: string): Promise<any>;
     expandRef(url: string): Promise<any>;
+    expandRefs(json: any, baseUrl: string): Promise<any>;
     expandDynamic(obj: any, ref: JsonReference | string): any;
     _expandRefs(url: string, base?: string): any;
     _expandDynamic(obj: any, filename: string, base?: string, keypath?: string[]): any;

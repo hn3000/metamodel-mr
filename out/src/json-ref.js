@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var json_ptr_1 = require("./json-ptr");
-var JsonReference = (function () {
+var JsonReference = /** @class */ (function () {
     function JsonReference(ref) {
         var filename = JsonReference.getFilename(ref);
         var pointer = (ref && ref.substring(filename.length + 1)) || "";

@@ -12,7 +12,7 @@ function maybeArrayIndex(val) {
     var n = parseFloat(val);
     return !(isNaN(n) || Math.floor(n) !== n);
 }
-var JsonPointer = (function () {
+var JsonPointer = /** @class */ (function () {
     function JsonPointer(ref, extraUnquoted) {
         if (typeof ref === 'string') {
             this._keypath = (ref || "").split('/').slice(1).map(JsonPointer.unquote);
