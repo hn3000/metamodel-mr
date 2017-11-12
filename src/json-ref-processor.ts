@@ -32,6 +32,11 @@ export class JsonReferenceProcessor {
       });
   }
 
+  expandRefs(json: any, baseUrl: string): Promise<any> {
+    return this._fetchRefs(json, baseUrl)
+      .then()
+  }
+
   expandDynamic(obj:any, ref: JsonReference|string) {
     return this._expandDynamic(obj, ref.toString());
   }
@@ -55,10 +60,10 @@ export class JsonReferenceProcessor {
     }
 
     if (null == obj) {
-      return { 
-        "$$ref": ref.toString(), 
-        "$$filenotfound": json == null, 
-        "$$refnotfound": obj == null  
+      return {
+        "$$ref": ref.toString(),
+        "$$filenotfound": json == null,
+        "$$refnotfound": obj == null
       };
     }
 
@@ -93,7 +98,7 @@ export class JsonReferenceProcessor {
             result,
             k,
             {
-              enumerable: true, 
+              enumerable: true,
               get: ((obj:any,k:string)=>this._expandDynamic(obj[k], url,null,[...keypath,k])).bind(this,obj,k)
             }
           );
