@@ -22,8 +22,8 @@
   "license": "MIT",
   "devDependencies": {
     "@hn3000/tsunit-async": "github:hn3000/tsunit-async",
-    "@types/node": "^7.0.5",
-    "typescript": "^2.2.1"
+    "@types/node": "^8.0.51",
+    "typescript": "^2.6.1"
   },
   "dependencies": {}
 }
