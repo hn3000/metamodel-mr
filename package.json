@@ -6,6 +6,7 @@
     "tsc": "tsc",
     "tsc:w": "tsc -w",
     "pretest": "tsc",
+    "prepare": "tsc",
     "test": "node out/test/allTests.js",
     "testonly": "node out/test/allTests.js"
   },
