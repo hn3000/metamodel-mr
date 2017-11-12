@@ -20,15 +20,15 @@
   "author": "Harald Niesche",
   "license": "MIT",
   "devDependencies": {
-    "@hn3000/json-ref": "^0.9.1",
+    "@hn3000/json-ref": "^0.11.0",
     "@hn3000/tsunit-async": "github:hn3000/tsunit-async",
     "@types/es6-promise": "0.0.32",
     "@types/isomorphic-fetch": "0.0.34",
-    "@types/node": "^7.0.5",
-    "typescript": "^2.4.2"
+    "@types/node": "^8.0.51",
+    "typescript": "^2.6.1"
   },
   "dependencies": {
-    "es6-promise": "^4.1.0",
+    "es6-promise": "^4.1.1",
     "isomorphic-fetch": "^2.2.1"
   }
 }
