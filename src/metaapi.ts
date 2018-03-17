@@ -99,7 +99,8 @@ export class Operation<Req, Resp> implements IAPIOperation<Req, Resp> {
     return result;
   }
 
-  public headers(req: any): string[][] {
+//  public headers(req: any): string[][] {
+  public headers(req: any): { [key: string]: string } {
     let headers: { [key: string]: string } = {};
     let vars = this.requestModel.paramsByLocation['header'];
 
@@ -114,6 +115,8 @@ export class Operation<Req, Resp> implements IAPIOperation<Req, Resp> {
       headers['Content-Type'] = 'application/x-www-form-urlencoded';
     }
 
+    return headers;
+    /*
     let result = [];
 
     for (let h of Object.keys(headers)) {
@@ -121,6 +124,7 @@ export class Operation<Req, Resp> implements IAPIOperation<Req, Resp> {
     }
 
     return result;
+    */
   }
 
   private _buildParamRenderer() {
