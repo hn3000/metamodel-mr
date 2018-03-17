@@ -29,7 +29,7 @@ export interface IAPIOperation<Req, Resp> {
   path: (req: any) => string; // replaces path parameters
 
   query: (req: any) => string; // returns query parameters
-  headers(req: any): { [key: string]: string };
+  headers(req: any): string[][];
   body(req: any): string;
 
 }
