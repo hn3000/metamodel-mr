@@ -130,7 +130,7 @@ export class MetaApiClient implements IAPIClient {
       (error as any)['messages'] = ctx.messages;
       throw error;
     } else {
-      console.log(`validated response (successfully) from ${result.url}`, result);
+      console.log(`validated response (successfully) from ${result.url}`);
     }
     return json;
   }
