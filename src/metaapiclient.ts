@@ -7,11 +7,13 @@ import {
 } from '@hn3000/metamodel';
 
 export class APISuccess<TResult> implements IAPIResult<TResult> {
-  constructor(public result:TResult) { }
+  constructor(private _response:TResult) { }
   isSuccess() { return true; }
-  success() { return this.result; }
+  success() { return this._response; }
 
   error(): Error { return null; }
+
+  response(): any { return this._response; }
 }
 
 export class APICallMismatch implements IAPIResult<any> {
@@ -27,24 +29,24 @@ export class APICallMismatch implements IAPIResult<any> {
   error() { return this._error; }
   messages() { return this._messages; }
 
+  response(): any { return null; }
+
   toString() {
-    return this._messages
+    return this._messages.join(', ');
   }
 
   private _messages: IPropertyStatusMessage[];
   private _error: Error;
 }
 
-export class APIFailure implements IAPIResult<any> {
-  constructor(error: Error) {
-    this._error = error;
+export class APIFailure<TResult> implements IAPIResult<TResult> {
+  constructor(private _error: Error, private _response: TResult = null) {
   }
 
   isSuccess() { return false; }
-  success(): any { return null; }
+  success(): TResult { return null; }
   error() { return this._error; }
-
-  private _error: Error;
+  response(): TResult { return this._response; }
 }
 
 export class MetaApiClient implements IAPIClient {
@@ -110,9 +112,13 @@ export class MetaApiClient implements IAPIClient {
       fetch(url, requestInit)
       .then((result) => Promise.all([ result, result.text() ]) )
       .then(([result, text]) => [ result, text !== "" ? JSON.parse(text) : {} ])
-      .then(([result, json]) => this._verify(result, json, operation))
-      .then((json) => (new APISuccess(json as TResponse)))
-      .then(null, (error) => new APIFailure(error))
+      .then(([result, json]) => [result, this._verify(result, json, operation)])
+      .then(([result, json]) => (
+        (result.status < 400)
+        ? new APISuccess(json as TResponse)
+        : new APIFailure(new Error(result.status), json as TResponse)
+      ))
+      .then(null, (error) => new APIFailure<TResponse>(error))
     );
   }
 

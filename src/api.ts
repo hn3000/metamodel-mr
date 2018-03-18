@@ -57,6 +57,8 @@ export interface IAPIResult<Success> {
   isSuccess(): boolean;
   success(): Success;
   error(): Error;
+
+  response(): any;
 }
 
 export enum ErrorKind {
