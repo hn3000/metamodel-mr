@@ -1,6 +1,6 @@
 {
   "name": "@hn3000/json-ref",
-  "version": "0.11.3",
+  "version": "0.11.4",
   "description": "simple resolver for json reference and json pointer",
   "repository": "git@github.com:hn3000/json-ref",
   "scripts": {
@@ -36,6 +36,6 @@
   "dependencies": {},
   "optionalDependencies": {},
   "files": [
-    "README.md", "out"
+    "README.md", "out", "bin"
   ]
 }
