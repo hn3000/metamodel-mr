@@ -27,6 +27,12 @@ var JsonPointer = /** @class */ (function () {
             this._keypath.push(extraUnquoted);
         }
     }
+    JsonPointer.get = function (path) {
+        if (path instanceof JsonPointer) {
+            return path;
+        }
+        return new JsonPointer(path);
+    };
     JsonPointer.paths = function (obj, pred) {
         var result = [];
         if (typeof pred === 'function') {
@@ -65,6 +71,7 @@ var JsonPointer = /** @class */ (function () {
                 var more = !walker(thisVal, thisPath);
                 var thisType = typeof (thisVal);
                 if ((thisType === 'object') && more && !isSimpleObj(thisVal)) {
+                    //console.log(`descend into ${thisPath.asString()}`);
                     queue.push({ val: thisVal, path: thisPath });
                 }
             }

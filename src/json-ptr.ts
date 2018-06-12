@@ -15,6 +15,14 @@ function maybeArrayIndex(val: string) {
 }
 
 export class JsonPointer {
+
+  static get(path: string|JsonPointer): JsonPointer {
+    if (path instanceof JsonPointer) {
+      return path;
+    }
+    return new JsonPointer(path);
+  }
+
   public static paths(obj: any, pred?: (x:any, p: JsonPointer) => boolean): string[] {
     let result:string[] = [];
 
@@ -59,6 +67,7 @@ export class JsonPointer {
 
         let thisType = typeof(thisVal);
         if ((thisType === 'object') && more && !isSimpleObj(thisVal)) {
+          //console.log(`descend into ${thisPath.asString()}`);
           queue.push({ val: thisVal, path: thisPath });
         }
       }

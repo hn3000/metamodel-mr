@@ -1,4 +1,5 @@
 export declare class JsonPointer {
+    static get(path: string | JsonPointer): JsonPointer;
     static paths(obj: any, pred?: (x: any, p: JsonPointer) => boolean): string[];
     static pointers(obj: any, pred?: (x: any, p: JsonPointer) => boolean): JsonPointer[];
     /**
