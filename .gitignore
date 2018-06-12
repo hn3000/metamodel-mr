@@ -3,4 +3,5 @@ node_modules
 npm_debug.log
 typings
 coverage
-dist
+distwebpack.config.js
+package.json~
