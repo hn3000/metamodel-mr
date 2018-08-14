@@ -1,6 +1,6 @@
 {
   "name": "@hn3000/json-ref",
-  "version": "0.11.4",
+  "version": "0.11.5",
   "description": "simple resolver for json reference and json pointer",
   "repository": "git@github.com:hn3000/json-ref",
   "scripts": {
@@ -28,14 +28,16 @@
   "license": "MIT",
   "devDependencies": {
     "@types/isomorphic-fetch": "0.0.34",
-    "@types/node": "^8.0.14",
+    "@types/node": "^10.7.0",
     "isomorphic-fetch": "^2.2.1",
-    "tsunit.external": "^2.0.11",
-    "typescript": "^2.6.1"
+    "tsunit.external": "^2.1.1",
+    "typescript": "^3.0.1"
   },
   "dependencies": {},
   "optionalDependencies": {},
   "files": [
-    "README.md", "out", "bin"
+    "README.md",
+    "out",
+    "bin"
   ]
 }
