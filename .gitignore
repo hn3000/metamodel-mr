@@ -5,3 +5,4 @@ typings
 coverage
 distwebpack.config.js
 package.json~
+out 
