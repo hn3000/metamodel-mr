@@ -53,6 +53,9 @@ export class MetaApiClient implements IAPIClient {
     this._baseUrl = baseUrl;
   }
 
+  get model(): IAPIModel { return this._apiModel; }
+  get baseUrl(): string { return this._baseUrl; }
+
   /**
    *
    * @param id of the operation

@@ -72,6 +72,9 @@ export interface IAPIError {
 }
 
 export interface IAPIClient {
+
+  model: IAPIModel;
+
   runOperationById(id: string, req: any): Promise<IAPIResult<any>>; // will reject to an IAPIError in case of errors
 
   runOperation<TRequest, TResponse>(operation: IAPIOperation<TRequest, TResponse>, req: TRequest): Promise<IAPIResult<TResponse>>; // will reject to an IAPIError in case of errors
