@@ -373,7 +373,7 @@ export class APIModelRegistry implements IAPIModelRegistry {
             for (let status of Object.keys(opSpec.responses)) {
               let typename = `${id}Response${status}`;
               let response = opSpec.responses[status];
-              let schema = response && response.schema;
+              let schema = response && !('$ref' in response) && response.schema;
               if (null != schema) {
                 responseModel[status] = this._schemas.addSchemaObject(typename, schema)
               } else {

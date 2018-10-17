@@ -24,17 +24,17 @@
   "author": "Harald Niesche",
   "license": "ISC",
   "dependencies": {
-    "@hn3000/json-ref": "^0.11.0",
-    "@hn3000/metamodel": "^0.11.0",
+    "@hn3000/json-ref": "^0.11.5",
+    "@hn3000/metamodel": "^1.4.1",
     "@hn3000/simpletemplate": "^0.10.0",
     "@types/isomorphic-fetch": "0.0.34",
     "isomorphic-fetch": "^2.2.1"
   },
   "devDependencies": {
-    "@types/node": "^8.0.10",
-    "@types/swagger-schema-official": "^2.0.5",
-    "swagger-schema-official": "^2.0.0-d79c205",
-    "tsunit.external": "^2.0.11",
-    "typescript": "^2.7.2"
+    "@types/node": "^10.11.7",
+    "@types/swagger-schema-official": "2.0.10",
+    "swagger-schema-official": "^2.0.0-bab6bed",
+    "tsunit.external": "^2.1.1",
+    "typescript": "^3.1.3"
   }
 }
