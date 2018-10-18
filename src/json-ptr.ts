@@ -16,6 +16,13 @@ function maybeArrayIndex(val: string) {
 
 export class JsonPointer {
 
+  /**
+   * Returns a JsonPointer object from a string or JsonPointer. 
+   * Used to allow clients to pass in either a string or a JsonPointer without having
+   * to deal with the difference.
+   * 
+   * @param path string or JsonPointer
+   */
   static get(path: string|JsonPointer): JsonPointer {
     if (path instanceof JsonPointer) {
       return path;
@@ -23,6 +30,12 @@ export class JsonPointer {
     return new JsonPointer(path);
   }
 
+  /**
+   * Collects all paths to objects deemed interesting by the predicated passed in.
+   * 
+   * @param obj object to walk
+   * @param pred predicate to decide whether an object's path should be returned
+   */
   public static paths(obj: any, pred?: (x:any, p: JsonPointer) => boolean): string[] {
     let result:string[] = [];
 
@@ -35,6 +48,12 @@ export class JsonPointer {
     return result;
   }
 
+  /**
+   * Collects all pointers to objects deemed interesting by the predicated passed in.
+   * 
+   * @param obj object to walk
+   * @param pred predicate to decide whether an object's path should be returned
+   */
   public static pointers(obj: any, pred?: (x:any, p: JsonPointer) => boolean): JsonPointer[] {
     let result:JsonPointer[] = [];
 
