@@ -337,9 +337,11 @@ export class APIModelRegistry implements IAPIModelRegistry {
     return result;
   }
 
-  parseAPIDefinition(spec: SwaggerSchema.Spec, id: string): IAPIModel {
+  parseAPIDefinition(specWithRefs: SwaggerSchema.Spec, id: string): IAPIModel {
     let operations = [] as IAPIOperation<any,any>[];
     let currentPathOptions: IPathOptions = null;
+
+    const spec = new JsonReferenceProcessor().expandDynamic(specWithRefs, id);
 
     JsonPointer.walkObject(spec, (x,p) => {
       let keys = p.keys;
