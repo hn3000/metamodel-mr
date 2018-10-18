@@ -2,6 +2,19 @@
 import { JsonPointer } from './json-ptr';
 
 export class JsonReference {
+  /**
+   * Returns a JsonReference object from a string or JsonReference. 
+   * Used to allow clients to pass in either a string or a JsonReference without having
+   * to deal with the difference.
+   * 
+   * @param path string or JsonReference
+   */
+  static get(ref: string|JsonReference): JsonReference {
+    if ('string' === typeof ref) {
+      return new JsonReference(ref);
+    }
+    return ref;
+  }
   constructor(ref:string) {
     var filename = JsonReference.getFilename(ref);
     var pointer = (ref && ref.substring(filename.length+1)) || "";
