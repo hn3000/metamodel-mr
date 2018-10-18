@@ -33,12 +33,30 @@ export class JsonReferenceProcessor {
   }
 
   expandRefs(json: any, baseUrl: string): Promise<any> {
+    if (null == this._cache[baseUrl]) {
+      this._contents[baseUrl] = json;
+      this._cache[baseUrl] = Promise.resolve(json);
+    }
     return this._fetchRefs(json, baseUrl)
-      .then()
+      .then((x:any) => {
+        // at this point all referenced files should be in _cache
+        //console.log("expanding refs for ", x, ref.filename);
+        return this._expandRefs(baseUrl);
+      });
   }
 
-  expandDynamic(obj:any, ref: JsonReference|string) {
-    return this._expandDynamic(obj, ref.toString());
+  expandDynamic(obj:any, ref: JsonReference|string): any {
+    let base = JsonReference.get(ref);
+    if (null == this._cache[base.filename]) {
+      const hasPointer = base.pointer.hasParent()
+      let baseObj = hasPointer ? {} : obj;
+      if (hasPointer) {
+        base.pointer.setValue(baseObj, obj, true);
+      }
+      this._contents[base.filename] = baseObj;
+      this._cache[base.filename] = Promise.resolve(baseObj);
+    }
+    return this._expandDynamic(obj, base.toString());
   }
 
   _expandRefs(url:string, base?:string):any {
@@ -152,8 +170,9 @@ export class JsonReferenceProcessor {
         (x) => (this._contents[url]=x, x),
         (err) => (this._contents[url]=null,null)
       );
-
+  
     this._cache[url] = result;
+
     return result;
   }
 

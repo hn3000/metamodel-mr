@@ -97,6 +97,71 @@ export class JsonReferenceTest extends TestClass {
     });
   }
 
+  testExpandDynamicLiteralObj() {
+    var expander = new JsonReferenceProcessor(fetchFile);
+    var x = expander.expandDynamic (
+      {
+        a: { "$ref": "#/d/a" },
+        b: { "$ref": "#/d/b" },
+        d: {
+          a: "actual-a",
+          b: [ "b1", "b2" ]
+        }
+      },
+      "json"
+    );
+
+    if (Array.isArray(x.b) && x.b[0] == 'b1' && x.b[1] == 'b2' && x.a == "actual-a") {
+      this.isTrue(true); // success!
+    } else {
+      this.fail('failure, didn\'t get { "a": "actual-a", "b": [ ... ]  } got:'+ JSON.stringify(x));
+    }
+  }
+
+  testExpandDynamicLiteralObjWithBasePointer() {
+    var expander = new JsonReferenceProcessor(fetchFile);
+    var x = expander.expandDynamic (
+      {
+        a: { "$ref": "#/x/d/a" },
+        b: { "$ref": "#/x/d/b" },
+        d: {
+          a: "actual-a",
+          b: [ "b1", "b2" ]
+        }
+      },
+      "json#/x"
+    );
+
+    if (Array.isArray(x.b) && x.b[0] == 'b1' && x.b[1] == 'b2' && x.a == "actual-a") {
+      this.isTrue(true); // success!
+    } else {
+      this.fail('failure, didn\'t get { "a": "actual-a", "b": [ ... ]  } got:'+ JSON.stringify(x));
+    }
+  }
+  testExpandRefsInLiteralObj() {
+    var expander = new JsonReferenceProcessor(fetchFile);
+    var p = expander.expandRefs (
+      {
+        a: { "$ref": "#/d/a" },
+        b: { "$ref": "#/d/b" },
+        d: {
+          a: "actual-a",
+          b: [ "b1", "b2" ]
+        }
+      },
+      "json"
+    );
+
+    p.then((x:any) => {
+      if (Array.isArray(x.b) && x.b[0] == 'b1' && x.b[1] == 'b2' && x.a == "actual-a") {
+        this.isTrue(true); // success!
+      } else {
+        this.fail('failure, didn\'t get { "a": "actual-a", "b": [ ... ]  } got:'+ JSON.stringify(x));
+      }
+    });
+
+  }
+
   testResolveCycle() {
     var processor = new JsonReferenceProcessor();
   }
