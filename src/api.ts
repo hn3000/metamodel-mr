@@ -1,21 +1,27 @@
 
 import { IModelType, IModelTypeComposite } from '@hn3000/metamodel';
 
+export type ParamLocation = 'path' | 'query' | 'header' | 'formData' | 'body';
+
 export interface IAPIRequestModel<T> {
   paramsType?: IModelTypeComposite<T> | IModelType<T>;
-  format: "formdata" | "body" | "empty";
+  format: "formData" | "body" | "empty";
 
-  /*
-    location: 'path' | 'query' | 'header' | 'formdata' | 'body'
-  */
-  paramsByLocation: { [location: string]: string[]; };
+  paramsByLocation: { [location in ParamLocation]: string[]; };
 
-  locationsByParam: { [param: string]: string; };
+  locationsByParam: { [param: string]: ParamLocation; };
 }
 
 export interface IAPIResponseModel<T> {
   [status: string]: IModelTypeComposite<T> | IModelType<T>;
   '200': IModelTypeComposite<T> | IModelType<T>;
+}
+
+export type TokenLocation = 'query' | 'header';
+
+export interface IAPITokenModel {
+  location: TokenLocation;
+  name: string;
 }
 
 export interface IAPIOperation<Req, Resp> {

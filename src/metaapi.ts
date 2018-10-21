@@ -3,7 +3,8 @@ import {
   IAPIModel, IAPIModelBuilder, IAPIModelRegistry,
   IAPIOperation,
   IAPIRequestModel,
-  IAPIResponseModel
+  IAPIResponseModel,
+  ParamLocation
 } from './api';
 
 import {
@@ -15,7 +16,9 @@ import {
   IModelType,
   IModelTypeComposite,
   ModelTypeObject,
-  ModelSchemaParser
+  ModelSchemaParser,
+  ModelTypeAny,
+  modelTypes
 } from '@hn3000/metamodel';
 
 import { TemplateFactory, Template } from '@hn3000/simpletemplate';
@@ -111,7 +114,7 @@ export class Operation<Req, Resp> implements IAPIOperation<Req, Resp> {
     }
     if (this.requestModel.paramsByLocation['body']) {
       headers['Content-Type'] = 'application/json';
-    } else if (this.requestModel.paramsByLocation['formData']) {
+    } else if (this.requestModel.paramsByLocation.formData) {
       headers['Content-Type'] = 'application/x-www-form-urlencoded';
     }
 
@@ -268,6 +271,12 @@ interface IPathOptions {
   [extensionProp: string]: any;
 };
 
+interface ISecurityTypes {
+  [schemaName: string]: {
+    type: IModelTypeComposite<any>;
+  }
+}
+
 export class APIModelRegistry implements IAPIModelRegistry {
   constructor(fetchFun?: FetchFun) {
     this._schemas = new ModelSchemaParser();
@@ -275,14 +284,25 @@ export class APIModelRegistry implements IAPIModelRegistry {
     this._jsonRefProcessor = new JsonReferenceProcessor(this._fetchFun);
   }
 
-  parseParameterType(opSpec: SwaggerSchema.Operation, id: string, extraParameters: SwaggerSchema.Parameter[]): IAPIRequestModel<any> {
+  private parseParameterType(
+    opSpec: SwaggerSchema.Operation,
+    id: string,
+    extraParameters: SwaggerSchema.Parameter[]
+  ): IAPIRequestModel<any> {
     let result: IAPIRequestModel<any> = {
       format: "empty",
       locationsByParam: { },
-      paramsByLocation: { }
+      paramsByLocation: {
+        path: [] as string[],
+        query: [] as string[],
+        body: [] as string[],
+        formData: [] as string[],
+        header: [] as string[]
+      }
     };
     let parameters = opSpec.parameters;
     if (null == parameters || 0 === parameters.length) {
+      result.paramsType = new ModelTypeAny('void'); //avoid null, this will accept anything
       return result;
     }
     let composite = new ModelTypeObject<any>(`${id}Params`);
@@ -292,12 +312,13 @@ export class APIModelRegistry implements IAPIModelRegistry {
 
     parameters.forEach(p => {
       let { name, required } = p;
-      if (paramsByLocation[p.in] == null) {
-        paramsByLocation[p.in] = [ name ];
+      let loc = p.in as ParamLocation;
+      if (paramsByLocation[loc] == null) {
+        paramsByLocation[loc] = [ name ];
       } else {
-        paramsByLocation[p.in].push(name);
+        paramsByLocation[loc].push(name);
       }
-      locationByParam[name] = p.in;
+      locationByParam[name] = loc;
 
       let type = null;
       if (p.in === 'body') {
@@ -328,13 +349,34 @@ export class APIModelRegistry implements IAPIModelRegistry {
       }
     });
 
-    if (paramsByLocation['body'] != null && 1 < paramsByLocation['body'].length) {
+    if (1 < paramsByLocation['body'].length) {
       console.log(`multiple in: body parameters found: ${paramsByLocation['body'].join(',')}, ${name}`);
     }
-    if (paramsByLocation['body'] && paramsByLocation['formData']) {
-      console.log(`both in: body and in: formData parameters found: ${paramsByLocation['body'].join(',')}; ${paramsByLocation['formData'].join(',')}, ${name}`);
+    if (paramsByLocation['body'].length && paramsByLocation['formData'].length) {
+      console.log(`both in: body and in: formData parameters found: ${paramsByLocation['body'].join(',')}; ${paramsByLocation['formData'].join(',')}‚`);
     }
     return result;
+  }
+
+
+  private parseApiKeyType(name: string, aks: SwaggerSchema.ApiKeySecurity): IModelTypeComposite<any> {
+    let result = new ModelTypeObject(`security-${name}`);
+    result.addItem(aks.name, modelTypes.type('string'), true);
+    return result;
+  }
+  private parseSecurityTypes(spec: SwaggerSchema.Spec) {
+    const secDefs = spec.securityDefinitions || { };
+    const secDefKeys = Object.keys(secDefs)
+    const apiKeyKeys = secDefKeys.filter(x => secDefs[x].type === 'apiKey');
+
+    if (apiKeyKeys.length < secDefKeys.length) {
+      const schemes = secDefKeys.map(x => secDefs[x].type).filter(x => x !== 'apiKey');
+      console.warn(`ignoring unsupported security schemes: ${schemes.join(', ')}`);
+    }
+    const secParamTypes = apiKeyKeys.map(k => this.parseApiKeyType(k, secDefs[k] as SwaggerSchema.ApiKeySecurity));
+    const secParamDefs = apiKeyKeys.reduce((r,k,i) =>(r[k] = { type: secParamTypes[i] }, r), {} as ISecurityTypes);
+
+    return secParamDefs;
   }
 
   parseAPIDefinition(specWithRefs: SwaggerSchema.Spec, id: string): IAPIModel {
@@ -342,6 +384,8 @@ export class APIModelRegistry implements IAPIModelRegistry {
     let currentPathOptions: IPathOptions = null;
 
     const spec = new JsonReferenceProcessor().expandDynamic(specWithRefs, id);
+
+    const secParamDefs = this.parseSecurityTypes(spec);
 
     JsonPointer.walkObject(spec, (x,p) => {
       let keys = p.keys;
@@ -364,6 +408,10 @@ export class APIModelRegistry implements IAPIModelRegistry {
           let method = keys[2];
           let id = opSpec.operationId || pathPattern+'_'+method;
           let requestModel = this.parseParameterType(opSpec, id, currentPathOptions.parameters);
+
+          if (null != opSpec.security) {
+            console.log(`found security spec: ${opSpec.security} in ${id}`);
+          }
 
           let responseModel: IAPIResponseModel<any> = {
             '200': null

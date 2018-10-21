@@ -57,7 +57,9 @@ export class ApiOperationTest extends TestClass {
         paramsByLocation: {
           query: [ 'q', 'a', 'b' ],
           body: ['corpus'],
-          header: ['caput']
+          header: ['caput'],
+          path: [],
+          formData: [],
         },
         locationsByParam: {
           'q': 'query',
@@ -80,7 +82,13 @@ export class ApiOperationTest extends TestClass {
         format: 'empty',
         paramsType,
         locationsByParam: {},
-        paramsByLocation: {}
+        paramsByLocation: {
+          body: [],
+          header: [],
+          path: [],
+          formData: [],
+          query: []
+        }
       }
     });
     this.opNoParams = op;

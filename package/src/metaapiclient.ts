@@ -11,7 +11,7 @@ export class APISuccess<TResult> implements IAPIResult<TResult> {
   isSuccess() { return true; }
   success() { return this.result; }
 
-  error(): Error { return null; }
+  error(): Error | undefined { return undefined; }
 }
 
 export class APICallMismatch implements IAPIResult<any> {
@@ -65,8 +65,8 @@ export class MetaApiClient implements IAPIClient {
     if (null == operation) {
       return Promise.reject(<IAPIError>{
         kind: ErrorKind.InvalidOperation,
-        httpStatus: null,
-        error: null
+        httpStatus: 0,
+        error: undefined
       });
     }
     return this.runOperation(operation, req);
@@ -83,11 +83,14 @@ export class MetaApiClient implements IAPIClient {
   : Promise<IAPIResult<TResponse>> {
     let { method, requestModel } = operation;
 
-    const ctx = new ModelParseContext(req, requestModel.paramsType);
-    requestModel.paramsType.validate(ctx);
-
-    if (ctx.hasMessagesForCurrentValue()) {
-      return Promise.resolve(new APICallMismatch(ctx));
+    if (undefined !== requestModel.paramsType) {
+      const ctx = new ModelParseContext(req, requestModel.paramsType);
+      requestModel.paramsType.validate(ctx);
+      if (ctx.hasMessagesForCurrentValue()) {
+        return Promise.resolve(new APICallMismatch(ctx));
+      }
+    } else if (req != null && Object.keys(req).length) {
+      console.log(`operation does not seem to expect parameters, but got ${req}`);
     }
 
     let url = this._baseUrl + operation.path(req);
@@ -96,7 +99,7 @@ export class MetaApiClient implements IAPIClient {
     let headers = this._headers(operation, req);
 
     return (
-      fetch(url, { headers, body })
+      fetch(url, { method, headers, body })
       .then((result) => Promise.all([result, result.json()]))
       .then(([result, json]) => this._verify(result, json, operation))
       .then((json) => (new APISuccess(json as TResponse)))
@@ -121,10 +124,10 @@ export class MetaApiClient implements IAPIClient {
     let format = operation.requestModel.format;
     let { paramsByLocation } = operation.requestModel;
     let result = null;
-    if (null != paramsByLocation.body) {
+    if (paramsByLocation.body.length) {
       let bodyParams = paramsByLocation.body;
       result = JSON.stringify(req[bodyParams[0]]);
-    } else if (null != paramsByLocation.formData) {
+    } else if (paramsByLocation.formData.length) {
       let formParams = paramsByLocation.formData;
       result = '';
       for (let p of formParams) {

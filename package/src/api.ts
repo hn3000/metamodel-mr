@@ -51,8 +51,8 @@ export interface IAPIModelRegistry {
 
 export interface IAPIResult<Success> {
   isSuccess(): boolean;
-  success(): Success;
-  error(): Error;
+  success(): Success | undefined;
+  error(): Error | undefined;
 }
 
 export enum ErrorKind {

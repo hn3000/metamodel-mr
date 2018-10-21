@@ -5,6 +5,7 @@ import { IModelTypeComposite } from '@hn3000/metamodel';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as process from 'process';
+import { ParamLocation } from '../src/api';
 
 export class ApiDumper {
   static dumpApi(name: string) {
@@ -15,9 +16,12 @@ export class ApiDumper {
     promise.then(model => {
       //console.log(JSON.stringify(model, null, 2));
       for (let o of model.operations()) {
-        console.log(`${o.name}: ${(o.requestModel.paramsType as IModelTypeComposite<any>).items.map(x => x.key).join(', ')}`);
-        for (let l of Object.keys(o.requestModel.paramsByLocation)) {
-          console.log(`${o.name}-${l}: ${o.requestModel.paramsByLocation[l].join(', ')}`);
+        const items = (o.requestModel.paramsType as IModelTypeComposite<any>).items || [];
+        console.log(`${o.name}: ${items.map(x => x.key).join(', ')}`);
+        if (items.length) {
+          for (let l of Object.keys(o.requestModel.paramsByLocation) as ParamLocation[]) {
+            console.log(`${o.name}-${l}: ${o.requestModel.paramsByLocation[l].join(', ')}`);
+          }
         }
       }
     }, err => console.log(err));
@@ -34,7 +38,7 @@ function fetchFile(x:string) {
 
 
 if (process.argv.length > 1) {
-  process.argv.slice(1).forEach(name => {
+  process.argv.slice(2).forEach(name => {
     ApiDumper.dumpApi(name);
   });
 } else {
