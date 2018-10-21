@@ -1,6 +1,6 @@
 {
   "name": "@hn3000/metaapi",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "description": "api descriptions using @hn3000/metamodel",
   "repository": "git@github.com:hn3000/metamodel",
   "main": "out/src/export.js",
@@ -25,7 +25,7 @@
   "license": "ISC",
   "dependencies": {
     "@hn3000/json-ref": "^1.0.0",
-    "@hn3000/metamodel": "^1.4.1",
+    "@hn3000/metamodel": "^1.5.0",
     "@hn3000/simpletemplate": "^0.10.0",
     "@types/isomorphic-fetch": "0.0.34",
     "isomorphic-fetch": "^2.2.1"
