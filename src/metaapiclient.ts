@@ -98,7 +98,7 @@ export class MetaApiClient implements IAPIClient {
       console.warn(`validation messages for ${operation.id}`, ctx.messages);
     }
 
-    let url = this._baseUrl + operation.path(req) + operation.query(req);
+    let url = this._baseUrl + this.model.base + operation.path(req) + operation.query(req);
     let body = operation.body(req);
     let headers = operation.headers(req);
     //let body = this._body(operation, req);
