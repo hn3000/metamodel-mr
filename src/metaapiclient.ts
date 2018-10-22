@@ -98,7 +98,7 @@ export class MetaApiClient implements IAPIClient {
       console.warn(`validation messages for ${operation.id}`, ctx.messages);
     }
 
-    let url = this._baseUrl + this.model.base + operation.path(req) + operation.query(req);
+    let url = combinePaths(this._baseUrl, this.model.base, operation.path(req)) + operation.query(req);
     let body = operation.body(req);
     let headers = operation.headers(req);
     //let body = this._body(operation, req);
@@ -146,4 +146,20 @@ export class MetaApiClient implements IAPIClient {
   private _apiModel: IAPIModel;
 
   private _baseUrl: string;
+}
+
+function combinePaths(...paths: string[]) {
+  return paths.reduce(combine2Paths);
+}
+
+function combine2Paths(a: string, b: string) {
+  const aHasSlash = a.endsWith('/');
+  const bHasSlash = b.startsWith('/');
+  if (aHasSlash !== bHasSlash) {
+    return a+b;
+  } else if (aHasSlash) {
+    return a + b.substr(1);
+  } else {
+    return a + '/' + b;
+  }
 }
