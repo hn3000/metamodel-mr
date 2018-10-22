@@ -32,7 +32,7 @@
   },
   "devDependencies": {
     "@types/node": "^10.11.7",
-    "@types/swagger-schema-official": "2.0.10",
+    "@types/swagger-schema-official": "2.0.12",
     "swagger-schema-official": "^2.0.0-bab6bed",
     "tsunit.external": "^2.1.1",
     "typescript": "^3.1.3"
