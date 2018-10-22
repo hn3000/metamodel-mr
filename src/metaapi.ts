@@ -300,7 +300,7 @@ export class APIModelRegistry implements IAPIModelRegistry {
         header: [] as string[]
       }
     };
-    let parameters = opSpec.parameters;
+    let parameters = opSpec.parameters as SwaggerSchema.Parameter[];
     if (null == parameters || 0 === parameters.length) {
       result.paramsType = new ModelTypeAny('void'); //avoid null, this will accept anything
       return result;
