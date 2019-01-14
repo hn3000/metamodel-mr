@@ -1,6 +1,6 @@
 {
   "name": "@hn3000/simpletemplate",
-  "version": "0.10.0",
+  "version": "0.10.1",
   "description": "simplest possible string template engine",
   "repository": {
     "type": "git",
