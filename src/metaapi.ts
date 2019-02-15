@@ -18,7 +18,8 @@ import {
   ModelTypeObject,
   ModelSchemaParser,
   ModelTypeAny,
-  modelTypes
+  modelTypes,
+  ClientProps
 } from '@hn3000/metamodel';
 
 import { TemplateFactory, Template } from '@hn3000/simpletemplate';
@@ -35,10 +36,11 @@ interface IParamRenderer<Req> {
   (req: Req): string[]
 }
 
-export class Operation<Req, Resp> implements IAPIOperation<Req, Resp> {
+export class Operation<Req, Resp> extends ClientProps implements IAPIOperation<Req, Resp> {
   constructor();
   constructor(initArg: Partial<IAPIOperation<Req,Resp>>);
   constructor(...args:any[]) {
+    super();
     if (args.length === 1 && null != args[0].id) {
       const initArgs = args[0];
       this.init(initArgs);
@@ -410,7 +412,7 @@ export class APIModelRegistry implements IAPIModelRegistry {
           let requestModel = this.parseParameterType(opSpec, id, currentPathOptions.parameters);
 
           if (null != opSpec.security) {
-            console.log(`found security spec: ${opSpec.security} in ${id}`);
+            console.log(`found security spec: ${JSON.stringify(opSpec.security)} in ${id}`);
           }
 
           let responseModel: IAPIResponseModel<any> = {
@@ -443,13 +445,15 @@ export class APIModelRegistry implements IAPIModelRegistry {
             responseModel,
             path: pathTemplate.render.bind(pathTemplate)
           }          */
-          operations.push(new Operation({
+          let operation = new Operation({
             id,
             name: id,
             pathPattern, method,
             requestModel,
             responseModel
-          }));
+          });
+          operation.propSet('spec', opSpec);
+          operations.push(operation);
         }
       }
 

@@ -1,5 +1,5 @@
 
-import { IModelType, IModelTypeComposite } from '@hn3000/metamodel';
+import { IModelType, IModelTypeComposite, IClientProps } from '@hn3000/metamodel';
 
 export type ParamLocation = 'path' | 'query' | 'header' | 'formData' | 'body';
 
@@ -24,7 +24,7 @@ export interface IAPITokenModel {
   name: string;
 }
 
-export interface IAPIOperation<Req, Resp> {
+export interface IAPIOperation<Req, Resp> extends IClientProps {
   readonly name: string;
   readonly id: string;
   readonly pathPattern: string;
@@ -87,4 +87,3 @@ export interface IAPIClient {
 
   runOperation<TRequest, TResponse>(operation: IAPIOperation<TRequest, TResponse>, req: TRequest): Promise<IAPIResult<TResponse>>; // will reject to an IAPIError in case of errors
 }
-
