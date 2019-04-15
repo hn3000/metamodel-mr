@@ -1,5 +1,5 @@
 
-import { IModelType, IModelTypeComposite, IClientProps } from '@hn3000/metamodel';
+import { IModelType, IModelTypeComposite, IClientProps, IStatusMessage } from '@hn3000/metamodel';
 
 export type ParamLocation = 'path' | 'query' | 'header' | 'formData' | 'body';
 
@@ -79,11 +79,35 @@ export interface IAPIError {
   error: any;
 }
 
-export interface IAPIClient {
+export interface IHttpHeaders { 
+  [name:string]: string; 
+}
 
-  model: IAPIModel;
+export interface IAPIClient {
 
   runOperationById(id: string, req: any): Promise<IAPIResult<any>>; // will reject to an IAPIError in case of errors
 
   runOperation<TRequest, TResponse>(operation: IAPIOperation<TRequest, TResponse>, req: TRequest): Promise<IAPIResult<TResponse>>; // will reject to an IAPIError in case of errors
+
+  urlForOperationId(id: string, req: any): string;
+  urlForOperation<TRequest, TResponse>(operation: IAPIOperation<TRequest, TResponse>, req: TRequest): string;
+  requestInfoForOperationId(id: string, req: any): [string, RequestInit];
+  requestInfoForOperation<TRequest, TResponse>(operation: IAPIOperation<TRequest, TResponse>, req: TRequest): [string, RequestInit];
+
+  model: IAPIModel;
+
+  baseUrl: string;
+
+  readonly defaultValues: any;
+
+  readonly defaultHeaders: IHttpHeaders;
+
+  addDefaultValues(values: any): IStatusMessage[]; 
+
+  setDefaultValues(values: any): IStatusMessage[]; 
+
+  addDefaultHeaders(headers: IHttpHeaders): IStatusMessage[];
+  
+  setDefaultHeaders(headers: IHttpHeaders): IStatusMessage[];
+
 }

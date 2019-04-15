@@ -1,6 +1,6 @@
 {
   "name": "@hn3000/metaapi",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "description": "api descriptions using @hn3000/metamodel",
   "repository": "git@github.com:hn3000/metamodel",
   "main": "out/src/export.js",
@@ -14,19 +14,20 @@
   "scripts": {
     "tsc": "tsc",
     "tsc:w": "tsc -w",
-    "pretest": "tsc",
-    "precover": "tsc",
+    "pretest": "tsc -p tsconfig.test.json",
+    "precover": "tsc -p tsconfig.test.json",
     "prepare": "tsc",
-    "test": "node out/test/allTests.js",
-    "cover": "istanbul cover out/test/allTests.js"
+    "test": "node out-test/test/allTests.js",
+    "precover": "tsc",
+    "cover": "nyc --reporter=html --reporter=text npm test"
   },
   "keywords": [],
   "author": "Harald Niesche",
   "license": "ISC",
   "dependencies": {
     "@hn3000/json-ref": "^1.0.0",
-    "@hn3000/metamodel": "^1.5.0",
-    "@hn3000/simpletemplate": "^0.10.0",
+    "@hn3000/metamodel": "^1.6.0",
+    "@hn3000/simpletemplate": "^0.10.1",
     "isomorphic-fetch": "^2.2.1",
     "swagger-schema-official": "^2.0.0-bab6bed"
   },
@@ -35,6 +36,7 @@
     "@types/node": "^11.9.4",
     "@types/swagger-schema-official": "^2.0.14",
     "tsunit.external": "^2.1.1",
-    "typescript": "^3.1.3"
+    "typescript": "^3.3.4000",
+    "nyc": "^13.3.0"
   }
 }

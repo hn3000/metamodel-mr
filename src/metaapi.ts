@@ -195,6 +195,9 @@ function arrayMultiRenderer<Req>(name: string): (req: Req) => string[] {
     if (null == v) {
       return [ ];
     }
+    if (!Array.isArray(v)) {
+      v = [ v ];
+    }
 
     return v.map(x => `${name}=${x}` );
   };
@@ -412,7 +415,7 @@ export class APIModelRegistry implements IAPIModelRegistry {
           let requestModel = this.parseParameterType(opSpec, id, currentPathOptions.parameters);
 
           if (null != opSpec.security) {
-            console.log(`found security spec: ${JSON.stringify(opSpec.security)} in ${id}`);
+            //console.log(`found security spec: ${JSON.stringify(opSpec.security)} in ${id}`);
           }
 
           let responseModel: IAPIResponseModel<any> = {

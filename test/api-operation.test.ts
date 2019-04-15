@@ -1,100 +1,23 @@
+import { opNoParams, opWithParams } from "./util-model";
+import { Operation } from "../src/export";
+import { TestClass } from "tsunit.external";
 
-import {
-  ModelTypeArray,
-  ModelTypeBool,
-  ModelTypeNumber,
-  ModelTypeObject,
-  ModelTypeRegistry,
-  ModelTypeString
-} from '@hn3000/metamodel';
-import { Operation,  } from '../src/metaapi';
-
-import { TestClass } from 'tsunit.external/tsUnitAsync';
-
-let modelTypes = new ModelTypeRegistry();
-
-modelTypes.addType(new ModelTypeString('string'));
-modelTypes.addType(new ModelTypeNumber('number'));
-modelTypes.addType(new ModelTypeBool('boolean'));
-modelTypes.addArrayType(modelTypes.itemType('string'));
-modelTypes.addObjectType('response'); // empty object type matches any (ignores all contents)
-
-let paramsType = modelTypes.addObjectType('requestParams')
-  .addItem('q', modelTypes.type('string'), true)
-  .addItem('a', new ModelTypeArray(modelTypes.type('string')), true)
-  .addItem('b', new ModelTypeArray(modelTypes.type('string')), true)
-  .addItem('corpus',
-    modelTypes.addObjectType('bodyParam')
-    .addItem('a', modelTypes.type('number'), true)
-    .addItem('b', modelTypes.type('number'), true)
-    , true)
-  .addItem('caput', new ModelTypeArray(modelTypes.type('string')), true)
-  .addItem('param', modelTypes.type('string'), true)
-  ;
-paramsType.itemType('q').propSet('schema', { in: 'query' });
-paramsType.itemType('a').propSet('schema', { format: 'multi', in: 'query' });
-paramsType.itemType('b').propSet('schema', { format: 'csv', in: 'query' });
-paramsType.itemType('corpus').propSet('schema', { in: 'body' });
-paramsType.itemType('caput').propSet('schema', { in: 'header' });
-paramsType.itemType('param').propSet('schema', { in: 'path' });
 
 export class ApiOperationTest extends TestClass {
+
+  constructor() {
+    super();
+  }
 
   private opWithParams: Operation<any, any>;
   private opNoParams: Operation<any, any>;
 
   setUp() {
-    debugger;
-    let paramsType = modelTypes.type('requestParams');
-
-    let op = new Operation({
-      id: 'withParams',
-      pathPattern: '/op/{param}',
-      responseModel: { 200: modelTypes.type('response') },
-      requestModel: {
-        format: 'empty',
-        paramsType,
-        paramsByLocation: {
-          query: [ 'q', 'a', 'b' ],
-          body: ['corpus'],
-          header: ['caput'],
-          path: [],
-          formData: [],
-        },
-        locationsByParam: {
-          'q': 'query',
-          'a': 'query',
-          'b': 'query',
-          'param': 'path',
-          'corpus': 'body',
-          'caput': 'header'
-        }
-      }
-    });
-
-    this.opWithParams = op;
-
-    op = new Operation({
-      id: 'noParams',
-      pathPattern: '/op-no-params/',
-      responseModel: { 200: modelTypes.type('response')},
-      requestModel: {
-        format: 'empty',
-        paramsType,
-        locationsByParam: {},
-        paramsByLocation: {
-          body: [],
-          header: [],
-          path: [],
-          formData: [],
-          query: []
-        }
-      }
-    });
-    this.opNoParams = op;
+    this.opNoParams = opNoParams;
+    this.opWithParams = opWithParams;
   }
 
-  testParametersInUrlAreReplaced() {
+  testParametersInPathAreReplaced() {
     let { opWithParams } = this;
 
     this.areIdentical('/op/true', opWithParams.path({ param: true }));
@@ -122,7 +45,7 @@ export class ApiOperationTest extends TestClass {
     let actual = JSON.stringify(opWithParams.headers({ caput: 123, corpus: {a:1,b:2} }));
     this.areIdentical(expected, actual);
   }
-  testEmptyQueryDoesNotHAveQuestionMark() {
+  testEmptyQueryDoesNotHaveQuestionMark() {
     let { opNoParams } = this;
     try {
       this.areIdentical('/op-no-params/', opNoParams.path({ param: true }));
