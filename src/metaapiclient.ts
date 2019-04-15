@@ -119,18 +119,30 @@ export class MetaApiClient implements IAPIClient {
     }
     let [url, requestInit] = this.requestInfoForOperation(operation, req);
 
-    return (
-      fetch(url, requestInit)
+    return this.runFetch(url, requestInit, operation);
+  }
+
+  runFetch<TResponse=any>(
+    url: string, 
+    requestInit: RequestInit, 
+    operation?: IAPIOperation<any, TResponse>
+  ) : Promise<IAPIResult<TResponse>> {
+    let tmp = fetch(url, requestInit)
       .then((result) => Promise.all([ result, result.text() ]) )
-      .then(([result, text]) => [ result, text !== "" ? JSON.parse(text) : {} ])
-      .then(([result, json]) => [result, this._verifyResponse(result, json, operation)])
-      .then(([result, json]) => (
+      .then(([result, text]) => [ result, text !== "" ? JSON.parse(text) : {} ]);
+
+    if (null != operation) {
+      tmp = tmp.then(([result, json]) => [result, this._verifyResponse(result, json, operation)]);
+    }
+
+    let result = tmp.then(([result, json]) => (
         (result.status < 400)
         ? new APISuccess(json as TResponse)
         : new APIFailure(new Error(result.status), json as TResponse)
       ))
-      .then(null, (error) => new APIFailure<TResponse>(error))
-    );
+      .then(null, (error) => new APIFailure<TResponse>(error));
+
+    return result;
   }
 
   urlForOperation<TRequest, TResponse>(operation: IAPIOperation<TRequest, TResponse>, req: TRequest)
