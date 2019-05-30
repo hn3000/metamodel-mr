@@ -13,13 +13,13 @@ import {
 } from '@hn3000/json-ref';
 
 import {
-  IModelType,
   IModelTypeComposite,
   ModelTypeObject,
   ModelSchemaParser,
   ModelTypeAny,
   modelTypes,
-  ClientProps
+  ClientProps,
+  IClientProps
 } from '@hn3000/metamodel';
 
 import { TemplateFactory, Template } from '@hn3000/simpletemplate';
@@ -215,9 +215,10 @@ function stringRenderer<Req>(name: string): (req: Req) => string[] {
   };
 }
 
-export class APIModel implements IAPIModel, IAPIModelBuilder {
+export class APIModel extends ClientProps implements IAPIModel, IAPIModelBuilder {
 
-  constructor(operations: ReadonlyArray<IAPIOperation<any, any>>, base: string) {
+  constructor(operations: ReadonlyArray<IAPIOperation<any, any>>, base: string, props?: IClientProps|any) {
+    super(props);
     this._operations = operations.slice();
     this._base = base;
     this._operationsById = { };
@@ -466,7 +467,7 @@ export class APIModelRegistry implements IAPIModelRegistry {
     let base = spec.basePath;
 
 //console.log(`create APIModel ${operations}, ${base}`)
-    let result = new APIModel(operations, base);
+    let result = new APIModel(operations, base, { spec });
 
     return result;
   }

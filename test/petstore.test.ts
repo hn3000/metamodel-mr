@@ -15,8 +15,10 @@ export class PetStoreTest extends TestClass {
     //let url = `file://${fn}`;
     console.log(fn);
     let promise = modelregistry.fetchModel(fn, 'petstore');
-    promise.then(model => {
-      this.areIdentical(20, model.operations().length);
+    return promise.then(model => {
+      this.areIdentical(20, model.operations().length, 'number of operations should be 20');
+      this.isTrue(null != model.propGet('spec'), 'model should keep spec around')
+      this.areIdentical(model.base, model.propGet('spec').basePath, 'model base should match spec')
       //console.log(model);
     }, err => console.log(err));
   }

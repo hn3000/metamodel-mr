@@ -35,6 +35,8 @@ export function runTests() {
       console.log('---');
       console.log(`ran unit tests, all ${result.passes.length} tests passed`);
     }
+  }).then(null, (error) => {
+    console.log('caught error', error);
   });
 }
 

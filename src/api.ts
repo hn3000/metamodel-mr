@@ -40,7 +40,7 @@ export interface IAPIOperation<Req, Resp> extends IClientProps {
 
 }
 
-export interface IAPIModel {
+export interface IAPIModel extends IClientProps {
   operations(): ReadonlyArray<IAPIOperation<any, any>>;
   operationById(id:string): IAPIOperation<any, any>;
   base: string;
