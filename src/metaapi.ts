@@ -151,9 +151,10 @@ export class Operation<Req, Resp> extends ClientProps implements IAPIOperation<R
       let pt = rqType.itemType(name);
       if (pt.kind === 'array') {
         let schema = pt.propGet('schema');
-        let format = schema && schema.format;
-        switch (format) {
+        let collectionFormat = schema && schema.collectionFormat;
+        switch (collectionFormat) {
           case 'multi': return arrayMultiRenderer(name);
+          case 'pipes': return arraySSVRenderer(name, '|');
           case 'tsv': return arraySSVRenderer(name, '\t');
           case 'ssv': return arraySSVRenderer(name, ' ');
           case 'csv':

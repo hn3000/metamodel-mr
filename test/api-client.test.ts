@@ -17,8 +17,8 @@ export class ApiClientTest extends TestClass {
     this.areIdentical('https://localhost/base/op-no-params/', url);
   }
   testApiClientCreatesURLWithParamForOperation() {
-    let url = this.apiClient.urlForOperation(opWithParams, { param: 4711, q: 'qqq', a: ['aAa'] });
-    this.areIdentical('https://localhost/base/op/4711?q=qqq&a=aAa', url);
+    let url = this.apiClient.urlForOperation(opWithParams, { param: 4711, q: 'qqq', a: ['aAa', 'bBb'] });
+    this.areIdentical('https://localhost/base/op/4711?q=qqq&a=aAa&a=bBb', url);
   }
 
   testApiClientUsesDefaultValues() {

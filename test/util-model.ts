@@ -28,8 +28,8 @@ let paramsType = modelTypes.addObjectType('requestParams')
   .addItem('param', modelTypes.type('string'), true)
   ;
 paramsType.itemType('q').propSet('schema', { in: 'query' });
-paramsType.itemType('a').propSet('schema', { format: 'multi', in: 'query' });
-paramsType.itemType('b').propSet('schema', { format: 'csv', in: 'query' });
+paramsType.itemType('a').propSet('schema', { collectionFormat: 'multi', in: 'query' });
+paramsType.itemType('b').propSet('schema', { collectionFormat: 'csv', in: 'query' });
 paramsType.itemType('corpus').propSet('schema', { in: 'body' });
 paramsType.itemType('caput').propSet('schema', { in: 'header' });
 paramsType.itemType('param').propSet('schema', { in: 'path' });
