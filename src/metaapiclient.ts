@@ -129,7 +129,7 @@ export class MetaApiClient implements IAPIClient {
   ) : Promise<IAPIResult<TResponse>> {
     let tmp = fetch(url, requestInit)
       .then((result) => Promise.all([ result, result.text() ]) )
-      .then(([result, text]) => [ result, text !== "" ? JSON.parse(text) : {} ]);
+      .then(([result, text]) => [ result, result.headers.get('content-type').startsWith('application/json') && text !== "" ? JSON.parse(text) : {} ]);
 
     if (null != operation) {
       tmp = tmp.then(([result, json]) => [result, this._verifyResponse(result, json, operation)]);
