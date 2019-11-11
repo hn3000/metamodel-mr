@@ -257,6 +257,89 @@ export class JsonPointerTest extends TestClass {
     this.areCollectionsIdentical(['1','2','3'], obj.a);
   }
 
+  testPointerWithValue() {
+    var ptr = new JsonPointer('/lala');
+    var obj = {};
+    this.areCollectionsIdentical([], Object.keys(obj));
+    var newObj = ptr.withValue(obj, '#');
+    this.areNotIdentical(obj, newObj);
+    this.areCollectionsIdentical([], Object.keys(obj));
+    this.areCollectionsIdentical(['lala'], Object.keys(newObj));
+  }
+
+  testPointerWithValueDeepCreatePath() {
+    var ptr = new JsonPointer('/foo/bar');
+    var obj = {};
+    this.areCollectionsIdentical([], Object.keys(obj));
+    var newObj = ptr.withValue(obj, '#', true);
+    this.areNotIdentical(obj, newObj);
+    this.areCollectionsIdentical([], Object.keys(obj));
+    this.areCollectionsIdentical(['foo'], Object.keys(newObj));
+    this.areCollectionsIdentical(['bar'], Object.keys(newObj.foo));
+  }
+
+  testPointerWithValueDeep() {
+    var ptr = new JsonPointer('/foo/bar');
+    var obj = { foo: { lala: 12 }};
+    this.areCollectionsIdentical(['foo'], Object.keys(obj));
+    this.areCollectionsIdentical(['lala'], Object.keys(obj.foo));
+
+    var newObj = ptr.withValue(obj, '#', true);
+
+    this.areNotIdentical(obj, newObj, 'root objects must be different');
+    this.areNotIdentical(obj.foo, newObj.foo, 'inner objects must be different');
+
+    this.areCollectionsIdentical(['foo'], Object.keys(obj));
+    this.areCollectionsIdentical(['lala'], Object.keys(obj.foo));
+
+    this.areCollectionsIdentical(['foo'], Object.keys(newObj));
+    this.areCollectionsIdentical(['lala','bar'], Object.keys(newObj.foo));
+  }
+
+  testPointerWithValueDeepInArray() {
+    var ptr = new JsonPointer('/foo/0/bar');
+    var obj = { foo:  [ { lala: 12 } ] };
+    this.areCollectionsIdentical(['foo'], Object.keys(obj));
+    this.areCollectionsIdentical(['0'], Object.keys(obj.foo));
+    this.areCollectionsIdentical(['lala'], Object.keys(obj.foo[0]));
+
+    var newObj = ptr.withValue(obj, '#', false);
+
+    this.areNotIdentical(obj, newObj, 'root objects must be different');
+    this.areNotIdentical(obj.foo, newObj.foo, 'array must be different');
+    this.areNotIdentical(obj.foo[0], newObj.foo[0], 'inner objects must be different');
+
+    this.areCollectionsIdentical(['foo'], Object.keys(obj));
+    this.areCollectionsIdentical(['0'], Object.keys(obj.foo));
+    this.areCollectionsIdentical(['lala'], Object.keys(obj.foo[0]));
+
+    this.areCollectionsIdentical(['foo'], Object.keys(newObj));
+    this.areCollectionsIdentical(['0'], Object.keys(newObj.foo));
+    this.areCollectionsIdentical(['lala','bar'], Object.keys(newObj.foo[0]));
+  }
+
+  testPointerWithValueDeepInNewArrayMember() {
+    var ptr = new JsonPointer('/foo/-/bar');
+    var obj = { foo:  [ { lala: 12 } ] };
+    this.areCollectionsIdentical(['foo'], Object.keys(obj));
+    this.areCollectionsIdentical(['0'], Object.keys(obj.foo));
+    this.areCollectionsIdentical(['lala'], Object.keys(obj.foo[0]));
+
+    var newObj = ptr.withValue(obj, '#', true);
+
+    this.areNotIdentical(obj, newObj, 'root objects must be different');
+    this.areNotIdentical(obj.foo, newObj.foo, 'array must be different');
+    this.areIdentical(obj.foo[0], newObj.foo[0], 'inner objects not must be different');
+
+    this.areCollectionsIdentical(['foo'], Object.keys(obj));
+    this.areCollectionsIdentical(['0'], Object.keys(obj.foo));
+
+    this.areCollectionsIdentical(['foo'], Object.keys(newObj));
+    this.areCollectionsIdentical(['0', '1'], Object.keys(newObj.foo));
+    this.areCollectionsIdentical(['lala'], Object.keys(newObj.foo[0]));
+    this.areCollectionsIdentical(['bar'], Object.keys(newObj.foo[1]));
+  }
+
   testPointerDeleteValue() {
     var ptr = new JsonPointer('/lala');
     var obj = { 'lala': '#' };

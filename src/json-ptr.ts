@@ -168,26 +168,39 @@ export class JsonPointer {
   }
 
   setValue(obj:any, val:any, createPath: boolean = false): any {
+    return this._changeValue(obj, val, createPath, useMutable);
+  }
+
+  withValue(obj:any, val:any, createPath: boolean = false): any {
+    return this._changeValue(obj, val, createPath, copyImmutable);
+  }
+
+  _changeValue(obj:any, val:any, createPath: boolean, makeMutable: (x: any) => any): any {
     let keys = this._keypath;
 
     if (keys.length == 0) {
       return val;
     }
 
-    let start = obj || (maybeArrayIndex(keys[0]) ? [] : {});
+    let start = makeMutable(obj || (maybeArrayIndex(keys[0]) ? [] : {}));
     let tmp = start;
     let i = 0;
     for (let n = keys.length-1; i < n; ++i) {
-      let k = keys[i];
-      let ntmp = JsonPointer._deref(tmp, k);
-      if (null == ntmp) {
+      const k = keys[i];
+      const kval = JsonPointer._deref(tmp, k);
+      let ntmp = kval;
+      if (null == kval) {
         if (createPath || null == obj) {
           ntmp = maybeArrayIndex(keys[i+1]) ? [] : {}
-          JsonPointer._set(tmp, k, ntmp);
         } else {
           tmp = null;
           break;
         }
+      } else {
+        ntmp = makeMutable(kval);
+      }
+      if (null != ntmp && kval !== ntmp) {
+        JsonPointer._set(tmp, k, ntmp);
       }
       tmp = ntmp;
     }
@@ -220,3 +233,16 @@ export class JsonPointer {
   private _keypath:string[];
 }
 
+function copyImmutable(ntmp: any) {
+  let tmp;
+  if (Array.isArray(ntmp)) {
+    tmp = [ ... ntmp ];
+  } else {
+    tmp = { ... ntmp };
+  }
+  return tmp;
+}
+
+function useMutable(ntmp: any) {
+  return ntmp;
+}
