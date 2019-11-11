@@ -19,6 +19,40 @@ import {
 
 
 export class JsonReferenceTest extends TestClass {
+  testFileReferenceGet() {
+    var ref = JsonReference.get("lala.json#/blah");
+
+    this.areIdentical("lala.json", ref.filename);
+    this.areCollectionsIdentical(['blah'], ref.pointer.keys);
+  }
+  testFileReferenceGetCopy() {
+    var orig = JsonReference.get("lala.json#/blah");
+    var ref = JsonReference.get(orig);
+
+    this.areIdentical(orig, ref, 'JsonReference.get should not copy');
+    this.areIdentical("lala.json", ref.filename);
+    this.areCollectionsIdentical(['blah'], ref.pointer.keys);
+  }
+  testGetFilenameFromFullRef() {
+    var name = JsonReference.getFilename("lala.json#/blah");
+
+    this.areIdentical("lala.json", name);
+  }
+  testGetFilenameFromPtrOnlyRef() {
+    var name = JsonReference.getFilename("#/blah");
+
+    this.areIdentical("", name);
+  }
+  testGetFilenameFromNullRef() {
+    var name = JsonReference.getFilename(null);
+
+    this.areIdentical("", name);
+  }
+  testGetFilenameFromFilenameOnlyRef() {
+    var name = JsonReference.getFilename('lala.json');
+
+    this.areIdentical("lala.json", name);
+  }
   testSimpleReference() {
     var ref = new JsonReference("");
 
