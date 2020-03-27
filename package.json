@@ -1,6 +1,6 @@
 {
   "name": "@hn3000/metaapi",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "description": "api descriptions using @hn3000/metamodel",
   "repository": "git@github.com:hn3000/metamodel",
   "main": "out/src/export.js",
@@ -25,7 +25,7 @@
   "license": "ISC",
   "dependencies": {
     "@hn3000/json-ref": "^1.0.1",
-    "@hn3000/metamodel": ">=1.6.6",
+    "@hn3000/metamodel": ">=1.7.1",
     "@hn3000/simpletemplate": "^0.10.1",
     "isomorphic-fetch": "^2.2.1",
     "swagger-schema-official": "^2.0.0-bab6bed"
@@ -34,8 +34,8 @@
     "@types/isomorphic-fetch": "0.0.34",
     "@types/node": "^11.9.4",
     "@types/swagger-schema-official": "^2.0.14",
+    "nyc": "^14.1.1",
     "tsunit.external": "^2.1.1",
-    "typescript": "^3.3.4000",
-    "nyc": "^13.3.0"
+    "typescript": "^3.3.4000"
   }
 }
