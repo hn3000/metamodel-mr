@@ -68,7 +68,7 @@ export interface IAPIRequestContext<TReq, TResp> {
 
 export interface IAPIResult<TResponse> {
   isSuccess(): boolean;
-  success(): TResponse;
+  success(): TResponse | undefined;
   error(): Error;
 
   response(): any; // Success in this case
