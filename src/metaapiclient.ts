@@ -6,7 +6,8 @@ import {
   IAPIResult, 
   IAPIError, 
   ErrorKind, 
-  IHttpHeaders 
+  IHttpHeaders, 
+  IAPIRequestContext
 } from './api';
 
 import {
@@ -18,20 +19,29 @@ import {
 import { combinePaths } from './path-utils';
 
 export class APISuccess<TResult> implements IAPIResult<TResult> {
-  constructor(private _response:TResult) { }
+  constructor(
+    private _response: TResult,
+    private _requestContext: IAPIRequestContext<any, TResult>,
+    private _httpRequest: Request,
+    private _httpResponse: Response
+  ) { }
   isSuccess() { return true; }
   success() { return this._response; }
-
   error(): Error { return null; }
+  response() { return this._response; }
 
-  response(): any { return this._response; }
+  requestContext() { return this._requestContext; }
+  httpRequest(): Request { return this._httpRequest; }
+  httpResponse(): Response { return this._httpResponse; } 
 }
 
 export class APICallMismatch implements IAPIResult<any> {
-  constructor(ctx: ModelParseContext) {
+  constructor(ctx: ModelParseContext, requestContext: IAPIRequestContext<any, any>) {
     this._messages = ctx.messages;
     this._error = new Error('parameter validation failed');
     (this._error as any).messages = this._messages;
+
+    this._requestContext = requestContext;
   }
 
   isSuccess() { return false; }
@@ -39,25 +49,36 @@ export class APICallMismatch implements IAPIResult<any> {
 
   error() { return this._error; }
   messages() { return this._messages; }
-
+  
   response(): any { return null; }
-
+  requestContext() { return this._requestContext; }
+  
   toString() {
     return this._messages.join(', ');
   }
-
+  
   private _messages: IPropertyStatusMessage[];
   private _error: Error;
+
+  private _requestContext: IAPIRequestContext<any, any>;
 }
 
 export class APIFailure<TResult> implements IAPIResult<TResult> {
-  constructor(private _error: Error, private _response: TResult = null) {
-  }
+  constructor(
+    private _error: Error, 
+    private _response: TResult = null,
+    private _requestContext: IAPIRequestContext<any, TResult>,
+    private _httpRequest: Request,
+    private _httpResponse: Response
+  ) { }
 
   isSuccess() { return false; }
-  success(): TResult { return null; }
+  success(): undefined { return undefined; }
   error() { return this._error; }
   response(): TResult { return this._response; }
+  requestContext() { return this._requestContext; }
+  httpRequest(): Request { return this._httpRequest; }
+  httpResponse(): Response { return this._httpResponse; } 
 }
 
 export class MetaApiClient implements IAPIClient {
@@ -123,34 +144,56 @@ export class MetaApiClient implements IAPIClient {
   runOperation<TRequest, TResponse>(operation: IAPIOperation<TRequest, TResponse>, req: TRequest)
   : Promise<IAPIResult<TResponse>> {
 
+    const requestContext: IAPIRequestContext<TRequest, TResponse> = {
+      operation,
+      requestData: req
+    }
+ 
+
     const ctx = this._verifyRequest(operation, req);
     if (0 != ctx.errors.length) {
-      return Promise.resolve(new APICallMismatch(ctx));
+      return Promise.resolve(new APICallMismatch(ctx, requestContext));
     }
     let [url, requestInit] = this.requestInfoForOperation(operation, req);
 
-    return this.runFetch(url, requestInit, operation);
+    return this._runFetch(url, requestInit, requestContext);
   }
 
-  runFetch<TResponse=any>(
+  async _runFetch<TResponse=any>(
     url: string, 
     requestInit: RequestInit, 
-    operation?: IAPIOperation<any, TResponse>
+    requestContext?: IAPIRequestContext<any, TResponse>
   ) : Promise<IAPIResult<TResponse>> {
-    let tmp = fetch(url, requestInit)
-      .then((result) => Promise.all([ result, result.text() ]) )
-      .then(([result, text]) => [ result, result.headers.get('content-type').startsWith('application/json') && text !== "" ? JSON.parse(text) : {} ]);
+    const httpRequest = new Request(url, requestInit);
 
-    if (null != operation) {
-      tmp = tmp.then(([result, json]) => [result, this._verifyResponse(result, json, operation)]);
+    const httpResponse = await fetch(httpRequest);
+
+    let text = await httpResponse.text();
+    const isJSON = httpResponse.headers.get('content-type').startsWith('application/json');
+
+    let result: IAPIResult<TResponse>;
+    let json: any = {};
+    try {
+      if (isJSON && text !== '') {
+        json = JSON.parse(text);
+      }
+      if (null != requestContext?.operation) {
+        this._verifyResponse(httpResponse, json, requestContext.operation);
+      }
+
+      if (httpResponse.status < 400) {
+        result = new APISuccess(json as TResponse, requestContext, httpRequest, httpResponse);
+      } else {
+        result = new APIFailure(
+          new Error(''+httpResponse.status), 
+          json as TResponse, 
+          requestContext, httpRequest, httpResponse
+        );
+      }
+    } catch (error) {
+      result = new APIFailure<TResponse>(error, json, requestContext, httpRequest, httpResponse);
     }
 
-    let result = tmp.then(([result, json]) => (
-        (result.status < 400)
-        ? new APISuccess(json as TResponse)
-        : new APIFailure(new Error(result.status), json as TResponse)
-      ))
-      .then(null, (error) => new APIFailure<TResponse>(error));
 
     return result;
   }

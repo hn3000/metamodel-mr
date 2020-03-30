@@ -59,12 +59,23 @@ export interface IAPIModelRegistry {
   model(id: string): IAPIModel;
 }
 
-export interface IAPIResult<Success> {
+export interface IAPIRequestContext<TReq, TResp> {
+
+  operation: IAPIOperation<TReq, TResp>;
+
+  requestData: TReq;
+}
+
+export interface IAPIResult<TResponse> {
   isSuccess(): boolean;
-  success(): Success;
+  success(): TResponse;
   error(): Error;
 
-  response(): any;
+  response(): any; // Success in this case
+
+  requestContext(): IAPIRequestContext<any, TResponse>;
+
+
 }
 
 export enum ErrorKind {
@@ -85,14 +96,14 @@ export interface IHttpHeaders {
 
 export interface IAPIClient {
 
-  runOperationById(id: string, req: any): Promise<IAPIResult<any>>; // will reject to an IAPIError in case of errors
+  runOperationById(id: string, requestData: any): Promise<IAPIResult<any>>; // will reject to an IAPIError in case of errors
 
-  runOperation<TRequest, TResponse>(operation: IAPIOperation<TRequest, TResponse>, req: TRequest): Promise<IAPIResult<TResponse>>; // will reject to an IAPIError in case of errors
+  runOperation<TRequest, TResponse>(operation: IAPIOperation<TRequest, TResponse>, requestData: TRequest): Promise<IAPIResult<TResponse>>; // will reject to an IAPIError in case of errors
 
-  urlForOperationId(id: string, req: any): string;
-  urlForOperation<TRequest, TResponse>(operation: IAPIOperation<TRequest, TResponse>, req: TRequest): string;
-  requestInfoForOperationId(id: string, req: any): [string, RequestInit];
-  requestInfoForOperation<TRequest, TResponse>(operation: IAPIOperation<TRequest, TResponse>, req: TRequest): [string, RequestInit];
+  urlForOperationId(id: string, requestData: any): string;
+  urlForOperation<TRequest, TResponse>(operation: IAPIOperation<TRequest, TResponse>, requestData: TRequest): string;
+  requestInfoForOperationId(id: string, requestData: any): [string, RequestInit];
+  requestInfoForOperation<TRequest, TResponse>(operation: IAPIOperation<TRequest, TResponse>, requestData: TRequest): [string, RequestInit];
 
   model: IAPIModel;
 

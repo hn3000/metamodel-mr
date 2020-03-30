@@ -24,8 +24,8 @@
   "author": "Harald Niesche",
   "license": "ISC",
   "dependencies": {
-    "@hn3000/json-ref": "^1.0.1",
-    "@hn3000/metamodel": "^1.7.1",
+    "@hn3000/json-ref": "^1.1.0",
+    "@hn3000/metamodel": "^1.8.1",
     "@hn3000/simpletemplate": "^0.10.1",
     "isomorphic-fetch": "^2.2.1",
     "swagger-schema-official": "^2.0.0-bab6bed"
@@ -34,9 +34,9 @@
     "@types/isomorphic-fetch": "0.0.34",
     "@types/node": "^11.9.4",
     "@types/swagger-schema-official": "^2.0.14",
-    "nyc": "^14.1.1",
+    "nyc": "^15.0.0",
     "tsunit.external": "=2.0.10",
-    "typescript": "^3.6.4"
+    "typescript": "^3.8.3"
   },
   "nyc": {
     "all": false,
