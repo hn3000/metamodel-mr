@@ -1,6 +1,7 @@
 import { PetStoreTest } from "./petstore.test";
 import { ApiOperationTest } from "./api-operation.test";
 import { ApiClientTest } from "./api-client.test";
+import { PathUtilsTest } from "./path-utils.test";
 
 import {
   TestAsync,
@@ -14,6 +15,7 @@ function parmNum(t:TestDescription) {
 export function runTests() {
   "use strict";
   let test = new TestAsync();
+  test.addTestClass(new PathUtilsTest(), "PathUtilsTest");
   test.addTestClass(new PetStoreTest(), "PetStoreTest");
   test.addTestClass(new ApiClientTest(), "ApiClientTest");
   test.addTestClass(new ApiOperationTest(), "ApiOperationTest");

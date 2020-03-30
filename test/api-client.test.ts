@@ -1,5 +1,5 @@
 
-import { TestClass } from "tsunit.external";
+import { TestClass } from "tsunit.external/tsUnitAsync";
 import { IAPIClient } from "../src/api";
 import { MetaApiClient } from "../src/export";
 import { apiModel, opNoParams, opWithParams } from "./util-model";

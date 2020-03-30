@@ -1,11 +1,21 @@
 
-import { IAPIClient, IAPIModel, IAPIOperation, IAPIResult, IAPIError, ErrorKind, IHttpHeaders } from './api';
+import { 
+  IAPIClient, 
+  IAPIModel, 
+  IAPIOperation, 
+  IAPIResult, 
+  IAPIError, 
+  ErrorKind, 
+  IHttpHeaders 
+} from './api';
 
 import {
   ModelParseContext,
   IPropertyStatusMessage,
   IStatusMessage
 } from '@hn3000/metamodel';
+
+import { combinePaths } from './path-utils';
 
 export class APISuccess<TResult> implements IAPIResult<TResult> {
   constructor(private _response:TResult) { }
@@ -252,18 +262,3 @@ export class MetaApiClient implements IAPIClient {
   private _defaultHeaders: any;
 }
 
-function combinePaths(...paths: string[]) {
-  return paths.reduce(combine2Paths);
-}
-
-function combine2Paths(a: string, b: string) {
-  const aHasSlash = a.endsWith('/');
-  const bHasSlash = b.startsWith('/');
-  if (aHasSlash !== bHasSlash) {
-    return a+b;
-  } else if (aHasSlash) {
-    return a + b.substr(1);
-  } else {
-    return a + '/' + b;
-  }
-}

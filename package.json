@@ -14,18 +14,18 @@
   "scripts": {
     "tsc": "tsc",
     "tsc:w": "tsc -w",
-    "pretest": "tsc -p tsconfig.test.json",
+    "pretest": "tsc",
     "precover": "tsc",
     "prepare": "tsc",
-    "test": "node out-test/test/allTests.js",
-    "cover": "nyc --reporter=html --reporter=text npm test"
+    "test": "node out/test/allTests.js",
+    "cover": "nyc node out/test/allTests.js"
   },
   "keywords": [],
   "author": "Harald Niesche",
   "license": "ISC",
   "dependencies": {
     "@hn3000/json-ref": "^1.0.1",
-    "@hn3000/metamodel": ">=1.7.1",
+    "@hn3000/metamodel": "^1.7.1",
     "@hn3000/simpletemplate": "^0.10.1",
     "isomorphic-fetch": "^2.2.1",
     "swagger-schema-official": "^2.0.0-bab6bed"
@@ -35,7 +35,29 @@
     "@types/node": "^11.9.4",
     "@types/swagger-schema-official": "^2.0.14",
     "nyc": "^14.1.1",
-    "tsunit.external": "^2.1.1",
-    "typescript": "^3.3.4000"
+    "tsunit.external": "=2.0.10",
+    "typescript": "^3.6.4"
+  },
+  "nyc": {
+    "all": false,
+    "cache": false,
+    "excludeAfterRemap": false,
+    "extension": [
+      ".js",
+      ".ts"
+    ],
+    "include": [
+      "src/**",
+      "out/src/**"
+    ],
+    "exclude": [
+      "test/**",
+      "out/test/**",
+      "out/src/**.d.ts"
+    ],
+    "reporter": [
+      "text",
+      "html"
+    ]
   }
 }

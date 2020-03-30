@@ -87,10 +87,10 @@ export class Operation<Req, Resp> extends ClientProps implements IAPIOperation<R
     let format = this.requestModel.format;
     let { paramsByLocation } = this.requestModel;
     let result = null;
-    if (null != paramsByLocation.body) {
+    if (nonEmpty(paramsByLocation.body) && format === 'body') {
       let bodyParams = paramsByLocation.body;
       result = JSON.stringify(req[bodyParams[0]]);
-    } else if (null != paramsByLocation.formData) {
+    } else if (nonEmpty(paramsByLocation.formData) && format === 'formData') {
       let formParams = paramsByLocation.formData;
       result = '';
       for (let p of formParams) {
@@ -99,6 +99,8 @@ export class Operation<Req, Resp> extends ClientProps implements IAPIOperation<R
         }
         result += `${p}=${req[p]}`; // TODO: proper quoting
       }
+    } else if (format !== 'empty') {
+      console.warn(`request format does not match params: ${format}`);
     }
 
     return result;
@@ -354,14 +356,25 @@ export class APIModelRegistry implements IAPIModelRegistry {
       } else {
         console.warn(`no type found for ${id}-${name} / ${p}`);
       }
+
     });
 
-    if (1 < paramsByLocation['body'].length) {
-      console.log(`multiple in: body parameters found: ${paramsByLocation['body'].join(',')}, ${name}`);
+    let numBodyParams = paramsByLocation.body.length;
+    let numFormDataParams = paramsByLocation.formData.length;
+
+    if (1 < numBodyParams) {
+      console.log(`multiple in: body parameters found: ${paramsByLocation.body.join(',')}, ${name}`);
     }
-    if (paramsByLocation['body'].length && paramsByLocation['formData'].length) {
-      console.log(`both in: body and in: formData parameters found: ${paramsByLocation['body'].join(',')}; ${paramsByLocation['formData'].join(',')}‚`);
+    if (numBodyParams && numFormDataParams) {
+      console.log(`both in: body and in: formData parameters found: ${paramsByLocation.body.join(',')}; ${paramsByLocation.formData.join(',')}‚`);
     }
+
+    if (numBodyParams && !numFormDataParams) {
+      result.format = 'body';
+    } else if(numFormDataParams && !numBodyParams) {
+      result.format = 'formData';
+    }
+
     return result;
   }
 
@@ -511,4 +524,8 @@ const methodRE = /^(get|put|post|delete|options|head|patch)$/;
 
 function isMethod(method: string) {
   return methodRE.test(method);
+}
+
+function nonEmpty<T>(array: T[]): boolean {
+  return undefined !== array && null !== array && array.length > 0;
 }

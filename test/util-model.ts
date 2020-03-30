@@ -41,7 +41,7 @@ export let opWithParams = new Operation({
   pathPattern: '/op/{param}',
   responseModel: { 200: modelTypes.type('response') },
   requestModel: {
-    format: 'empty',
+    format: 'body',
     paramsType,
     paramsByLocation: {
       query: [ 'q', 'a', 'b' ],
@@ -57,6 +57,27 @@ export let opWithParams = new Operation({
       'param': 'path',
       'corpus': 'body',
       'caput': 'header'
+    }
+  }
+});
+export let opWithParamsInFormData = new Operation({
+  id: 'withParamsInFormData',
+  pathPattern: '/op/withFormData',
+  responseModel: { 200: modelTypes.type('response') },
+  requestModel: {
+    format: 'formData',
+    paramsType,
+    paramsByLocation: {
+      query: [ ],
+      body: [ ],
+      header: [ ],
+      path: [ ],
+      formData: [ 'a', 'b', 'c'],
+    },
+    locationsByParam: {
+      'a': 'formData',
+      'b': 'formData',
+      'c': 'formData',
     }
   }
 });

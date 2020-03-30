@@ -1,7 +1,6 @@
-import { opNoParams, opWithParams } from "./util-model";
+import { opNoParams, opWithParams, opWithParamsInFormData } from "./util-model";
 import { Operation } from "../src/export";
-import { TestClass } from "tsunit.external";
-
+import { TestClass } from "tsunit.external/tsUnitAsync";
 
 export class ApiOperationTest extends TestClass {
 
@@ -55,5 +54,17 @@ export class ApiOperationTest extends TestClass {
       throw xx;
       //this.isTrue(false);
     }
+  }
+
+  testFormDataIsPutInBody() {
+    let op = opWithParamsInFormData;
+    this.areIdentical('/op/withFormData', op.path(null));
+    this.areIdentical('a=&b=&c=', op.body({a:'',b:'',c:''}));
+  }
+  testNoBodyParamsNoBody() {
+    let op = opNoParams;
+    this.areIdentical('/op-no-params/', op.path(null));
+    this.areIdentical(null, op.body({ }));
+    this.areIdentical(null, op.body(undefined));
   }
 }
