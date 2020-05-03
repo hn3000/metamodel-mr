@@ -38,8 +38,10 @@ let paramsTypeNone = modelTypes.addObjectType('requestParamsNone');
 
 export let opWithParams = new Operation({
   id: 'withParams',
+  name: 'withParams',
+  method: 'POST',
   pathPattern: '/op/{param}',
-  responseModel: { 200: modelTypes.type('response') },
+  responseModel: { '200': modelTypes.type('response') },
   requestModel: {
     format: 'body',
     paramsType,
@@ -63,6 +65,7 @@ export let opWithParams = new Operation({
 export let opWithParamsInFormData = new Operation({
   id: 'withParamsInFormData',
   pathPattern: '/op/withFormData',
+  method: 'dummy',
   responseModel: { 200: modelTypes.type('response') },
   requestModel: {
     format: 'formData',
@@ -85,6 +88,7 @@ export let opWithParamsInFormData = new Operation({
 export let opNoParams = new Operation({
   id: 'noParams',
   pathPattern: '/op-no-params/',
+  method: 'GET',
   responseModel: { 200: modelTypes.type('response')},
   requestModel: {
     format: 'empty',
@@ -100,8 +104,36 @@ export let opNoParams = new Operation({
   }
 });
 
+export let opFailure = new Operation({
+  id: 'failure',
+  pathPattern: '/fail/444',
+  method: 'GET',
+  responseModel: { 
+    200: modelTypes.type('response'),
+    444: modelTypes.type('response')
+  },
+  requestModel: {
+    format: 'empty',
+    paramsType: paramsTypeNone,
+    locationsByParam: {},
+    paramsByLocation: {
+      body: [],
+      header: [],
+      path: [],
+      formData: [],
+      query: []
+    }
+  }
+});
 
-export let apiModel = new APIModel([
-  opNoParams,
-  opWithParams
-], '/base/');
+
+export let apiModel = new APIModel(
+  'test model', 
+  [
+    opNoParams,
+    opWithParams,
+    opWithParamsInFormData,
+    opFailure
+  ], 
+  '/base/'
+);

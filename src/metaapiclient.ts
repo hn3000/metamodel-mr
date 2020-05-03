@@ -4,8 +4,6 @@ import {
   IAPIModel, 
   IAPIOperation, 
   IAPIResult, 
-  IAPIError, 
-  ErrorKind, 
   IHttpHeaders, 
   IAPIRequestContext
 } from './api';
@@ -13,7 +11,7 @@ import {
 import {
   ModelParseContext,
   IPropertyStatusMessage,
-  IStatusMessage
+  IStatusMessage,
 } from '@hn3000/metamodel';
 
 import { combinePaths } from './path-utils';
@@ -27,7 +25,7 @@ export class APISuccess<TResult> implements IAPIResult<TResult> {
   ) { }
   isSuccess() { return true; }
   success() { return this._response; }
-  error(): Error { return null; }
+  error() { return undefined; }
   response() { return this._response; }
 
   requestContext() { return this._requestContext; }
@@ -66,19 +64,19 @@ export class APICallMismatch implements IAPIResult<any> {
 export class APIFailure<TResult> implements IAPIResult<TResult> {
   constructor(
     private _error: Error, 
-    private _response: TResult = null,
+    private _response: TResult|undefined = undefined,
     private _requestContext: IAPIRequestContext<any, TResult>,
-    private _httpRequest: Request,
-    private _httpResponse: Response
+    private _httpRequest?: Request,
+    private _httpResponse?: Response
   ) { }
 
   isSuccess() { return false; }
   success(): undefined { return undefined; }
   error() { return this._error; }
-  response(): TResult { return this._response; }
+  response() { return this._response; }
   requestContext() { return this._requestContext; }
-  httpRequest(): Request { return this._httpRequest; }
-  httpResponse(): Response { return this._httpResponse; } 
+  httpRequest() { return this._httpRequest; }
+  httpResponse() { return this._httpResponse; } 
 }
 
 export class MetaApiClient implements IAPIClient {
@@ -87,6 +85,7 @@ export class MetaApiClient implements IAPIClient {
     this._baseUrl = baseUrl;
     this._defaults = {};
     this._defaultHeaders = {};
+    this._verbose = false;
   }
 
   get model(): IAPIModel { return this._apiModel; }
@@ -125,11 +124,7 @@ export class MetaApiClient implements IAPIClient {
   runOperationById(id: string, req: any): Promise<IAPIResult<any>> {
     let operation = this._apiModel.operationById(id);
     if (null == operation) {
-      return Promise.reject(<IAPIError>{
-        kind: ErrorKind.InvalidOperation,
-        httpStatus: null,
-        error: null
-      });
+      return Promise.reject(new Error(`Operation ${id} not found.`));
     }
     return this.runOperation(operation, req);
   }
@@ -162,14 +157,14 @@ export class MetaApiClient implements IAPIClient {
   async _runFetch<TResponse=any>(
     url: string, 
     requestInit: RequestInit, 
-    requestContext?: IAPIRequestContext<any, TResponse>
+    requestContext: IAPIRequestContext<any, TResponse>
   ) : Promise<IAPIResult<TResponse>> {
     const httpRequest = new Request(url, requestInit);
 
     const httpResponse = await fetch(httpRequest);
 
     let text = await httpResponse.text();
-    const isJSON = httpResponse.headers.get('content-type').startsWith('application/json');
+    const isJSON = httpResponse.headers.get('content-type')?.startsWith('application/json');
 
     let result: IAPIResult<TResponse>;
     let json: any = {};
@@ -204,10 +199,10 @@ export class MetaApiClient implements IAPIClient {
     this._verifyRequest(operation, data);
     return this._urlForOperation(operation, data);
   }
-  urlForOperationId(id: string, req: any): string {
+  urlForOperationId(id: string, req: any): string | undefined {
     let operation = this._apiModel.operationById(id);
     if (null == operation) {
-      return null;
+      return undefined;
     }
     return this.urlForOperation(operation, req);
   }
@@ -219,12 +214,12 @@ export class MetaApiClient implements IAPIClient {
   }
 
   requestInfoForOperationId(id: string, req: any)
-  : [string, RequestInit] 
+  : [string, RequestInit] | undefined
   {
 
     let operation = this._apiModel.operationById(id);
     if (null == operation) {
-      return null;
+      return undefined;
     }
     return this.requestInfoForOperation(operation, req);
   }
@@ -285,7 +280,9 @@ export class MetaApiClient implements IAPIClient {
       (error as any)['messages'] = ctx.messages;
       throw error;
     } else {
-      console.log(`validated response (successfully) from ${result.url}`);
+      if (this._verbose) {
+        console.info(`validated response (successfully) from ${result.url}`);
+      }
     }
     return json;
   }
@@ -303,5 +300,7 @@ export class MetaApiClient implements IAPIClient {
 
   private _defaults: any;
   private _defaultHeaders: any;
+
+  private _verbose: boolean;
 }
 

@@ -1,7 +1,8 @@
 import { PetStoreTest } from "./petstore.test";
+import { PathUtilsTest } from "./path-utils.test";
 import { ApiOperationTest } from "./api-operation.test";
 import { ApiClientTest } from "./api-client.test";
-import { PathUtilsTest } from "./path-utils.test";
+import { ApiClientWithServerTest } from "./api-client.http.test";
 
 import {
   TestAsync,
@@ -17,8 +18,9 @@ export function runTests() {
   let test = new TestAsync();
   test.addTestClass(new PathUtilsTest(), "PathUtilsTest");
   test.addTestClass(new PetStoreTest(), "PetStoreTest");
-  test.addTestClass(new ApiClientTest(), "ApiClientTest");
   test.addTestClass(new ApiOperationTest(), "ApiOperationTest");
+  test.addTestClass(new ApiClientTest(), "ApiClientTest");
+  test.addTestClass(new ApiClientWithServerTest(), "ApiClientWithServerTest");
 
   let promise = test.runAsync();
   promise.then((result) => {

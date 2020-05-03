@@ -8,8 +8,8 @@ export class ApiOperationTest extends TestClass {
     super();
   }
 
-  private opWithParams: Operation<any, any>;
-  private opNoParams: Operation<any, any>;
+  private opWithParams!: Operation<any, any>;
+  private opNoParams!: Operation<any, any>;
 
   setUp() {
     this.opNoParams = opNoParams;
@@ -64,7 +64,7 @@ export class ApiOperationTest extends TestClass {
   testNoBodyParamsNoBody() {
     let op = opNoParams;
     this.areIdentical('/op-no-params/', op.path(null));
-    this.areIdentical(null, op.body({ }));
-    this.areIdentical(null, op.body(undefined));
+    this.areIdentical('', op.body({ }));
+    this.areIdentical('', op.body(undefined));
   }
 }

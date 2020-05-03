@@ -4,7 +4,8 @@ import {
   IAPIOperation,
   IAPIRequestModel,
   IAPIResponseModel,
-  ParamLocation
+  ParamLocation,
+  IAPIOperationInit
 } from './api';
 
 import {
@@ -32,24 +33,24 @@ export type FetchFun = (url:string) => Promise<string>;
 
 const templateFactory = new TemplateFactory({ pattern: '{X}'});
 
+const ModelTypeANY = new ModelTypeAny('unknown model type');
+
 interface IParamRenderer<Req> {
   (req: Req): string[]
 }
 
+let opCounter = 1;
+
 export class Operation<Req, Resp> extends ClientProps implements IAPIOperation<Req, Resp> {
-  constructor();
-  constructor(initArg: Partial<IAPIOperation<Req,Resp>>);
-  constructor(...args:any[]) {
+  //constructor();
+  constructor(initArg: IAPIOperationInit<Req,Resp>) {
     super();
-    if (args.length === 1 && null != args[0].id) {
-      const initArgs = args[0];
-      this.init(initArgs);
-    }
+    this.init(initArg);
   }
 
-  init(initArg: Partial<IAPIOperation<Req,Resp>>) {
+  init(initArg: IAPIOperationInit<Req,Resp>) {
     this._id = initArg.id;
-    this._name = initArg.name;
+    this._name = initArg.name || `anon-op-${opCounter++}`;
     this._method = initArg.method;
     this._pathPattern = initArg.pathPattern;
     this._pathTemplate = templateFactory.parse(initArg.pathPattern);
@@ -79,7 +80,7 @@ export class Operation<Req, Resp> extends ClientProps implements IAPIOperation<R
     items = this._paramRenderers.reduce((r, x) => {
       r.push(...x(req));
       return r;
-    }, []);
+    }, [] as string[]);
     return '?'+items.join('&');
   }
 
@@ -99,8 +100,11 @@ export class Operation<Req, Resp> extends ClientProps implements IAPIOperation<R
         }
         result += `${p}=${req[p]}`; // TODO: proper quoting
       }
-    } else if (format !== 'empty') {
-      console.warn(`request format does not match params: ${format}`);
+    } else {
+      result = '';
+      if (format !== 'empty') {
+        console.warn(`request format does not match params: ${format}`);
+      }
     }
 
     return result;
@@ -142,11 +146,11 @@ export class Operation<Req, Resp> extends ClientProps implements IAPIOperation<R
       || null == rqModel.paramsByLocation
       || null == rqModel.paramsByLocation.query
     ) {
+      this._paramRenderers = [];
       return;
     }
 
     let rqType = rqModel.paramsType as IModelTypeComposite<Req>;
-    let queryParams = rqModel.paramsByLocation.query;
 
     this._paramRenderers = rqModel.paramsByLocation.query.map(
       function mapName2Renderer (name: string) {
@@ -168,14 +172,14 @@ export class Operation<Req, Resp> extends ClientProps implements IAPIOperation<R
     });
   }
 
-  private _id: string;
-  private _name: string;
-  private _method: string;
-  private _pathPattern: string;
-  private _pathTemplate: Template;
-  private _paramRenderers: IParamRenderer<Req>[];
-  private _requestModel: IAPIRequestModel<Req>;
-  private _responseModel: IAPIResponseModel<Resp>;
+  private _id!: string;
+  private _name!: string;
+  private _method!: string;
+  private _pathPattern!: string;
+  private _pathTemplate!: Template;
+  private _paramRenderers!: IParamRenderer<Req>[];
+  private _requestModel!: IAPIRequestModel<Req>;
+  private _responseModel!: IAPIResponseModel<Resp>;
 }
 
 
@@ -220,8 +224,14 @@ function stringRenderer<Req>(name: string): (req: Req) => string[] {
 
 export class APIModel extends ClientProps implements IAPIModel, IAPIModelBuilder {
 
-  constructor(operations: ReadonlyArray<IAPIOperation<any, any>>, base: string, props?: IClientProps|any) {
+  constructor(
+    id: string,
+    operations: ReadonlyArray<IAPIOperation<any, any>>, 
+    base: string, 
+    props?: IClientProps|any
+  ) {
     super(props);
+    this._id = id;
     this._operations = operations.slice();
     this._base = base;
     this._operationsById = { };
@@ -229,13 +239,17 @@ export class APIModel extends ClientProps implements IAPIModel, IAPIModelBuilder
 
     for (let op of this._operations) {
       if (opsById[op.id]) {
-        console.log(`duplicate id for operation ${op.id}: ${opsById[op.id]} ${op}`);
+        console.warn(`duplicate id for operation ${op.id}: ${opsById[op.id]} ${op}`);
       }
       opsById[op.id] = op;
     }
   }
   get base(): string {
     return this._base;
+  }
+
+  get id(): string {
+    return this._id;
   }
 
   operations() {
@@ -247,7 +261,7 @@ export class APIModel extends ClientProps implements IAPIModel, IAPIModelBuilder
   }
 
   subModel(keys: string[]) {
-    return new APIModel(keys.map(k => this._operationsById[k]), this._base);
+    return new APIModel(this.id+`($keys.join(','))`, keys.map(k => this._operationsById[k]), this._base);
   }
 
   add(op: IAPIOperation<any, any>) {
@@ -269,6 +283,7 @@ export class APIModel extends ClientProps implements IAPIModel, IAPIModelBuilder
     this._base = base;
   }
 
+  private _id: string;
   private _base: string;
   private _operations: IAPIOperation<any, any>[];
   private _operationsById: { [id: string]: IAPIOperation<any, any>; };
@@ -285,6 +300,8 @@ interface ISecurityTypes {
     type: IModelTypeComposite<any>;
   }
 }
+
+type IModelLookup = { [id: string]: IAPIModel; };
 
 export class APIModelRegistry implements IAPIModelRegistry {
   constructor(fetchFun?: FetchFun) {
@@ -307,11 +324,11 @@ export class APIModelRegistry implements IAPIModelRegistry {
         body: [] as string[],
         formData: [] as string[],
         header: [] as string[]
-      }
+      },
+      paramsType: new ModelTypeAny('any') //avoid null, this will accept anything
     };
     let parameters = opSpec.parameters as SwaggerSchema.Parameter[];
     if (null == parameters || 0 === parameters.length) {
-      result.paramsType = new ModelTypeAny('void'); //avoid null, this will accept anything
       return result;
     }
     let composite = new ModelTypeObject<any>(`${id}Params`);
@@ -363,10 +380,10 @@ export class APIModelRegistry implements IAPIModelRegistry {
     let numFormDataParams = paramsByLocation.formData.length;
 
     if (1 < numBodyParams) {
-      console.log(`multiple in: body parameters found: ${paramsByLocation.body.join(',')}, ${name}`);
+      console.warn(`multiple in: body parameters found: ${paramsByLocation.body.join(',')}, ${name}`);
     }
     if (numBodyParams && numFormDataParams) {
-      console.log(`both in: body and in: formData parameters found: ${paramsByLocation.body.join(',')}; ${paramsByLocation.formData.join(',')}‚`);
+      console.warn(`both in: body and in: formData parameters found: ${paramsByLocation.body.join(',')}; ${paramsByLocation.formData.join(',')}‚`);
     }
 
     if (numBodyParams && !numFormDataParams) {
@@ -401,11 +418,11 @@ export class APIModelRegistry implements IAPIModelRegistry {
 
   parseAPIDefinition(specWithRefs: SwaggerSchema.Spec, id: string): IAPIModel {
     let operations = [] as IAPIOperation<any,any>[];
-    let currentPathOptions: IPathOptions = null;
+    let currentPathOptions: IPathOptions;
 
     const spec = new JsonReferenceProcessor().expandDynamic(specWithRefs, id);
 
-    const secParamDefs = this.parseSecurityTypes(spec);
+    //const secParamDefs = this.parseSecurityTypes(spec);
 
     JsonPointer.walkObject(spec, (x,p) => {
       let keys = p.keys;
@@ -420,9 +437,10 @@ export class APIModelRegistry implements IAPIModelRegistry {
           let pathSpec: any /*SwaggerSchema.Path*/ = x; // declaration of Path does not allow extension properties
           let keys = Object.keys(pathSpec).filter(x => !isMethod(x));
 
-          currentPathOptions = keys.reduce((k:string, o:any) => ({...o, k: pathSpec[k]}), {});
+          currentPathOptions = keys.reduce((o:IPathOptions, k:string) => ({...o, k: pathSpec[k]}), {} as IPathOptions);
 
         } else if (3 == keys.length && isMethod(keys[2])) {
+
           let opSpec: SwaggerSchema.Operation = x;
           let pathPattern = keys[1];
           let method = keys[2];
@@ -430,12 +448,10 @@ export class APIModelRegistry implements IAPIModelRegistry {
           let requestModel = this.parseParameterType(opSpec, id, currentPathOptions.parameters);
 
           if (null != opSpec.security) {
-            //console.log(`found security spec: ${JSON.stringify(opSpec.security)} in ${id}`);
+            // console.debug(`found security spec: ${JSON.stringify(opSpec.security)} in ${id}`);
           }
 
-          let responseModel: IAPIResponseModel<any> = {
-            '200': null
-          };
+          let responseModel: IAPIResponseModel<any> = { };
 
           if (null == opSpec.responses) {
             console.warn(`no responses in ${keys.join('.')}`)
@@ -446,23 +462,10 @@ export class APIModelRegistry implements IAPIModelRegistry {
               let schema = response && !('$ref' in response) && response.schema;
               if (null != schema) {
                 responseModel[status] = this._schemas.addSchemaObject(typename, schema)
-              } else {
-                responseModel[status] = null;
               }
             }
           }
 
-          let pathTemplate = templateFactory.parse(pathPattern);
-
-          /*
-          {
-            id,
-            name: id,
-            pathPattern, method,
-            requestModel,
-            responseModel,
-            path: pathTemplate.render.bind(pathTemplate)
-          }          */
           let operation = new Operation({
             id,
             name: id,
@@ -480,9 +483,10 @@ export class APIModelRegistry implements IAPIModelRegistry {
 
     let base = spec.basePath;
 
-//console.log(`create APIModel ${operations}, ${base}`)
-    let result = new APIModel(operations, base, { spec });
+//console.debug(`create APIModel ${operations}, ${base}`)
+    let result = new APIModel(id, operations, base, { spec });
 
+    this._modelById[result.id]
     return result;
   }
 
@@ -500,7 +504,7 @@ export class APIModelRegistry implements IAPIModelRegistry {
     return this._modelById[id];
   }
 
-  private _modelById: { [id: string]: IAPIModel; };
+  private _modelById = { } as IModelLookup;
   private _schemas: ModelSchemaParser;
 
   private _jsonRefProcessor: JsonReferenceProcessor;

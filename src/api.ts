@@ -4,7 +4,7 @@ import { IModelType, IModelTypeComposite, IClientProps, IStatusMessage } from '@
 export type ParamLocation = 'path' | 'query' | 'header' | 'formData' | 'body';
 
 export interface IAPIRequestModel<T> {
-  paramsType?: IModelTypeComposite<T> | IModelType<T>;
+  paramsType: IModelTypeComposite<T> | IModelType<T>;
   format: "formData" | "body" | "empty";
 
   paramsByLocation: { [location in ParamLocation]: string[]; };
@@ -14,7 +14,7 @@ export interface IAPIRequestModel<T> {
 
 export interface IAPIResponseModel<T> {
   [status: string]: IModelTypeComposite<T> | IModelType<T>;
-  '200': IModelTypeComposite<T> | IModelType<T>;
+  //'200': IModelTypeComposite<T> | IModelType<T>;
 }
 
 export type TokenLocation = 'query' | 'header';
@@ -40,10 +40,16 @@ export interface IAPIOperation<Req, Resp> extends IClientProps {
 
 }
 
+export type IAPIOperationInit<Request,Response> = 
+  & Pick<IAPIOperation<Request,Response>, 'id'|'pathPattern'|'method'|'requestModel'|'responseModel'> 
+  & Partial<IAPIOperation<Request,Response>>
+  ;
+
 export interface IAPIModel extends IClientProps {
   operations(): ReadonlyArray<IAPIOperation<any, any>>;
   operationById(id:string): IAPIOperation<any, any>;
-  base: string;
+  readonly base: string;
+  readonly id: string;
 
   subModel(ids: string[]): IAPIModel;
 }
@@ -69,7 +75,7 @@ export interface IAPIRequestContext<TReq, TResp> {
 export interface IAPIResult<TResponse> {
   isSuccess(): boolean;
   success(): TResponse | undefined;
-  error(): Error;
+  error(): Error | undefined;
 
   response(): any; // Success in this case
 
@@ -100,9 +106,9 @@ export interface IAPIClient {
 
   runOperation<TRequest, TResponse>(operation: IAPIOperation<TRequest, TResponse>, requestData: TRequest): Promise<IAPIResult<TResponse>>; // will reject to an IAPIError in case of errors
 
-  urlForOperationId(id: string, requestData: any): string;
+  urlForOperationId(id: string, requestData: any): string | undefined;
   urlForOperation<TRequest, TResponse>(operation: IAPIOperation<TRequest, TResponse>, requestData: TRequest): string;
-  requestInfoForOperationId(id: string, requestData: any): [string, RequestInit];
+  requestInfoForOperationId(id: string, requestData: any): [string, RequestInit] | undefined;
   requestInfoForOperation<TRequest, TResponse>(operation: IAPIOperation<TRequest, TResponse>, requestData: TRequest): [string, RequestInit];
 
   model: IAPIModel;

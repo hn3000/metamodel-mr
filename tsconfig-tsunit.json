@@ -16,19 +16,11 @@
     "outDir": "out",
     "declaration": true,
     "alwaysStrict": true,
-    "strictNullChecks": true,
     "strictBindCallApply": true,
-    "strictFunctionTypes": true,
-    "strictPropertyInitialization": true,
-    "strict": true
+    "strictFunctionTypes": true
   },
   "include": [
-    "src/*.ts",
-    "src/**/*.ts",
-    "test/*.ts",
-    "test/**/*.ts",
-  ],
-  "references": [
-    { "path": "./tsconfig-tsunit.json" }
+    "node_modules/tsunit.external/tsUnitAsync.ts",
+    "node_modules/tsunit.external/tsUnit.ts"
   ]
 }

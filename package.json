@@ -1,8 +1,8 @@
 {
   "name": "@hn3000/metaapi",
-  "version": "0.6.2",
-  "description": "api descriptions using @hn3000/metamodel",
-  "repository": "git@github.com:hn3000/metamodel",
+  "version": "0.6.3",
+  "description": "api descriptions using @hn3000/metaapi",
+  "repository": "git@github.com:hn3000/metaapi",
   "main": "out/src/export.js",
   "types": "out/src/export.d.ts",
   "files": [
@@ -57,7 +57,8 @@
     ],
     "reporter": [
       "text",
-      "html"
+      "html",
+      "lcov"
     ]
   }
 }

@@ -4,9 +4,9 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "identifier": "tsc-test",
+      "label": "tsc",
       "type": "npm",
-      "script": "pretest",
+      "script": "tsc",
       "problemMatcher": "$tsc-watch",
       "group": {
         "kind": "build",
