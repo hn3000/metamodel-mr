@@ -68,7 +68,7 @@ export class ApiClientTest extends TestClass {
   testApiClientCreatesRequestInfoForOperation() {
     let requestInfo = this.apiClient.requestInfoForOperation(opNoParams, {});
     this.areIdentical('https://localhost/base/op-no-params/', requestInfo[0]);
-    this.areIdentical('', requestInfo[1].body);
+    this.areIdentical(undefined, requestInfo[1].body);
     this.areIdentical('GET', requestInfo[1].method);
     this.areIdentical('cors', requestInfo[1].mode);
     this.areIdentical('Content-Type', Object.keys((requestInfo[1] as any).headers)[0]);

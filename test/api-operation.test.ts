@@ -64,7 +64,7 @@ export class ApiOperationTest extends TestClass {
   testNoBodyParamsNoBody() {
     let op = opNoParams;
     this.areIdentical('/op-no-params/', op.path(null));
-    this.areIdentical('', op.body({ }));
-    this.areIdentical('', op.body(undefined));
+    this.areIdentical(undefined, op.body({ }));
+    this.areIdentical(undefined, op.body(undefined));
   }
 }

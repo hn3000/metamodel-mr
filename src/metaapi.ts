@@ -84,10 +84,10 @@ export class Operation<Req, Resp> extends ClientProps implements IAPIOperation<R
     return '?'+items.join('&');
   }
 
-  public body(req: any): string {
+  public body(req: any): undefined | string {
     let format = this.requestModel.format;
     let { paramsByLocation } = this.requestModel;
-    let result = null;
+    let result = undefined;
     if (nonEmpty(paramsByLocation.body) && format === 'body') {
       let bodyParams = paramsByLocation.body;
       result = JSON.stringify(req[bodyParams[0]]);
@@ -101,7 +101,7 @@ export class Operation<Req, Resp> extends ClientProps implements IAPIOperation<R
         result += `${p}=${req[p]}`; // TODO: proper quoting
       }
     } else {
-      result = '';
+      result = undefined;
       if (format !== 'empty') {
         console.warn(`request format does not match params: ${format}`);
       }

@@ -36,7 +36,7 @@ export interface IAPIOperation<Req, Resp> extends IClientProps {
 
   query: (req: any) => string; // returns query parameters
   headers(req: any): { [key: string]: string };
-  body(req: any): string;
+  body(req: any): undefined | string;
 
 }
 
