@@ -9,6 +9,7 @@
   "scripts": {
     "tsc": "tsc",
     "tsc:w": "tsc -w",
+    "prepare": "tsc",
     "pretest": "tsc",
     "test": "node out/test/allTests.js",
     "testonly": "node out/test/allTests.js",
@@ -23,7 +24,7 @@
   "devDependencies": {
     "@hn3000/tsunit-async": "github:hn3000/tsunit-async",
     "@types/node": "^10.12.18",
-    "nyc": "^13.1.0",
+    "nyc": "^15.1.0",
     "typescript": "^3.2.2"
   },
   "dependencies": {}
