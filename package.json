@@ -11,8 +11,8 @@
     "precover": "tsc",
     "test": "node out/test/allTests.js",
     "testonly": "node out/test/allTests.js",
-    "cover": "istanbul cover out/test/allTests.js",
-    "coveronly": "istanbul cover out/test/allTests.js",
+    "cover": "nyc --reporter=html --reporter=text --reporter=lcov node out/test/allTests.js",
+    "coveronly": "nyc --reporter=html --reporter=text --reporter=lcov node out/test/allTests.js",
     "prepare-vendor-js": "find out -type f -print|xargs cat|grep -o 'require(.*)'|sort|uniq|grep -v '[.]/' > src/vendor.js"
   },
   "bin": {
@@ -34,6 +34,7 @@
     "@types/isomorphic-fetch": "0.0.34",
     "@types/node": "^10.7.0",
     "isomorphic-fetch": "^2.2.1",
+    "nyc": "^15.1.0",
     "tsunit.external": "^2.1.1",
     "typescript": "^3.0.1"
   },
