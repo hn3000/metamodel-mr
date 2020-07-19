@@ -14,7 +14,7 @@
     "test": "node out/test/allTests.js",
     "testonly": "node out/test/allTests.js",
     "precover": "tsc",
-    "cover": "nyc --reporter=html --reporter=text npm test"
+    "cover": "nyc --reporter=html --reporter=text --reporter=lcov npm test"
   },
   "main": "out/src/template.js",
   "types": "out/src/template.d.ts",
