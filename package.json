@@ -25,9 +25,9 @@
   "license": "ISC",
   "dependencies": {
     "@hn3000/json-ref": "^1.1.0",
-    "@hn3000/metamodel": "^1.8.1",
+    "@hn3000/metamodel": "^1.8.5",
     "@hn3000/simpletemplate": "^0.10.1",
-    "isomorphic-fetch": "^2.2.1",
+    "isomorphic-fetch": "^3.0.0",
     "swagger-schema-official": "^2.0.0-bab6bed"
   },
   "devDependencies": {
