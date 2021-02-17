@@ -74,7 +74,9 @@ export class JsonPointer {
   public static walkObject(obj: any, walker: (val:any, p:JsonPointer) => boolean) {
     var queue: {val:any; path:JsonPointer;}[] = [];
 
-    queue.push({ val: obj, path: new JsonPointer('')});
+    if (null != obj) {
+      queue.push({ val: obj, path: new JsonPointer('')});
+    }
 
     while (0 != queue.length) {
       let { val, path } = queue.shift();
