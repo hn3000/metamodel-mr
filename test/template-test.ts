@@ -71,6 +71,12 @@ export class TemplateTest extends TestClass {
     );
   }
 
+  testTemplateProvidesListOfNamesUsedInTemplate() {
+    let text = 'Hello {{who}}! I hope you are {{what}}.';
+    let template = new Template(text);
+
+    this.areCollectionsIdentical('who,what'.split(','), template.getNames());
+  }
 
   testTemplateFactoryCreatesTemplates() {
     let pattern = /((?:.|\r|\n)*?)-->(.*?)<--/gm;

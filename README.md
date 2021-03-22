@@ -44,6 +44,16 @@ Prints two lines:
     Hello world!
     Hello universe!
 
+
+Templates provide the names used in placeholders:
+
+    let template = new Template('Hello {{who}}!');
+    console.log(template.getNames());
+
+Will print
+
+    [ 'who' ]
+
 # Tests
 
 The current unit tests cover 100% of the code (lines and branches).

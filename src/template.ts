@@ -57,7 +57,9 @@ export class Template {
       if (m[1]) {
         parts.push(echoValue.bind(null, m[1]));
       }
-      parts.push(selectValue.bind(null, m[2]));
+      const sel = selectValue.bind(null, m[2]);
+      sel.variable = m[2];
+      parts.push(sel);
       end = pattern.lastIndex;
     }
     if (end < templateString.length) {
@@ -75,6 +77,10 @@ export class Template {
 
   setDefaults(defaults: any) {
     this._config = { ...this._config, defaults}
+  }
+
+  getNames(): string[] {
+    return this._parts.map((x:any) => x['variable']).filter(x => !!x);
   }
 }
 
