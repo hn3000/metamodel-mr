@@ -159,12 +159,17 @@ export class Operation<Req, Resp> extends ClientProps implements IAPIOperation<R
         let schema = pt.propGet('schema');
         let collectionFormat = schema && schema.collectionFormat;
         switch (collectionFormat) {
+          case 'multiple':
+            console.warn(`non-standard collectionFormat "${collectionFormat}" accepted as alias for "multi" in parameter "${name}"`);
           case 'multi': return arrayMultiRenderer(name);
           case 'pipes': return arraySSVRenderer(name, '|');
           case 'tsv': return arraySSVRenderer(name, '\t');
           case 'ssv': return arraySSVRenderer(name, ' ');
           case 'csv':
           default:
+            if (collectionFormat && collectionFormat != '') {
+              console.warn(`unknown collectionFormat ${collectionFormat}, using "csv" for parameter "${name}"`);
+            }
             return arraySSVRenderer(name, ',');
         }
       }
