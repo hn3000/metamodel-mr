@@ -1,0 +1,9 @@
+{
+  "a": { "$ref": "json-ptr.test.json#/foo" },
+  "b": { "$ref": "json-ptr.test.json#/a~1b" },
+  "c": { "$ref": "#/b" },
+  "d": { "$ref": "./json-ptr.test.json#" },
+  "e": { "$ref": "#/notthere" },
+  "f": { "$ref": "nosuchfile.json#/whatever" },
+  "i": { "$ref": "#/d/foo" }
+}

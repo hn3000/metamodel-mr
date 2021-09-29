@@ -1,0 +1,9 @@
+out/test
+node_modules
+npm_debug.log
+typings
+coverage
+distwebpack.config.js
+package.json~
+out 
+.nyc_output

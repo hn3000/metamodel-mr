@@ -1,0 +1,48 @@
+{
+  "name": "@hn3000/json-ref",
+  "version": "1.1.1",
+  "description": "simple resolver for json reference and json pointer",
+  "repository": "git@github.com:hn3000/json-ref",
+  "scripts": {
+    "tsc": "tsc",
+    "tsc:w": "tsc -w",
+    "prepare": "tsc",
+    "pretest": "tsc",
+    "precover": "tsc",
+    "test": "node out/test/allTests.js",
+    "testonly": "node out/test/allTests.js",
+    "cover": "nyc --reporter=html --reporter=text --reporter=lcov node out/test/allTests.js",
+    "coveronly": "nyc --reporter=html --reporter=text --reporter=lcov node out/test/allTests.js",
+    "prepare-vendor-js": "find out -type f -print|xargs cat|grep -o 'require(.*)'|sort|uniq|grep -v '[.]/' > src/vendor.js"
+  },
+  "bin": {
+    "json-ref": "bin/json-ref.js",
+    "json-ref.js": "bin/json-ref.js",
+    "json-pluck": "bin/json-pluck.js"
+  },
+  "main": "out/src/index.js",
+  "typings": "out/src/index.d.ts",
+  "keywords": [
+    "json",
+    "json pointer",
+    "json reference",
+    "json reference resolve"
+  ],
+  "author": "Harald Niesche",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/isomorphic-fetch": "0.0.35",
+    "@types/node": "^14.14.0",
+    "isomorphic-fetch": "^3.0.0",
+    "nyc": "^15.1.0",
+    "tsunit.external": "^2.1.1",
+    "typescript": "^4.1.3"
+  },
+  "dependencies": {},
+  "optionalDependencies": {},
+  "files": [
+    "README.md",
+    "out",
+    "bin"
+  ]
+}

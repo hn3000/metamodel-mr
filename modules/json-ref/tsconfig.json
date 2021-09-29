@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "lib": [
+      "es2015",
+      "dom"
+    ],
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "inlineSourceMap": false,
+    "inlineSources": false,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "removeComments": false,
+    "noImplicitAny": true,
+    "outDir": "out",
+    "declaration": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": [
+    "src/json-ptr.ts",
+    "test/allTests.ts",
+    "node_modules/tsunit.external/*.ts"
+  ]
+}
