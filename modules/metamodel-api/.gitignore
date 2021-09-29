@@ -1,0 +1,10 @@
+node_modules
+jspm_packages
+.vscode/settings.json
+typings
+npm-debug.log
+coverage
+out
+out-test
+.nyc_output/
+.ignored
