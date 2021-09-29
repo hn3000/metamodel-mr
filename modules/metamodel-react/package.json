@@ -1,0 +1,39 @@
+{
+  "name": "@hn3000/metamodel-react",
+  "version": "1.10.5",
+  "description": "react components for metamodel rendering",
+  "main": "out/src/metamodel-react.js",
+  "typings": "out/src/metamodel-react.d.ts",
+  "scripts": {
+    "tsc": "tsc",
+    "prepare": "tsc",
+    "tsc:w": "tsc -w",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Harald Niesche",
+  "license": "MIT",
+  "repository": "git@github.com:hn3000/metamodel-react",
+  "dependencies": {
+    "@hn3000/json-ref": "^1.0.1",
+    "@hn3000/metamodel": "^1.8.4"
+  },
+  "devDependencies": {
+    "@types/prop-types": "^15.7.4",
+    "@types/react": "^17.0.0",
+    "@types/react-dom": "^17.0.0",
+    "prop-types": "^15.7.2",
+    "react": "^17.0.0",
+    "react-dom": "^17.0.0",
+    "react-is": "^16.8.6",
+    "systemjs": "^0.21.6",
+    "tslint": "^5.17.0",
+    "typescript": "^3.9.7",
+    "whatwg-fetch": "^2.0.4"
+  },
+  "peerDependencies": {
+    "prop-types": "^15.7.2",
+    "react": ">=16.8.0",
+    "react-dom": ">=16.8.0",
+    "react-is": ">=16.8.0"
+  }
+}
