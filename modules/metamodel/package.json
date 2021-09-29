@@ -1,0 +1,67 @@
+{
+  "name": "@hn3000/metamodel",
+  "version": "1.9.2",
+  "description": "Meta Model for TypeScript and EcmaScript apps, to help with JSON schema processing and UI construction.",
+  "repository": "git@github.com:hn3000/metamodel",
+  "scripts": {
+    "tsc": "tsc",
+    "tsc:w": "tsc -w",
+    "prepare": "tsc",
+    "pretest": "tsc",
+    "test": "node out/test/allTests.js",
+    "pretest-debug": "tsc",
+    "test-debug": "node --inspect-brk out/test/allTests.js",
+    "precover": "tsc",
+    "cover": "nyc npm test"
+  },
+  "main": "out/src/model.js",
+  "typings": "out/src/model.d.ts",
+  "keywords": [
+    "model",
+    "driven",
+    "metamodel"
+  ],
+  "author": "Harald Niesche",
+  "license": "MIT",
+  "files": [
+    "src/**",
+    "out/**",
+    "!out/node_modules/**",
+    "test/*.ts"
+  ],
+  "devDependencies": {
+    "@types/isomorphic-fetch": "0.0.35",
+    "@types/node": "^13.7.1",
+    "nyc": "^15.0.0",
+    "tslint": "^6.1.0",
+    "tsunit.external": "2.1.1",
+    "typescript": "^3.8.3"
+  },
+  "dependencies": {
+    "@hn3000/json-ref": "^1.1.0"
+  },
+  "optionalDependencies": {
+    "isomorphic-fetch": "^3.0.0"
+  },
+  "nyc": {
+    "all": true,
+    "excludeAfterRemap": false,
+    "extension": [
+      ".js",
+      ".ts"
+    ],
+    "include": [
+      "out/**",
+      "src/*.ts"
+    ],
+    "exclude": [
+      "test/**",
+      "out/test/**"
+    ],
+    "reporter": [
+      "text",
+      "html",
+      "lcov"
+    ]
+  }
+}

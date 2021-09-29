@@ -1,0 +1,10 @@
+out
+doc
+coverage
+node_modules
+jspm_packages
+.vscode/settings.json
+.vscode/launch.json
+npm-debug.log
+out/test
+.nyc_output
