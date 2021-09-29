@@ -1,0 +1,31 @@
+{
+  "name": "@hn3000/simpletemplate",
+  "version": "0.11.0",
+  "description": "simplest possible string template engine",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:hn3000/simpletemplate.git"
+  },
+  "scripts": {
+    "tsc": "tsc",
+    "tsc:w": "tsc -w",
+    "prepare": "tsc",
+    "pretest": "tsc",
+    "test": "node out/test/allTests.js",
+    "testonly": "node out/test/allTests.js",
+    "precover": "tsc",
+    "cover": "nyc --reporter=html --reporter=text --reporter=lcov npm test"
+  },
+  "main": "out/src/template.js",
+  "types": "out/src/template.d.ts",
+  "keywords": [],
+  "author": "Harald Niesche",
+  "license": "MIT",
+  "devDependencies": {
+    "@hn3000/tsunit-async": "github:hn3000/tsunit-async",
+    "@types/node": "^14.14.35",
+    "nyc": "^15.1.0",
+    "typescript": "^4.2.3"
+  },
+  "dependencies": {}
+}
