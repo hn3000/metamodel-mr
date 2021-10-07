@@ -7,7 +7,7 @@ import { ApiClientWithServerTest } from "./api-client.http.test";
 import {
   TestAsync,
   TestDescription
-} from "tsunit.external/tsUnitAsync";
+} from "@hn3000/tsunit-async";
 
 function parmNum(t:TestDescription) {
   return (null != t.parameterSetNumber) ? `[${t.parameterSetNumber}]` : '';

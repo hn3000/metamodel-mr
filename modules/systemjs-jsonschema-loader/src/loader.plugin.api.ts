@@ -1,7 +1,5 @@
 /* /// <reference path="../typings/index.d.ts" /> */
 
-import { Promise } from "es6-promise";
-
 export interface ILoaderMetadata {
   [key:string]:any;
   sourceMap?:any; // can carry a sourcemap

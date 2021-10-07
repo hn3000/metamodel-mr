@@ -2,7 +2,7 @@
 import * as reutil from '../src/regex-util';
 import { 
   TestClass 
-} from "tsunit.external/tsUnitAsync";
+} from "@hn3000/tsunit-async";
 
 export class TestRegexUtil extends TestClass {
   testSimpleCharClassInversion() {

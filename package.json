@@ -1,0 +1,11 @@
+{
+  "name": "metamodel-mr",
+  "description": "Metamodel monorepo",
+  "workspaces": [
+    "./modules/*"
+  ],
+  "scripts": {
+    "test": "npm --workspaces test",
+    "tsc": "npm --workspaces run tsc"
+  }
+}

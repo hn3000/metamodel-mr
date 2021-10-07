@@ -1,7 +1,7 @@
 
 import * as http from 'http';
 
-import { TestClass } from "tsunit.external/tsUnitAsync";
+import { TestClass } from "@hn3000/tsunit-async";
 import { IAPIClient } from "../src/api";
 import { MetaApiClient, APIModelRegistry } from "../src/export";
 import { apiModel, opNoParams, opWithParams, opFailure } from "./util-model";

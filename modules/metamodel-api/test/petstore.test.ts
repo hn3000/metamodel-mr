@@ -3,7 +3,7 @@ import { APIModelRegistry } from '../src/metaapi';
 
 import {
   TestClass
-} from "tsunit.external/tsUnitAsync";
+} from "@hn3000/tsunit-async";
 
 import * as path from 'path';
 import * as fs from 'fs';

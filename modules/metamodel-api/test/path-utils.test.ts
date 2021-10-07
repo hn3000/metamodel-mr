@@ -1,4 +1,4 @@
-import { TestClass } from "tsunit.external/tsUnitAsync";
+import { TestClass } from "@hn3000/tsunit-async";
 import { combine2Paths, combinePaths } from "../src/path-utils";
 
 export class PathUtilsTest extends TestClass {

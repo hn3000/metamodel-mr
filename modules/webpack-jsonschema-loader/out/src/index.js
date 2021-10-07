@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.jsonReferenceLoader = void 0;
 var json_ref_1 = require("@hn3000/json-ref");
-var es6_promise_1 = require("es6-promise");
 var fetch = require("isomorphic-fetch");
 var fs = require('fs');
 function jsonReferenceLoader(content) {
@@ -31,7 +31,7 @@ function fetcher(ctx, x) {
     if (0 == x.lastIndexOf('http://', 8) || 0 == x.lastIndexOf('https://', 8)) {
         return fetch(x, { method: 'GET' }).then(function (response) { return response.text(); });
     }
-    return es6_promise_1.Promise.resolve().then(function () {
+    return Promise.resolve().then(function () {
         var contents = fs.readFileSync(x, 'utf-8');
         if ('\uFEFF' === contents.charAt(0)) {
             return contents.substr(1);

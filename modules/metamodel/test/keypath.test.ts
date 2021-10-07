@@ -1,6 +1,7 @@
 import {
   TestClass
-} from "tsunit.external/tsUnitAsync";
+} from "@hn3000/tsunit-async";
+
 import { keypath, IKeypath, _asKeyString } from '../src/keypath';
 import { JsonPointer } from '@hn3000/json-ref';
 

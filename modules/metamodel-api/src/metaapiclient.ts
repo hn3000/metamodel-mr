@@ -63,7 +63,7 @@ export class APICallMismatch implements IAPIResult<any> {
 
 export class APIFailure<TResult> implements IAPIResult<TResult> {
   constructor(
-    private _error: Error, 
+    private _error: Error | any, 
     private _response: TResult|undefined = undefined,
     private _requestContext: IAPIRequestContext<any, TResult>,
     private _httpRequest?: Request,

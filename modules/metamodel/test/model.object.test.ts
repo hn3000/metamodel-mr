@@ -9,7 +9,7 @@ import {
 
 import {
   TestClass
-} from "tsunit.external/tsUnitAsync";
+} from "@hn3000/tsunit-async";
 
 export class ModelTypeObjectTest extends TestClass {
 

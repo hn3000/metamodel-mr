@@ -2,6 +2,10 @@
   "name": "@hn3000/systemjs-jsonschema-loader",
   "version": "0.10.0",
   "description": "systemjs loader for schemas using json reference",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:hn3000/metamodel-mr/modules"
+  },
   "scripts": {
     "tsc": "tsc",
     "tsc:w": "tsc -w",
@@ -21,15 +25,13 @@
   "author": "Harald Niesche",
   "license": "MIT",
   "devDependencies": {
-    "@hn3000/json-ref": "^0.11.0",
+    "@hn3000/json-ref": "^1.1.1",
     "@hn3000/tsunit-async": "github:hn3000/tsunit-async",
-    "@types/es6-promise": "0.0.32",
-    "@types/isomorphic-fetch": "0.0.34",
-    "@types/node": "^7.0.5",
-    "typescript": "^2.6.1"
+    "@types/isomorphic-fetch": "0.0.35",
+    "@types/node": "^16.10.2",
+    "typescript": "^4.4.3"
   },
   "dependencies": {
-    "es6-promise": "^4.1.0",
-    "isomorphic-fetch": "^2.2.1"
+    "isomorphic-fetch": "^3.0.0"
   }
 }

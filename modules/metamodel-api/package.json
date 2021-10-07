@@ -1,8 +1,11 @@
 {
-  "name": "@hn3000/metaapi",
+  "name": "@hn3000/metamodel-api",
   "version": "0.6.6",
-  "description": "api descriptions using @hn3000/metaapi",
-  "repository": "git@github.com:hn3000/metaapi",
+  "description": "api descriptions using @hn3000/metamodel",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:hn3000/metamodel-mr"
+  },
   "main": "out/src/export.js",
   "types": "out/src/export.d.ts",
   "files": [
@@ -31,12 +34,12 @@
     "swagger-schema-official": "^2.0.0-bab6bed"
   },
   "devDependencies": {
-    "@types/isomorphic-fetch": "0.0.34",
-    "@types/node": "^11.9.4",
-    "@types/swagger-schema-official": "^2.0.14",
+    "@types/isomorphic-fetch": "0.0.35",
+    "@types/node": "^16.10.2",
+    "@types/swagger-schema-official": "^2.0.22",
     "nyc": "^15.0.0",
-    "tsunit.external": "=2.0.10",
-    "typescript": "^3.8.3"
+    "@hn3000/tsunit-async": "github:hn3000/tsunit-async",
+    "typescript": "^4.4.3"
   },
   "nyc": {
     "all": false,

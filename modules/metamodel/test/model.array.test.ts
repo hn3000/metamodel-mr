@@ -6,7 +6,8 @@ import {
 
 import {
   TestClass
-} from "tsunit.external/tsUnitAsync";
+} from "@hn3000/tsunit-async";
+
 import { ModelTypeArraySizeConstraint, ModelTypeArrayUniqueElementsConstraint } from '../src/model.array';
 
 export class ModelTypeArrayTest extends TestClass {

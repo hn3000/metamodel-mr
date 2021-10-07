@@ -1,7 +1,7 @@
 {
-  "name": "@hn3000/metamodel",
+  "name": "@hn3000/metamodel-matching",
   "version": "1.9.2",
-  "description": "Meta Model for TypeScript and EcmaScript apps, to help with JSON schema processing and UI construction.",
+  "description": "Meta Model Type Matching logic, useable for dynamic UI construction and type-dependent rendering.",
   "repository": {
     "type": "git",
     "url": "git@github.com:hn3000/metamodel-mr"
@@ -18,7 +18,7 @@
     "cover": "nyc npm test"
   },
   "main": "out/src/model.js",
-  "types": "out/src/model.d.ts",
+  "typings": "out/src/model.d.ts",
   "keywords": [
     "model",
     "driven",
@@ -35,12 +35,13 @@
   "devDependencies": {
     "@types/isomorphic-fetch": "0.0.35",
     "@types/node": "^16.10.2",
-    "nyc": "^15.1.0",
-    "@hn3000/tsunit-async": "github:hn3000/tsunit-async",
+    "nyc": "^15.0.0",
+    "tsunit.external": "2.1.1",
     "typescript": "^4.4.3"
   },
   "dependencies": {
-    "@hn3000/json-ref": "^1.1.0"
+    "@hn3000/json-ref": "^1.1.0",
+    "@hn3000/metamodel": "^1.9.2"
   },
   "optionalDependencies": {
     "isomorphic-fetch": "^3.0.0"

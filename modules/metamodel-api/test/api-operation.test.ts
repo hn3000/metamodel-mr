@@ -1,6 +1,6 @@
 import { opNoParams, opWithParams, opWithParamsInFormData } from "./util-model";
 import { Operation } from "../src/export";
-import { TestClass } from "tsunit.external/tsUnitAsync";
+import { TestClass } from "@hn3000/tsunit-async";
 
 export class ApiOperationTest extends TestClass {
 

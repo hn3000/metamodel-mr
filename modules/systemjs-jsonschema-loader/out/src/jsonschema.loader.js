@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.jsonSchemaLoader = void 0;
 var json_ref_1 = require("@hn3000/json-ref");
 var fetch = require("isomorphic-fetch");
 exports.jsonSchemaLoader = {

@@ -7,7 +7,7 @@ import {
   ModelTypeConstraintInteger
 } from "../src/model";
 
-import { TestClass } from "tsunit.external/tsUnitAsync";
+import { TestClass } from "@hn3000/tsunit-async";
 
 export class ModelTypeNumberTest extends TestClass {
   testSomeNumberIsValid() {
