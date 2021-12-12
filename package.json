@@ -18,7 +18,8 @@
   "bin": {
     "json-ref": "bin/json-ref.js",
     "json-ref.js": "bin/json-ref.js",
-    "json-pluck": "bin/json-pluck.js"
+    "json-pluck": "bin/json-pluck.js",
+    "json-sort": "bin/json-sort.js"
   },
   "main": "out/src/index.js",
   "typings": "out/src/index.d.ts",
