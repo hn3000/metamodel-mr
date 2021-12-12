@@ -7,7 +7,7 @@ import {
 
 import {
   TestClass
-} from "tsunit.external/tsUnitAsync"
+} from "@hn3000/tsunit-async"
 
 export class JsonPointerTest extends TestClass {
   private json: any;
