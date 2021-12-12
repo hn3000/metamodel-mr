@@ -12,10 +12,12 @@
     "inlineSources": false,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
+    "isolatedModules": true,
     "removeComments": false,
     "noImplicitAny": true,
     "outDir": "out",
     "declaration": true,
+    "declarationDir": "out",
     "forceConsistentCasingInFileNames": true
   },
   "include": [
