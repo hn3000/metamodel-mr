@@ -67,9 +67,9 @@ export class JsonPointer {
   }
 
   /**
-   * walk obj and pass all values and their paths to the walker function
+   * Walk obj and pass all values and their paths to the walker function.
    *
-   * stops descending into sub-objects if the walker returns true
+   * Stops descending into sub-objects if the walker returns true.
    */
   public static walkObject(obj: any, walker: (val:any, p:JsonPointer) => boolean) {
     var queue: {val:any; path:JsonPointer;}[] = [];
