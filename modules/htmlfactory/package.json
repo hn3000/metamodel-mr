@@ -1,0 +1,30 @@
+{
+  "name": "@hn3000/htmlfactory",
+  "version": "0.11.0",
+  "description": "simplest possible dom element creation engine",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:hn3000/metamodel-mr"
+  },
+  "scripts": {
+    "tsc": "tsc",
+    "tsc:w": "tsc -w",
+    "pretest": "tsc",
+    "test": "mocha out/test",
+    "testonly": "mocha out/test",
+    "precover": "tsc",
+    "cover": "nyc --reporter=html --reporter=text --reporter=lcov npm test"
+  },
+  "main": "out/src/html-factory.js",
+  "types": "out/src/html-factory.d.ts",
+  "keywords": [],
+  "author": "Harald Niesche",
+  "license": "MIT",
+  "devDependencies": {
+    "@hn3000/mocha-delayed-logging": "1.0.1",
+    "mocha": "9.1.3",
+    "nyc": "^15.1.0",
+    "typescript": "^4.5.2"
+  },
+  "dependencies": {}
+}

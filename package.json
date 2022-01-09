@@ -1,6 +1,6 @@
 {
   "name": "metamodel-mr",
-  "description": "Metamodel monorepo",
+  "description": "metamodel (+friends) monorepo",
   "workspaces": [
     "./modules/*"
   ],

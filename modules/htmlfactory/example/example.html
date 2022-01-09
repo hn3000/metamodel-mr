@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Some Example</title>
+  </head>
+  <body>
+    <script src="html-factory.js"></script>
+    <script>
+      const state =  {
+        lights: [
+          { pos: [ 1,2,3 ], color: '#fcb', intensity: 0.65 },
+          { pos: [ 1,2,-3 ], color: '#bfc', intensity: 0.75 },
+          { pos: [ 1,-2,3 ], color: '#bfc', intensity: 0.85 },
+        ]
+      };
+
+
+
+      const form = HTML.form(
+        {class: 'ff-form', id: 'sample-form'},
+        editArray(state.lights)
+      );
+
+      document.body.appendChild(form);
+
+
+      function editArray(array) {
+        const buttons = [
+          HTML.button({type: 'button', onclick: addRow}, 'add row')
+        ];
+        let result = render();
+          
+        return result;
+
+        function render () {
+          return HTML.div(
+            HTML.button({type: 'button', onclick: addRow.bind(null,0)}, 'add row'),
+            ...array.map((x,i) => HTML.div(
+                editLight(x, i),
+                HTML.button({type:'button', onclick: removeRow.bind(null, x)}, 'x'),
+                HTML.button({type:'button', onclick: addRow.bind(null, i+1)}, '+')
+            )),
+            HTML.button({type: 'button', onclick: addRow.bind(null,-1)}, 'add row')
+          );
+        }
+        function removeRow(x) {
+          const index = array.indexOf(x);
+          array.splice(index, 1);
+          update();
+        }
+        function addRow(where) {
+          const p = where >= 0 ? where : array.length+1+where;
+          array.splice(p, 0, {pos: []});
+          update();
+        }
+        function update() {
+          const tmp = render();
+          result.replaceWith(tmp);
+          result = tmp;
+          //console.log(JSON.stringify(state, null, 2));
+        }
+      }
+      function editLight(light, i) {
+        return HTML.span(
+          editNumber(light, ['intensity']),
+          ...[0,1,2].map((x,i) => editNumber(light, ['pos', i]))
+        );
+      }
+      function editNumber(obj, path) {
+        const lastKey = path[path.length-1];
+        const u = path.slice(0,path.length-1).reduce((r,p) => r[p], obj);
+        const value = u[lastKey];
+
+        return HTML.input({type: 'number', step:0.1, min: 0, max: 1, value, onchange: handleChange});
+
+        function handleChange(ev) {
+          const val = Number(ev.target.value);
+          u[lastKey] = val;
+          //console.log(JSON.stringify(state, null, 2));
+        }
+      }
+
+    </script>
+  </body>
+</html>
