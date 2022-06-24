@@ -6,8 +6,7 @@ export type MetamodelMatchFun =
     type: IModelType<any>, 
     fieldName:string, 
     flavor:string, 
-    container: IModelTypeComposite<any>, 
-    ...matchargs: any[]
+    container?: IModelTypeComposite<any>
   ) => number;
 
 
@@ -49,7 +48,7 @@ export class MatchQ {
     var keys = Object.keys(template);
     var n = keys.length;
 
-    return ((field:IModelType<any>, fieldName, flavor, container: IModelTypeComposite /*</any>*/) => {
+    return ((field:IModelType<any>, fieldName, flavor, container?: IModelTypeComposite /*</any>*/) => {
       var result = 0;
       var fieldObj = field as any;
       let schema = (fieldObj && fieldObj.propGet && fieldObj.propGet('schema')) || {};
@@ -131,10 +130,10 @@ export class MatchQ {
    * change the factor.
    */
   static element(matcher: MetamodelMatchFun, quality: number = 2):MetamodelMatchFun {
-    return (type: IModelType<any>, fieldName:string, flavor:string, container: IModelTypeComposite, ...matchArgs: any[]) => {
-      let af = type as ModelTypeArray<any>;
-      if (af.itemType && af.itemType()) {
-        return matcher(af.itemType(), fieldName, flavor, container, ...matchArgs) * quality;
+    return (type: IModelType<any>, fieldName:string, flavor:string, _container?: IModelTypeComposite) => {
+      let arrayType = type as ModelTypeArray<any>;
+      if (arrayType.itemType && arrayType.itemType()) {
+        return matcher(arrayType.itemType(), fieldName, flavor, arrayType) * quality;
       }
       return 0;
     };
@@ -164,9 +163,9 @@ export class MatchQ {
    * values if none of the matchers returned zero. 
    */
   static and(...matcher:MetamodelMatchFun[]):MetamodelMatchFun {
-    return (type: IModelType<any>, fieldName:string, flavor:string, container: IModelTypeComposite, ...matchArgs: any[]) => {
-      const t = matcher.reduce(([sum,fact], m) => {
-        let qq = m(type, fieldName, flavor, container, ...matchArgs);
+    return (type: IModelType<any>, fieldName:string, flavor:string, container?: IModelTypeComposite) => {
+      const t = matcher.reduce(([sum,fact], m: MetamodelMatchFun) => {
+        let qq: number = m(type, fieldName, flavor, container);
         return qq > 0 ? [sum + qq, fact*1] : [0, 0];
       }, [0,1]);
       return t[0] * t[1];
@@ -178,9 +177,9 @@ export class MatchQ {
    * returned zero.
    */
   static or(...matcher:MetamodelMatchFun[]):MetamodelMatchFun {
-    return (type: IModelType<any>, fieldName:string, flavor:string, container: IModelTypeComposite, ...matchArgs: any[]) =>
+    return (type: IModelType<any>, fieldName:string, flavor:string, container: IModelTypeComposite) =>
       matcher.reduce((q, m) => {
-        let qq = m(type, fieldName, flavor, container, ...matchArgs);
+        let qq = m(type, fieldName, flavor, container);
         return q + ((null != qq) ? qq : 0);
       }, 0);
   }
@@ -192,8 +191,8 @@ export class MatchQ {
    * @param factor that a match is multiplied by
    */
   static prioritize(factor: number, matcher: MetamodelMatchFun):MetamodelMatchFun {
-    return (type: IModelType<any>, fieldName: string, flavor: string, container: IModelTypeComposite, ...matchArgs: any[]) => {
-      return matcher(type, fieldName, flavor, container, ...matchArgs) * factor;
+    return (type: IModelType<any>, fieldName: string, flavor: string, container: IModelTypeComposite) => {
+      return matcher(type, fieldName, flavor, container) * factor;
     }
   }
 
@@ -202,12 +201,12 @@ export class MatchQ {
    */
   static container(matcher: MetamodelMatchFun, qualityFactor: number = 1): MetamodelMatchFun {
     return (
-      type: IModelType<any>, 
+      _type: IModelType<any>, 
       fieldName: string, 
       flavor: string, 
       container: IModelTypeComposite<any>
     ) => {
-      return matcher(container, fieldName, flavor, container);
+      return matcher(container, fieldName, flavor, container) * qualityFactor;
     }; 
   }
 }
@@ -217,16 +216,14 @@ export interface IMetamodelMatchMaker<T> {
     type: IModelType<any>, 
     fieldName:string, 
     flavor:string, 
-    container: IModelTypeComposite<any>, 
-    ...matchargs: any[]
+    container: IModelTypeComposite<any>
   ) : [ T, MetamodelMatchFun ];
   findTopN(
     n: number,
     type: IModelType<any>, 
     fieldName:string, 
     flavor:string, 
-    container: IModelTypeComposite<any>, 
-    ...matchargs: any[]
+    container: IModelTypeComposite<any>
   ) : [ T, number, MetamodelMatchFun ][];
 
   getAll(): [T, MetamodelMatchFun][];
@@ -276,10 +273,9 @@ class MetamodelMatchMaker<T> implements IMetamodelMatchMaker<T> {
     type: IModelType<any>, 
     fieldName: string, 
     flavor: string, 
-    container: IModelTypeComposite<any>, 
-    ...matchargs: any[]
+    container?: IModelTypeComposite<any>
   ): [ T, MetamodelMatchFun ] {
-    const top = this.findTopN(1, type, fieldName, flavor, container, ...matchargs);
+    const top = this.findTopN(1, type, fieldName, flavor, container);
     return [ top[0]?.[0], top[0]?.[2]];
   }
   findTopN(
@@ -287,15 +283,13 @@ class MetamodelMatchMaker<T> implements IMetamodelMatchMaker<T> {
     type: IModelType<any>, 
     fieldName: string, 
     flavor: string, 
-    container: IModelTypeComposite<any>, 
-    ...matchargs: any[]
+    container: IModelTypeComposite<any>
   ): [ T, number, MetamodelMatchFun ][] {
     const result = [] as [T, number, MetamodelMatchFun][];
-    const args = [type, fieldName, flavor, container, ...matchargs];
 
     this._pairs.forEach(x => {
-      // @ts-ignore
-      const thisOne = x[1](...args);
+      
+      const thisOne = x[1](type, fieldName, flavor, container);
       if (thisOne > 0) {
         insertSorted(result, [x[0], thisOne, x[1]], n);
       }
