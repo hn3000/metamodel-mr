@@ -4,7 +4,7 @@ require('@hn3000/mocha-delayed-logging');
 
 describe('matchmakerBuilder', () => {
   describe('builds', () => {
-    it('and copies original array', () => {
+    it('add copies original array', () => {
       const builder = matchMakerBuilder<number>([]);
       const mm1 = builder.freeze();
       builder.add(1, () => 1);
