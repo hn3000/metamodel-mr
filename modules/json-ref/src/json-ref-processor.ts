@@ -276,7 +276,7 @@ export function jsonParse(x: string, url?: string): any {
       let nocomments = removeComments(x);
       result = JSON.parse(nocomments);
     } catch (xxx) {
-      console.log(`attempt to remove comments ${url ? ('from '+url) : ''} failed, exceptions before / after were: `, xx, xxx);
+      console.log(`attempt to remove comments ${url ? ('from '+url) : ''} failed, exceptions before / after were: \nBEFORE -->`, xx, '\nAFTER -->', xxx);
     }
   }
 

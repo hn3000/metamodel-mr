@@ -231,6 +231,13 @@ export class JsonReferenceTest extends TestClass {
     this.areIdenticalObjects(obj, { x: 1 });
   }
 
+  testJsonParseUnderstandsCommentedJsonWithRegexInIt() {
+    let json = '{ "x": 1 /* lala */, "re": "\\\\d{2}\\\\-?\\\\d{3}/?\\\\d{4}" }';
+    let obj = jsonParse(json);
+
+    this.areIdenticalObjects(obj, { x: 1, re: "\\d{2}\\-?\\d{3}/?\\d{4}" });
+  }
+
   testJsonParseFailsWithIncompatiblyCommentedJson() {
     let json = '{ "x": "http://a.b" /* lala */ }';
     let obj = jsonParse(json);
