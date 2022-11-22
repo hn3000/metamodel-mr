@@ -663,14 +663,14 @@ export class ModelView<T = any> implements IModelView<T> {
     return false;
   }
 
-  getPages() {
+  getPages(): IModelViewPage[] {
     if (null != this._focusedPage) {
       return this._focusedSubPages;
     }
     return this._viewMeta.getPages();
   }
 
-  getAllPages() {
+  getAllPages(): IModelViewPage[] {
     return this._viewMeta.getPages();
   }
 
