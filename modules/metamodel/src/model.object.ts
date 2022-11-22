@@ -871,7 +871,7 @@ export class ModelTypeConstraintOneOf<T> implements IModelTypeConstraint<T> {
           affectedProps.add(m.property.substring(prefixLength));
         }
       });
-      console.log(affectedProps);
+      //console.log(affectedProps);
       for (const p of affectedProps) {
         c.pushItem(p, true, null);
         c.addErrorEx('one of failed to match', 'one-of', { allMessages });
