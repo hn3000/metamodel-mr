@@ -118,6 +118,20 @@ export class ModelParseContext implements IModelParseContext {
     this._messages = [];
   }
 
+  validate(): boolean {
+    let messageCount = this._messages.length;
+    this.currentType().validate(this);
+
+    // success: no new messages
+    return messageCount === this._messages.length;
+  }
+
+  parse(): any {
+    let result = this.currentType().parse(this);
+
+    return result;
+  }
+
   currentValue():any {
     return this._valueTraversal.top;
   }

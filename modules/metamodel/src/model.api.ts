@@ -51,6 +51,10 @@ export interface IPropertyStatusMessage extends IStatusMessage {
 
 
 export interface IModelParseContext {
+
+  validate(): boolean
+  parse(): any;
+
   currentValue():any;
   currentRequired():boolean;
   currentKeyPath():string[];
