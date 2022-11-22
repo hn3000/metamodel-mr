@@ -1,4 +1,5 @@
 import {
+  IPropertyStatusMessage,
     ModelParseContext,
     ModelSchemaParser,
     ModelTypeObject,
@@ -81,10 +82,6 @@ export class ModelParsingTest extends TestClass {
 
     var type = parser.type('NumbersObject');
 
-    console.log(type);
-    for (const i of type.asCompositeType().items) {
-      console.log(i.key, i.type);
-    }
     var ctx = new ModelParseContext({
       gt0: 0.1,
       lt0: -0.1,
@@ -101,7 +98,6 @@ export class ModelParsingTest extends TestClass {
       le0: 0.0001
     }, type, true, false)
     type.validate(ctx);
-    console.log(ctx);
 
     this.areIdentical(4, ctx.messages.length);
     this.areIdentical('expected 0 > 0.', ctx.messages[0].msg);
@@ -633,20 +629,135 @@ export class ModelParsingTest extends TestClass {
 
     let ctx = new ModelParseContext({ tag: "xyzzy", number: 0 }, type);
     ctx.currentType().validate(ctx);
-    this.areIdentical(2, ctx.messages.length, `expected five validation messages, got ${ctx.messages.map(x => x.property+': '+x.msg).join(' / ')}}`);
+    this.areIdentical(3, ctx.messages.length, `expected three validation messages, got ${formatMessages(ctx)}`);
     this.areIdentical("not a valid value", ctx.messages[0].msg);
     this.areIdentical("one of failed to match", ctx.messages[1].msg);
 
     ctx = new ModelParseContext({ tag: "gt0", number: 0 }, type);
     ctx.currentType().validate(ctx);
-    this.areIdentical(1, ctx.messages.length, `expected one validation message, got ${ctx.messages.map(x => x.property+': '+x.msg).join(' / ')}}`);
+    this.areIdentical(2, ctx.messages.length, `expected two validation messages, got ${formatMessages(ctx)}`);
     this.areIdentical("one of failed to match", ctx.messages[0].msg);
 
     ctx = new ModelParseContext({ tag: "gt0", number: 12 }, type, false);
     const val = ctx.currentValue();
     ctx.currentType().validate(ctx);
-    this.areIdentical(0, ctx.messages.length, `expected no validation messages got ${ctx.messages.map(x => x.msg).join(' / ')}}`);
+    this.areIdentical(0, ctx.messages.length, `expected no validation messages got ${formatMessages(ctx)}`);
     this.isTrue(val === ctx.currentValue());
 
   }
+
+  testOneOfWithConstraints() {
+    var parser = new ModelSchemaParser();
+
+    parser.addSchemaObject('OneOfObject', {
+      type: "object",
+      properties: {
+        "ttt": {
+          type: "string",
+          enum: ["old", "new"]
+        },
+        "ddd": {
+          type: "string",
+          format: "date"
+        }
+      },
+      oneOf: [
+        { type: "object",
+          properties: { 
+            "ttt": { enum: [ "old" ], type: "string"},
+            "ddd": {
+              type: "string",
+              format: "date",
+              constraints: [
+                {
+                  constraint: "maxAge",
+                  age: "6m"
+                },
+                {
+                  constraint: "before",
+                  date: "tomorrow"
+                }
+              ]
+            }
+          }
+        },
+        { type: "object",
+          properties: { 
+            "ttt": { enum: [ "new" ], type: "string"},
+            "ddd": {
+              type: "string",
+              format: "date",
+            }
+          },
+          constraints: [
+            {
+              property: "ddd",
+              constraint: "after",
+              date: "today"
+            }
+          ]
+        }
+      ],
+      required: ['ttt','ddd']
+    });
+
+    var type = parser.type('OneOfObject').asCompositeType();
+
+    /*
+    console.log(type);
+    console.log(JSON.stringify((type as any)._constraints._constraints[0]._types, null, 2));
+    for (const i of type.items) {
+      console.log(i.key, i.type);
+    }
+    */
+
+    let now = new Date();
+    let halfAYearAgo = new Date();
+    halfAYearAgo.setMonth(halfAYearAgo.getMonth()-6);
+    halfAYearAgo.setDate(halfAYearAgo.getDate()+1);
+    let halfAYearAgoAndADay = new Date(halfAYearAgo);
+    halfAYearAgoAndADay.setDate(halfAYearAgoAndADay.getDate()-1);
+    let tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate()+1);
+
+    let afterTomorrow = new Date();
+    afterTomorrow.setDate(afterTomorrow.getDate()+2);
+
+
+    let ctx = new ModelParseContext({ ttt: "old", ddd: now }, type);
+    ctx.currentType().validate(ctx);
+    this.areIdentical(0, ctx.messages.length, `expected no validation messages (old/now), got ${formatMessages(ctx)}`);
+    
+    ctx = new ModelParseContext({ ttt: "old", ddd: halfAYearAgoAndADay }, type);
+    ctx.currentType().validate(ctx);
+    this.areIdentical(2, ctx.messages.length, `expected two validation messages (old/6m+1), got ${formatMessages(ctx)}`);
+    this.areIdentical("one of failed to match", ctx.messages[0].msg);
+
+    ctx = new ModelParseContext({ ttt: "old", ddd: tomorrow }, type);
+    ctx.currentType().validate(ctx);
+    this.areIdentical(2, ctx.messages.length, `expected two validation messages (old/tomorrow), got ${formatMessages(ctx)}`);
+    this.areIdentical("one of failed to match", ctx.messages[0].msg);
+
+    ctx = new ModelParseContext({ ttt: "old", ddd: halfAYearAgo }, type);
+    ctx.currentType().validate(ctx);
+    this.areIdentical(0, ctx.messages.length, `expected no validation messages (old/6m), got ${formatMessages(ctx)}`);
+
+    ctx = new ModelParseContext({ ttt: "new", ddd: tomorrow }, type);
+    ctx.currentType().validate(ctx);
+    this.areIdentical(0, ctx.messages.length, `expected no validation messages (new/tomorrow), got ${formatMessages(ctx)}`);
+
+    ctx = new ModelParseContext({ ttt: "new", ddd: now }, type);
+    ctx.currentType().validate(ctx);
+    this.areIdentical(2, ctx.messages.length, `expected two validation messages (new/now), got ${formatMessages(ctx)}`);
+    this.areIdentical("one of failed to match", ctx.messages[1].msg);
+
+
+  }
+}
+
+function formatMessages(ctx: ModelParseContext) {
+  const { messages } = ctx;
+  const formatted = messages.map(x => (x.property+': '+x.msg /*+''+JSON.stringify(x.props??{})*/ ));
+  if (formatted.length)
+  return formatted.join(' / ')
 }
