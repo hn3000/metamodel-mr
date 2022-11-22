@@ -170,25 +170,43 @@ export abstract class ModelTypeConstraintDateFixed<D> extends ModelTypeConstrain
 }
 
 export class ModelTypeConstraintBefore<D> extends ModelTypeConstraintDateFixed<D> {
-  constructor(val:Date|string) { super(val); }
+  constructor(val:Date|string) { super(ModelTypeConstraintBefore._adjust(val)); }
   protected _op() { return "<"; }
   protected _compare(a:Date, b:Date):boolean { return a < b; }
   protected _code() { return 'date-large'; }
+  protected static _adjust(d:Date|string):Date|string {
+    switch (d) {
+      case 'today': { const today = new Date(); today.setHours(0,0,0,0); return today; }
+      case 'tomorrow': { const today = new Date(); today.setHours(24,0,0,-1); return today; }
+    }
+    return d;
+  }
 }
 
 export class ModelTypeConstraintAfter<D> extends ModelTypeConstraintDateFixed<D> {
-  constructor(val:Date|string) { super(val); }
+  constructor(val:Date|string) { super(ModelTypeConstraintAfter._adjust(val)); }
   protected _op() { return ">"; }
   protected _compare(a:Date, b:Date):boolean { return a > b; }
   protected _code() { return 'date-small'; }
+  protected static _adjust(d:Date|string):Date|string {
+    switch (d) {
+      case 'today':     { const today = new Date(); today.setHours(24,0,0,0); return today; }
+      case 'yesterday': { const today = new Date(); today.setHours(0,0,0,-1); return today; }
+    }
+    return d;
+  }
 }
+
+export type TimeSpanUnit = 'year'|'years'|'y'|'month'|'months'|'m'|'day'|'days'|'d'|string;
+export type TimeSpanUnitNormalized = 'year'|'month'|'day'|'invalid';
 
 export class TimeSpan {
   constructor(timespan:string) {
     let match = TimeSpan.REGEX.exec(timespan);
     this._amount = parseFloat(match[1]);
-    this._unit = match[2];
-    switch (this._unit) {
+    const unit = match[2];
+    this._unit = unit;
+    switch (unit) {
       case "y":
       case "year":
       case "years":
@@ -199,6 +217,13 @@ export class TimeSpan {
       case "months":
         this._unitNormalized = 'month';
         break;
+      case "d":
+      case "day":
+      case "days":
+        this._unitNormalized = 'day';
+        break;
+      default:
+        this._unitNormalized = 'invalid';
       // TODO: other durations?
     }
   }
@@ -208,7 +233,8 @@ export class TimeSpan {
   }
 
   get amount() { return this._amount; }
-  get unit()   { return this._unit; }
+  get unit(): TimeSpanUnit   { return this._unit; }
+  get unitNormalized(): TimeSpanUnitNormalized   { return this._unitNormalized; }
 
   moveBack(date:Date) {
     switch (this._unitNormalized) {
@@ -218,12 +244,29 @@ export class TimeSpan {
       case "month":
         date.setMonth(date.getMonth() - this._amount);
         break;
+      case "day":
+        date.setDate(date.getDate() - this._amount);
+        break;
       // TODO: other durations?
     }
   }
+  moveForward(date:Date) {
+    switch (this._unitNormalized) {
+      case "year":
+        date.setFullYear(date.getFullYear() + this._amount);
+        break;
+      case "month":
+        date.setMonth(date.getMonth() + this._amount);
+        break;
+      case "day":
+        date.setDate(date.getDate() + this._amount);
+        break;
+        // TODO: other durations?
+    }
+  }
 
-  _unit:string;
-  _unitNormalized:string;
+  _unit:TimeSpanUnit;
+  _unitNormalized:TimeSpanUnitNormalized;
   _amount:number;
   private static REGEX:RegExp = /([0-9]+(?:\.[0.9]+)?)\s*([a-z]+)/;
 }
@@ -242,6 +285,24 @@ export class ModelTypeConstraintOlder<D> extends ModelTypeConstraintDateBase<D> 
     return date;
   }
   protected _code() { return 'date-minage'; }
+
+  private _timespan: TimeSpan;
+}
+
+export class ModelTypeConstraintYounger<D> extends ModelTypeConstraintDateBase<D> {
+  constructor(timespan:string) {
+    super();
+    this._timespan = new TimeSpan(timespan);
+  }
+  protected _op() { return "<"; }
+  protected _compare(a:Date, b:Date):boolean { return a > b; }
+  protected _limit() { return this._timespan; }
+  protected _val() {
+    var date:Date = new Date();
+    this._timespan.moveBack(date);
+    return date;
+  }
+  protected _code() { return 'date-maxage'; }
 
   private _timespan: TimeSpan;
 }

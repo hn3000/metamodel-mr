@@ -58,6 +58,8 @@ export interface IModelParseContext {
   pushItem(key:string|number, required:boolean, type:IModelType<any>):void;
   popItem():void;
 
+  subContext(): IModelParseContext;
+
   addWarning(msg:string, code:string):void;
   addError(msg:string, code:string):void;
   addErrorEx(msg:string, code:string, props: IMessageProps):void;
@@ -148,6 +150,7 @@ export interface IModelTypeCompositeBuilder<C = any> extends IModelTypeComposite
 
   withReplacedItems(newItems: { [key: string]: IModelType<any>|undefined; }): IModelTypeComposite<any>;
 
+  addConstraint(c:IModelTypeConstraint<C>):IModelTypeCompositeBuilder<C>;
 }
 
 export interface IModelTypeRegistry {

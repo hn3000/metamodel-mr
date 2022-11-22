@@ -9,7 +9,8 @@ import {
   IModelTypeConstraint,
   Primitive,
   Comparison,
-  Predicate
+  Predicate,
+  IPropertyStatusMessage
 } from "./model.api"
 
 import {
@@ -106,6 +107,11 @@ export class ModelTypeObject<T>
     }
     result._allowAdditional = this._allowAdditional;
     return result;
+  }
+
+  addConstraint(c: IModelTypeConstraint<T>): IModelTypeCompositeBuilder<T> {
+    this._addConstraint(c);
+    return this;
   }
 
   addItem(key:string, type:IModelType<any>, required?:boolean):IModelTypeCompositeBuilder<T> {
@@ -806,10 +812,15 @@ export class ModelTypeConstraintConditionalValue extends ModelTypeConstraintOpti
  * can be used for validation, only, not for value modification
  */
 export class ModelTypePropertyConstraint extends ModelTypeConstraintOptional<any> {
-  constructor(property:string, constraint: IModelTypeConstraint<any>) {
+  constructor(propertyOrThis:string|ModelTypePropertyConstraint, constraint: IModelTypeConstraint<any>) {
     super();
-    this._property = property;
-    this._constraint = constraint;
+    if (propertyOrThis instanceof ModelTypePropertyConstraint) {
+      this._property = propertyOrThis._property;
+      this._constraint = propertyOrThis._constraint;
+    } else {
+      this._property = propertyOrThis;
+      this._constraint = constraint;
+    }
   }
 
   _id():string {
@@ -832,4 +843,39 @@ export class ModelTypePropertyConstraint extends ModelTypeConstraintOptional<any
 
   private _property:string;
   private _constraint:IModelTypeConstraint<any>
+}
+
+
+export class ModelTypeConstraintOneOf<T> implements IModelTypeConstraint<T> {
+  constructor(types: IModelType<T>[]) {
+    this._types = types;
+  }
+  checkAndAdjustValue(v:T, c:IModelParseContext):T {
+    //console.log(`oneOf`);
+    let all = this._types.map(t => {
+        //console.log(`oneOf: validating for ${t.name} / ${t.asCompositeType().items.map(x => x.key).join(',')}`);
+        const tmpCtx = c.subContext();
+        t.validate(tmpCtx);
+        //console.log(`oneOf: messages after ${t.name}: ${c.messages.map(x=>x.msg).join(' / ')}`);
+        return tmpCtx;
+      }
+    );
+    if (all.every(x => x.messages.length > 0)) {
+      const allMessages: IPropertyStatusMessage[] = [];
+      all.forEach(x => allMessages.push(...x.messages));
+      c.addErrorEx('one of failed to match', 'one-of', { allMessages });
+      //TODO: figure out which errors are interesting? c.addMessages(allMessages);
+    }
+
+    //console.log(`/oneOf`);
+    return v;
+  }
+
+  get id():string {
+    var result:string;
+    result = `oneOf(...)`;
+    return result;
+  }
+
+  private _types: IModelType<T>[];
 }

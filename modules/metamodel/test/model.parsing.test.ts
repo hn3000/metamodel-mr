@@ -51,6 +51,66 @@ export class ModelParsingTest extends TestClass {
     this.areIdentical('value does not match /^\\d+$/:', ctx.errors[3].msg);
   }
 
+  testSimpleNumericConstraints() {
+    var parser = new ModelSchemaParser();
+
+    parser.addSchemaObject('NumbersObject', {
+      type: "object",
+      properties: {
+        gt0: {
+          type: "number",
+          minimum: 0,
+          minimumExclusive: true
+        },
+        lt0: {
+          type: "number",
+          maximum: 0,
+          maximumExclusive: true
+        },
+        ge0: {
+          type: "number",
+          minimum: 0
+        },
+        le0: {
+          type: "number",
+          maximum: 0
+        }
+      },
+      required: [ 'lt0', 'gt0', 'le0', 'ge0' ]
+    });
+
+    var type = parser.type('NumbersObject');
+
+    console.log(type);
+    for (const i of type.asCompositeType().items) {
+      console.log(i.key, i.type);
+    }
+    var ctx = new ModelParseContext({
+      gt0: 0.1,
+      lt0: -0.1,
+      ge0: 0,
+      le0: 0
+    }, type, true, false)
+    type.validate(ctx);
+    this.areIdentical(0, ctx.errors.length);
+
+    var ctx = new ModelParseContext({
+      gt0: 0,
+      lt0: 0,
+      ge0: -0.0001,
+      le0: 0.0001
+    }, type, true, false)
+    type.validate(ctx);
+    console.log(ctx);
+
+    this.areIdentical(4, ctx.messages.length);
+    this.areIdentical('expected 0 > 0.', ctx.messages[0].msg);
+    this.areIdentical('expected 0 < 0.', ctx.messages[1].msg);
+    this.areIdentical('expected -0.0001 >= 0.', ctx.messages[2].msg);
+    this.areIdentical('expected 0.0001 <= 0.', ctx.messages[3].msg);
+  }
+
+
   testSimpleSchemaWithDefaults() {
     var parser = new ModelSchemaParser(undefined, {
       strings: {
@@ -503,4 +563,59 @@ export class ModelParsingTest extends TestClass {
     this.areIdentical('digit-flavored-number', type.itemType('number2').propGet('flavour'), 'item for number should have flavour');
   }
 
+
+  testOneOfSchema() {
+    var parser = new ModelSchemaParser();
+
+    parser.addSchemaObject('OneOfObject', {
+      type: "object",
+      properties: {
+        "tag": {
+          type: "string",
+          enum: ["gt0", "lt0"]
+        },
+        "number": {
+          type: "number"
+        }
+      },
+      oneOf: [
+        { type: "object",
+          properties: { 
+            "tag": { enum: [ "gt0" ], type: "string"},
+            "number": { minimum: 0, minimumExclusive: true, type: "number" }
+          },
+          required: [ 'tag', 'number' ]
+        },
+        { type: "object",
+          properties: { 
+            "tag": { enum: [ "lt0" ], type: "string"},
+            "number": { maximum: 0, maximumExclusive: true, type: "number" }
+          },
+          required: [ 'tag', 'number' ]
+        },
+      ]
+    });
+
+    var type = parser.type('OneOfObject').asCompositeType();
+
+    this.areNotIdentical(undefined, type, 'parsed type must be composite');
+
+    let ctx = new ModelParseContext({ tag: "xyzzy", number: 0 }, type);
+    ctx.currentType().validate(ctx);
+    this.areIdentical(2, ctx.messages.length, `expected five validation messages, got ${ctx.messages.map(x => x.property+': '+x.msg).join(' / ')}}`);
+    this.areIdentical("not a valid value", ctx.messages[0].msg);
+    this.areIdentical("one of failed to match", ctx.messages[1].msg);
+
+    ctx = new ModelParseContext({ tag: "gt0", number: 0 }, type);
+    ctx.currentType().validate(ctx);
+    this.areIdentical(1, ctx.messages.length, `expected one validation message, got ${ctx.messages.map(x => x.property+': '+x.msg).join(' / ')}}`);
+    this.areIdentical("one of failed to match", ctx.messages[0].msg);
+
+    ctx = new ModelParseContext({ tag: "gt0", number: 12 }, type, false);
+    const val = ctx.currentValue();
+    ctx.currentType().validate(ctx);
+    this.areIdentical(0, ctx.messages.length, `expected no validation messages got ${ctx.messages.map(x => x.msg).join(' / ')}}`);
+    this.isTrue(val === ctx.currentValue());
+
+  }
 }

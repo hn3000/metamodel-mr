@@ -4,7 +4,9 @@ import {
   ModelTypeConstraintMultipleOf,
   ModelConstraints,
   ModelParseContext,
-  ModelTypeConstraintInteger
+  ModelTypeConstraintInteger,
+  ModelTypeConstraintLess,
+  ModelTypeConstraintMore
 } from "../src/model";
 
 import { TestClass } from "@hn3000/tsunit-async";
@@ -70,5 +72,52 @@ export class ModelTypeNumberTest extends TestClass {
 
     this.areIdentical(1, ctx.messages.length);
     this.areIdentical('value-adjusted', ctx.messages[0].code);
+  }
+
+
+  testNumberIsLess() {
+    const type = new ModelTypeNumber(
+      "int",
+      new ModelConstraints([new ModelTypeConstraintLess(0)])
+    );
+
+    let ctx = new ModelParseContext(1, type);
+    type.validate(ctx);
+
+    this.areIdentical(1, ctx.messages.length, "expected 1 to fail <0 constraint");
+
+    ctx = new ModelParseContext(0, type);
+    type.validate(ctx);
+
+    this.areIdentical(1, ctx.messages.length, "expected 0 to fail <0 constraint");
+    this.areIdentical('value-less', ctx.messages[0].code);
+
+    ctx = new ModelParseContext(-0.00001, type);
+    type.validate(ctx);
+
+    this.areIdentical(0, ctx.messages.length, `expected -0.00001 to match <0 constraint, got ${ctx.messages.map(x => x.msg).join(' - ')}`);
+  }
+
+  testNumberIsMore() {
+    const type = new ModelTypeNumber(
+      "int",
+      new ModelConstraints([new ModelTypeConstraintMore(0)])
+    );
+
+    let ctx = new ModelParseContext(-1, type);
+    type.validate(ctx);
+
+    this.areIdentical(1, ctx.messages.length, "expected -1 to fail >0 constraint");
+
+    ctx = new ModelParseContext(0, type);
+    type.validate(ctx);
+
+    this.areIdentical(1, ctx.messages.length, "expected 0 to fail >0 constraint");
+    this.areIdentical('value-more', ctx.messages[0].code);
+
+    ctx = new ModelParseContext(0.00001, type);
+    type.validate(ctx);
+
+    this.areIdentical(0, ctx.messages.length, `expected 0.00001 to match >0 constraint, got ${ctx.messages.map(x => x.msg).join(' - ')}`);
   }
 }

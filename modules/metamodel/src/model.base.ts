@@ -141,6 +141,10 @@ export abstract class ModelTypeConstrainable<T>
     return result;
   }
 
+  protected _addConstraint(c:IModelTypeConstraint<T>): void {
+    this._constraints = this._constraints.add(c);
+  }
+
   abstract parse(ctx:IModelParseContext):T;
   abstract validate(ctx:IModelParseContext):void;
   abstract unparse(val:T):any;

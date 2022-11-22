@@ -40,7 +40,8 @@ import {
 import {
     ModelTypeConstraintBefore,
     ModelTypeConstraintAfter,
-    ModelTypeConstraintOlder
+    ModelTypeConstraintOlder,
+    ModelTypeConstraintYounger
 } from "./model.date"
 
 import {
@@ -57,7 +58,8 @@ import {
   ModelTypeConstraintCompareProperties,
   ModelTypeConstraintEqualProperties,
   ModelTypeConstraintConditionalValue,
-  ModelTypePropertyConstraint
+  ModelTypePropertyConstraint,
+  ModelTypeConstraintOneOf
 } from "./model.object"
 
 
@@ -123,17 +125,22 @@ var constraintFactoriesDefault:IConstraintFactories = {
     */
   },
   strings: {
+    maxAge(o:any)      { return new ModelTypeConstraintYounger<string>(parseAge(o)); },
     minAge(o:any)      { return new ModelTypeConstraintOlder<string>(parseAge(o)); },
     before(o:any)      { return new ModelTypeConstraintBefore<string>(o.date); },
     after(o:any)       { return new ModelTypeConstraintAfter<string>(o.date); }
   },
   dates: {
-    minAge(o:any)      { return new ModelTypeConstraintOlder<Date>(o.age); },
+    maxAge(o:any)      { return new ModelTypeConstraintYounger<Date>(parseAge(o)); },
+    minAge(o:any)      { return new ModelTypeConstraintOlder<Date>(parseAge(o)); },
     before(o:any)      { return new ModelTypeConstraintBefore<Date>(o.date); },
     after(o:any)       { return new ModelTypeConstraintAfter<Date>(o.date); }
   },
   booleans: { },
   objects: {
+    maxAge(o:any) {
+      return new ModelTypePropertyConstraint(o.property, new ModelTypeConstraintYounger<string>(parseAge(o)));
+    },
     minAge(o:any) {
       return new ModelTypePropertyConstraint(o.property, new ModelTypeConstraintOlder<string>(parseAge(o)));
     },
@@ -312,26 +319,29 @@ export class ModelSchemaParser implements IModelTypeRegistry {
     return new ModelTypeString(name, constraints);
   }
 
-  parseSchemaObjectTypeNumber(schemaObject:any, name?: string, ...constraints:IModelTypeConstraint<number>[]) {
+  parseSchemaObjectTypeNumber(schemaObject:any, name?: string, ...constraintArgs:IModelTypeConstraint<number>[]) {
+    console.log('parsing number object', schemaObject);
     const sources = [schemaObject, this._defaults.numbers];
-    const min = findFirst<number>(sources, 'minimum');
-    const max = findFirst<number>(sources, 'maximum');
+    const minimum = findFirst<number>(sources, 'minimum');
+    const maximum = findFirst<number>(sources, 'maximum');
     const minOut = findFirst<number>(sources, 'minimumExclusive');
     const maxOut = findFirst<number>(sources, 'maximumExclusive');
     const multipleOf = findFirst<number>(sources, 'multipleOf');
 
-    if (typeof(min) === "number") {
+    const constraints = [ ...constraintArgs ];
+
+    if (typeof(minimum) === "number") {
       if (minOut) {
-        constraints.push(new ModelTypeConstraintMore(min));
+        constraints.push(new ModelTypeConstraintMore(minimum));
       } else {
-        constraints.push(new ModelTypeConstraintMoreEqual(min));
+        constraints.push(new ModelTypeConstraintMoreEqual(minimum));
       }
     }
-    if (typeof(max) === "number") {
+    if (typeof(maximum) === "number") {
       if (maxOut) {
-        constraints.push(new ModelTypeConstraintLess(max));
+        constraints.push(new ModelTypeConstraintLess(maximum));
       } else {
-        constraints.push(new ModelTypeConstraintLessEqual(max));
+        constraints.push(new ModelTypeConstraintLessEqual(maximum));
       }
     }
 
@@ -342,6 +352,8 @@ export class ModelSchemaParser implements IModelTypeRegistry {
     if (null != enumConstraint) {
       constraints.push(enumConstraint);
     }
+
+    console.log(constraints, typeof(minimum), typeof(maximum));
 
     return new ModelTypeNumber(name, new ModelConstraints(constraints));
   }
@@ -402,6 +414,18 @@ export class ModelSchemaParser implements IModelTypeRegistry {
         }
         ++index;
       }
+    }
+    let oneOf = schemaObject['oneOf'];
+    if (oneOf && Array.isArray(oneOf)) {
+      var index = 0;
+      const alternatives: IModelType<any>[] = [];
+      for (var inner of oneOf) {
+        let innerType = this.parseSchemaObjectTypeObject(inner, `${name}/oneOf[${index}]`);
+        console.log(`oneOf: found alternative ${innerType.name} / ${innerType.kind}`);
+        alternatives.push(innerType);
+        ++index;
+      }
+      type.addConstraint(new ModelTypeConstraintOneOf(alternatives));
     }
 
     required.forEach((req) => {
@@ -503,9 +527,9 @@ function fetchFetcher(url:string):Promise<string> {
   });
 }
 
-function findFirst<T=unknown>(tt:{[k:string]:T}[], name:string):T|undefined {
-  for (var t of tt) {
-    if (t && t[name]) return t[name];
+function findFirst<T=unknown>(tt:{[k:string]:T}[], name:string): T|undefined {
+  for (const t of tt) {
+    if (t && undefined !== t[name]) return t[name];
   }
   return undefined;
 }

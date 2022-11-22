@@ -158,6 +158,12 @@ export class ModelParseContext implements IModelParseContext {
     }
   }
 
+  subContext(): IModelParseContext {
+    let result = new ModelParseContext(this.currentValue(), this.currentType(), this.currentRequired(), this.allowConversion);
+    result._keyPath = this.currentKeyPath();
+    return result;
+  }
+
   hasMessagesForCurrentValue():boolean {
     let keyPath = this.currentKeyPath().join('.');
     return this._messages.some(x => x.property == keyPath);
