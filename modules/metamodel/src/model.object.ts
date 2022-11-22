@@ -863,7 +863,20 @@ export class ModelTypeConstraintOneOf<T> implements IModelTypeConstraint<T> {
     if (all.every(x => x.messages.length > 0)) {
       const allMessages: IPropertyStatusMessage[] = [];
       all.forEach(x => allMessages.push(...x.messages));
-      c.addErrorEx('one of failed to match', 'one-of', { allMessages });
+      const affectedProps = new Set<string>();
+      const currentKeyPath = c.currentKeyPath().join('.');
+      const prefixLength = currentKeyPath.length > 0 ? currentKeyPath.length + 1 : 0;
+      allMessages.forEach(m => {
+        if (m.property.startsWith(currentKeyPath)) {
+          affectedProps.add(m.property.substring(prefixLength));
+        }
+      });
+      console.log(affectedProps);
+      for (const p of affectedProps) {
+        c.pushItem(p, true, null);
+        c.addErrorEx('one of failed to match', 'one-of', { allMessages });
+        c.popItem();
+      }
       //TODO: figure out which errors are interesting? c.addMessages(allMessages);
     }
 
