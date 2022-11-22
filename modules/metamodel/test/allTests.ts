@@ -7,6 +7,7 @@ import { ModelTypeArrayTest } from "./model.array.test";
 import { ModelTypeNumberTest } from "./model.number.test";
 import { ModelTypeStringTest } from "./model.string.test";
 import { ModelTypeDateTest } from "./model.date.test";
+import { ModelTypeBoolTest } from "./model.bool.test";
 import { ModelViewTest } from './model.view.test'
 import { TestRegexUtil } from "./regex-util.test"
 
@@ -30,6 +31,7 @@ export function runTests() {
   test.addTestClass(new ModelTypeArrayTest(), "ModelTypeArrayTest");
   test.addTestClass(new ModelTypeNumberTest(), "ModelTypeNumberTest");
   test.addTestClass(new ModelTypeStringTest(), "ModelTypeStringTest");
+  test.addTestClass(new ModelTypeBoolTest(), "ModelTypeBoolTest");
   test.addTestClass(new ModelTypeDateTest(), "ModelTypeDateTest");
   test.addTestClass(new ModelParsingTest(), "ModelParsingTest");
   test.addTestClass(new ModelViewTest(), "ModelViewTest");
