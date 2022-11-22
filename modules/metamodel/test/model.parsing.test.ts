@@ -369,6 +369,37 @@ export class ModelParsingTest extends TestClass {
     this.areIdentical(1, ctx.errors.length);
     this.areIdentical('p', ctx.errors[0].property);
   }
+  testSchemaWithMaxAge6MonthsConstraintFails() {
+    var parser = new ModelSchemaParser();
+
+    var type = parser.addSchemaObject('ExampleObject', {
+      type: "object",
+      properties: {
+        "p": {
+          type: "string",
+          pattern: /^\d{4}-\d{2}-\d{2}$/,
+          constraints: [
+            {
+              constraint: 'maxAge',
+              age: "6months"
+            }
+          ]
+        }
+      },
+    });
+
+    var backthen = new Date();
+
+    backthen.setMonth(backthen.getMonth() - 7);
+
+    var ctx = new ModelParseContext({
+      p: backthen.toISOString().substring(0,10)
+    }, type)
+    type.validate(ctx);
+    this.areIdentical(1, ctx.errors.length);
+    this.areIdentical('p', ctx.errors[0].property);
+  }
+
 
   testSchemaWithMinAge18YearsConstraintSucceeds() {
     var parser = new ModelSchemaParser();
