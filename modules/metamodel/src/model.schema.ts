@@ -320,7 +320,7 @@ export class ModelSchemaParser implements IModelTypeRegistry {
   }
 
   parseSchemaObjectTypeNumber(schemaObject:any, name?: string, ...constraintArgs:IModelTypeConstraint<number>[]) {
-    console.log('parsing number object', schemaObject);
+    //console.log('parsing number object', schemaObject);
     const sources = [schemaObject, this._defaults.numbers];
     const minimum = findFirst<number>(sources, 'minimum');
     const maximum = findFirst<number>(sources, 'maximum');
@@ -353,7 +353,7 @@ export class ModelSchemaParser implements IModelTypeRegistry {
       constraints.push(enumConstraint);
     }
 
-    console.log(constraints, typeof(minimum), typeof(maximum));
+    //console.log(constraints, typeof(minimum), typeof(maximum));
 
     return new ModelTypeNumber(name, new ModelConstraints(constraints));
   }
@@ -421,7 +421,7 @@ export class ModelSchemaParser implements IModelTypeRegistry {
       const alternatives: IModelType<any>[] = [];
       for (var inner of oneOf) {
         let innerType = this.parseSchemaObjectTypeObject(inner, `${name}/oneOf[${index}]`);
-        console.log(`oneOf: found alternative ${innerType.name} / ${innerType.kind}`);
+        //console.log(`oneOf: found alternative ${innerType.name} / ${innerType.kind}`);
         alternatives.push(innerType);
         ++index;
       }
@@ -447,7 +447,7 @@ export class ModelSchemaParser implements IModelTypeRegistry {
   parseSchemaObjectTypeArray(schemaObject:any, name?:string) {
     var elementType:IModelType<any> = null;
     if (Array.isArray(schemaObject.items)) {
-      console.log('metamodel unhandled schema construct: array items property is array');
+      console.warn('metamodel unhandled schema construct: array items property is array');
     } else if (null != schemaObject.items) {
       elementType = this.parseSchemaObject(schemaObject.items);
     }
