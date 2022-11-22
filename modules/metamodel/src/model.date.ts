@@ -176,8 +176,8 @@ export class ModelTypeConstraintBefore<D> extends ModelTypeConstraintDateFixed<D
   protected _code() { return 'date-large'; }
   protected static _adjust(d:Date|string):Date|string {
     switch (d) {
-      case 'today': { const today = new Date(); today.setHours(0,0,0,0); return today; }
-      case 'tomorrow': { const today = new Date(); today.setHours(24,0,0,0); return today; }
+      case 'today': { const result = new Date(); result.setHours(0,0,0,0); return result; }
+      case 'tomorrow': { const result = new Date(); result.setHours(24,0,0,0); return result; }
     }
     return d;
   }
@@ -190,8 +190,8 @@ export class ModelTypeConstraintAfter<D> extends ModelTypeConstraintDateFixed<D>
   protected _code() { return 'date-small'; }
   protected static _adjust(d:Date|string):Date|string {
     switch (d) {
-      case 'today':     { const today = new Date(); today.setHours(24,0,0,-1); return today; }
-      case 'yesterday': { const today = new Date(); today.setHours(0,0,0,-1); return today; }
+      case 'today':     { const result = new Date(); result.setHours(24,0,0,-1); return result; }
+      case 'yesterday': { const result = new Date(); result.setHours(0,0,0,-1); return result; }
     }
     return d;
   }
