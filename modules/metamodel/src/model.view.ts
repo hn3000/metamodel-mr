@@ -670,6 +670,12 @@ export class ModelView<T = any> implements IModelView<T> {
     return this._viewMeta.getPages();
   }
 
+  getUnskippedPages(): IModelViewPage[] {
+    let pages = this.getPages().filter(x => !this.shouldSkip(x));
+
+    return pages;
+  }
+
   getAllPages(): IModelViewPage[] {
     return this._viewMeta.getPages();
   }

@@ -74,6 +74,7 @@ export interface IModelView<T = any> {
   getFocusedPageNo(): undefined|number;
   getFocusedPageUnskippedPageNo(): undefined|number;
   getPages():IModelViewPage[];
+  getUnskippedPages(): IModelViewPage[];
   getAllPages():IModelViewPage[];
   getPage(aliasOrIndex?:string|number):IModelViewPage;
   getPageIndex(alias: string):number;
