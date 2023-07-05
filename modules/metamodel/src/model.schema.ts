@@ -189,13 +189,14 @@ var constraintFactoriesDefault:IConstraintFactories = {
   }
 };
 
+/* tbh, I really don't know which ones of these are *correct* -- you can thank the openapi guys for this */
 const flavorProps = [
   'flavor',
   'flavour',
-  'x-Flavour',
-  'x-Flavor',
   'x-flavour',
   'x-flavor',
+  'x-Flavour',
+  'x-Flavor',
 ];
 
 
@@ -324,8 +325,8 @@ export class ModelSchemaParser implements IModelTypeRegistry {
     const sources = [schemaObject, this._defaults.numbers];
     const minimum = findFirst<number>(sources, 'minimum');
     const maximum = findFirst<number>(sources, 'maximum');
-    const minOut = findFirst<number>(sources, 'minimumExclusive');
-    const maxOut = findFirst<number>(sources, 'maximumExclusive');
+    const minOut = findFirst<boolean>(sources, 'minimumExclusive');
+    const maxOut = findFirst<boolean>(sources, 'maximumExclusive');
     const multipleOf = findFirst<number>(sources, 'multipleOf');
 
     const constraints = [ ...constraintArgs ];
