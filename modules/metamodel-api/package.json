@@ -19,7 +19,7 @@
     "tsc:w": "tsc -w",
     "pretest": "tsc",
     "precover": "tsc",
-    "prepare": "tsc",
+    "prepublish": "tsc",
     "test": "node out/test/allTests.js",
     "cover": "nyc node out/test/allTests.js"
   },

@@ -1,7 +1,7 @@
 {
   "name": "@hn3000/metamodel-matching",
-  "version": "1.9.2",
-  "description": "Meta Model Type Matching logic, useable for dynamic UI construction and type-dependent rendering.",
+  "version": "1.0.0",
+  "description": "Meta Model Type Matching logic for dynamic UI construction and type-dependent rendering.",
   "repository": {
     "type": "git",
     "url": "git@github.com:hn3000/metamodel-mr"
@@ -37,7 +37,7 @@
     "@types/node": "^16.10.2",
     "@hn3000/mocha-delayed-logging": "^1.0.1",
     "chai": "^4.3.4",
-    "mocha": "^9.1.2",
+    "mocha": "^9.2.2",
     "nyc": "^15.0.0",
     "typescript": "^4.4.3"
   },

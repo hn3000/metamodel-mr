@@ -1,0 +1,4 @@
+{
+  "loopA": { "$ref": "#/loopB" },
+  "loopB": { "$ref": "#/loopA" }
+}

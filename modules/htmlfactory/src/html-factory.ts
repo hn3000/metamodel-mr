@@ -35,6 +35,10 @@ export const HTML: IHTMLFactory = {
 
 "div|span|p|input|form|button".split('|').forEach(e => HTML[e] = HTML._createElement.bind(HTML, e));
 
-function toKebabCase(maybeCamel: string) {
-  
+const reCamelToKebab = /([a-z])([0-9A-Z]+)/g;
+
+export function toKebabCase(maybeCamel: string) {
+  if (undefined === maybeCamel || null === maybeCamel) return;
+  const result = maybeCamel.replace(reCamelToKebab, (_,a,b) => `${a}-${b.toLowerCase()}`);
+  return result;
 }

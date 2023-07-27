@@ -1,16 +1,16 @@
 {
-  "name": "@hn3000/metamodel-react",
-  "version": "1.10.5",
-  "description": "react components for metamodel rendering",
+  "name": "@hn3000/metamodel-react-display",
+  "version": "0.1.0",
+  "description": "react components for metamodel rendering for output",
   "repository": {
     "type": "git",
     "url": "git@github.com:hn3000/metamodel-mr"
   },
-  "main": "out/src/metamodel-react.js",
-  "typings": "out/src/metamodel-react.d.ts",
+  "main": "out/src/metamodel-react-display.js",
+  "typings": "out/src/metamodel-react-display.d.ts",
   "scripts": {
     "tsc": "tsc",
-    "prepare": "tsc",
+    "prepublish": "tsc",
     "tsc:w": "tsc -w",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -18,7 +18,8 @@
   "license": "MIT",
   "dependencies": {
     "@hn3000/json-ref": "^1.1.1",
-    "@hn3000/metamodel": "^1.9.2"
+    "@hn3000/metamodel": "^1.9.2",
+    "@hn3000/metamodel-matching": "^1.0.0"
   },
   "devDependencies": {
     "@types/prop-types": "^15.7.4",

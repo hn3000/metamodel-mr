@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "lib": [
+      "es2015",
+      "dom"
+    ],
+    "module": "ES6",
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "inlineSourceMap": false,
+    "inlineSources": false,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "isolatedModules": true,
+    "removeComments": false,
+    "noImplicitAny": true,
+    "outDir": "out",
+    "declaration": true,
+    "declarationDir": "out",
+    "forceConsistentCasingInFileNames": true,
+    "rootDir": "./"
+  },
+  "include": [
+    "src/index.ts",
+    "src/json-ref-checker.ts"
+  ]
+}

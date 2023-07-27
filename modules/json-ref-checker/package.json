@@ -1,21 +1,24 @@
 {
-  "name": "@hn3000/systemjs-jsonschema-loader",
+  "name": "@hn3000/json-ref-checker",
   "version": "0.10.0",
-  "description": "systemjs loader for schemas using json reference",
+  "description": "reference checker schemas using json reference",
   "repository": {
     "type": "git",
-    "url": "git@github.com:hn3000/metamodel-mr/modules"
+    "url": "git@github.com:hn3000/metamodel-mr"
   },
   "scripts": {
     "tsc": "tsc",
     "tsc:w": "tsc -w",
     "pretest": "tsc",
-    "prepublish": "tsc",
     "test": "node out/test/allTests.js",
     "testonly": "node out/test/allTests.js"
   },
   "main": "out/src/index.js",
   "typings": "out/src/index.d.ts",
+  "bin": {
+    "json-ref-checker": "bin/json-ref-checker.js"
+  },
+  "type": "module",
   "keywords": [
     "json",
     "json pointer",
@@ -26,7 +29,6 @@
   "license": "MIT",
   "devDependencies": {
     "@hn3000/json-ref": "^1.1.1",
-    "@hn3000/tsunit-async": "github:hn3000/tsunit-async",
     "@types/isomorphic-fetch": "0.0.35",
     "@types/node": "^16.10.2",
     "typescript": "^4.4.3"

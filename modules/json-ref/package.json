@@ -9,7 +9,7 @@
   "scripts": {
     "tsc": "tsc",
     "tsc:w": "tsc -w",
-    "prepare": "tsc",
+    "prepublish": "tsc",
     "pretest": "tsc",
     "precover": "tsc",
     "test": "node out/test/allTests.js",

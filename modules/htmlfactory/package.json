@@ -13,7 +13,8 @@
     "test": "mocha out/test",
     "testonly": "mocha out/test",
     "precover": "tsc",
-    "cover": "nyc --reporter=html --reporter=text --reporter=lcov npm test"
+    "cover": "nyc --reporter=html --reporter=text --reporter=lcov npm test",
+    "clean": "node -e \"fs.rmSync('./out', {recursive:true, force:true, maxRetries:3, retryDelay:200})\""
   },
   "main": "out/src/html-factory.js",
   "types": "out/src/html-factory.d.ts",
@@ -22,7 +23,7 @@
   "license": "MIT",
   "devDependencies": {
     "@hn3000/mocha-delayed-logging": "1.0.1",
-    "mocha": "9.1.3",
+    "mocha": "9.2.2",
     "nyc": "^15.1.0",
     "typescript": "^4.5.2"
   },
