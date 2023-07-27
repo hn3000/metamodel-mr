@@ -22,8 +22,8 @@
   "author": "Harald Niesche",
   "license": "MIT",
   "devDependencies": {
-    "@hn3000/mocha-delayed-logging": "1.0.1",
-    "mocha": "9.2.2",
+    "@hn3000/mocha-delayed-logging": "^1.0.4",
+    "mocha": "^10.2.0",
     "nyc": "^15.1.0",
     "typescript": "^4.5.2"
   },
