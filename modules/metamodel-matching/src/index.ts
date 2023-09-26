@@ -247,7 +247,7 @@ export interface IMetamodelMatchMaker<T> {
 }
 
 export interface IMetamodelMatchMakerBuilder<T> {
-  add(t: T, fun: MetamodelMatchFun): void;
+  add(t: T, fun: MetamodelMatchFun): this;
   addAll(matchPairs: [T, MetamodelMatchFun][]): void;
   addFrom(matchMaker: IMetamodelMatchMaker<T>): void;
 
@@ -266,6 +266,7 @@ export function matchMakerBuilder<T>(matchPairs?: [T, MetamodelMatchFun][]): IMe
 class MetamodelMatchMakerBuilder<T> implements IMetamodelMatchMakerBuilder<T> {
   add(t: T, fun: MetamodelMatchFun) {
     this.addAll([[t, fun]]);
+    return this;
   }
   addAll(pairs: [T, MetamodelMatchFun][]) {
     this._pairs = this._pairs.concat(pairs);
