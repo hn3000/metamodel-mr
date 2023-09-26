@@ -40,6 +40,22 @@ export class MatchQ {
     return (type:IModelType<any>, fieldName: string) => (re.test(fieldName) ? quality:0)
   }
   /** 
+   * Matches by a type's name.
+   * The quality argument can be used to change the strength of the match. 
+   */
+  static typeName(name:string, quality: number = 1):MetamodelMatchFun {
+    return (type:IModelType<any>, fieldName: string) => (type.name === name ? quality:0)
+  }
+  /** 
+   * Matches typeName with a regular expression, match quality is that of other 
+   * criteria by default.
+   * The quality argument can be used to change the strength of the match. 
+   */
+  static typeNameLike(pattern:RegExp|string, quality: number = 1):MetamodelMatchFun {
+    let re = ('string' === typeof pattern) ? new RegExp(pattern) : pattern; 
+    return (type:IModelType<any>, fieldName: string) => (re.test(type.name) ? quality:0)
+  }
+  /** 
    * Matches by similarity of the fieldType to the given object literal, all props must match. 
    * Every matching item (i.e. key in the template) counts as 1 by default, the
    * quality argument changes the quality per match. 

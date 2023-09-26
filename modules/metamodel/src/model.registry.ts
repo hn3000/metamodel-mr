@@ -17,7 +17,7 @@ import {
   ModelTypeObject
 } from "./model.object"
 
-export class ModelTypeRegistry {
+export class ModelTypeRegistry implements IModelTypeRegistry {
 
   asItemType(type:IModelType<any>) {
     let result = <IModelTypeItem<any>>type;

@@ -13,15 +13,15 @@ This is my attempt at building something to fill this gap.
 
 A metamodel is created like this:
 
-    var sampleObject = {
+    const sampleObject = {
         lala: 12,
         blah: "Some String",
         blub: 3.1415 * 12
     };
 
-    var modelTypes = require("metamodel").modelTypes;
+    const modelTypes = require("metamodel").modelTypes;
 
-    var model = modelTypes.addObjectType('sample')
+    const model = modelTypes.addObjectType('sample')
       .addItem('lala', modelTypes.type('number/int'))
       .addItem('blah', modelTypes.type('string'))
       .addItem('blub', modelTypes.type('number'));
@@ -29,19 +29,19 @@ A metamodel is created like this:
 Once the model exists it in the modelTypes registry, it can always be referred
 to by name:
 
-    var model = modelTypes.type('sample');
+    const model = modelTypes.type('sample');
     
 And input data can be validated by the model:
 
-    var inputData = {
+    const inputData = {
         lala: "12",
         blah: "Another String",
         blub: 27.12
     };
     
-    var context = modelTypes.createParseContext(inputData, model);
+    const context = modelTypes.createParseContext(inputData, model);
     context.allowConversion = true;
-    model.validate(context);
+    const isValid = context.validate();
     if (context.warnings.length) {
         console.warn(`context.messages.map(e => e.msg).join(', ')`);
     }
@@ -50,7 +50,42 @@ And input data can be validated by the model:
         throw new Error('Validation failed');
     }
 
+    // turn text input into actual objects
+    const parsedInput = context.parse();
+
+
 At this point, context will contain warnings and errors if the data does
 not fit the metamodel. With allowConversion=true, the metamodel will
 parse "12" into a number, if allowConversion=false, the string value will
 result in an error message.
+
+## Using JSON Schema
+
+Parsing a JSON schema into a metamodel uses a special kind of IModelTypeRegistry, which can not only parse the schemas, but also acts as a registry for the parsed schemas:
+
+```
+  
+  const schemaResponse = await fetch(schemaUrl);
+  const schema = await schemaResponse.json();
+
+  const models = new ModelSchemaParser();
+
+  const model = models.parseSchemaObject(schema) as IModelTypeComposite<any>;
+
+  // just a different way to get at the model for this schema:
+  const modelByName = models.type(schema.id); 
+
+```
+
+And that model can then be used the same as shown above.
+
+You can also provide some defaults for the parser to amend imported schemas with some useful defaults, like e.g. a regex for all strings:
+
+```
+  const models = new ModelSchemaParser(undefined, {
+    strings: { pattern: /^[^\u0000-\u001f\u007f-\u009f\"<>\{\}\[\]]*$/ },
+  });
+
+  const model = models.parseSchemaObject(schema) as IModelTypeComposite<any>;
+
+```

@@ -1,6 +1,6 @@
 {
   "name": "@hn3000/metamodel-matching",
-  "version": "1.0.0",
+  "version": "0.9.0",
   "description": "Meta Model Type Matching logic for dynamic UI construction and type-dependent rendering.",
   "repository": {
     "type": "git",
