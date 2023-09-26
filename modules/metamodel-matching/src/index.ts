@@ -121,7 +121,7 @@ export class MatchQ {
    * By default, a match is worth one point, the quality argument can be used to
    * change the value of a match. 
    */
-    static flavour(flavour:string, quality: number = 1):MetamodelMatchFun {
+  static flavour(flavour:string, quality: number = 1):MetamodelMatchFun {
     return MatchQ.flavor(flavour, quality);
   }
     /** 
@@ -165,7 +165,7 @@ export class MatchQ {
    */
   static possibleValueCountRange(from:number, to?:number, quality: number = 1) {
     return (field:IModelType<any>) => {
-      let possibleValues = field.asItemType() && field.asItemType().possibleValues();
+      let possibleValues = field?.asItemType()?.possibleValues();
       let pvc = possibleValues ? possibleValues.length : 0;
       if ((pvc >= from) && (!to || pvc < to)) {
         return quality;
@@ -193,7 +193,7 @@ export class MatchQ {
    * returned zero.
    */
   static or(...matcher:MetamodelMatchFun[]):MetamodelMatchFun {
-    return (type: IModelType<any>, fieldName:string, flavor:string, container: IModelTypeComposite) =>
+    return (type: IModelType<any>, fieldName:string, flavor:string, container?: IModelTypeComposite) =>
       matcher.reduce((q, m) => {
         let qq = m(type, fieldName, flavor, container);
         return q + ((null != qq) ? qq : 0);
@@ -207,7 +207,7 @@ export class MatchQ {
    * @param factor that a match is multiplied by
    */
   static prioritize(factor: number, matcher: MetamodelMatchFun):MetamodelMatchFun {
-    return (type: IModelType<any>, fieldName: string, flavor: string, container: IModelTypeComposite) => {
+    return (type: IModelType<any>, fieldName: string, flavor: string, container?: IModelTypeComposite) => {
       return matcher(type, fieldName, flavor, container) * factor;
     }
   }
@@ -220,8 +220,9 @@ export class MatchQ {
       _type: IModelType<any>, 
       fieldName: string, 
       flavor: string, 
-      container: IModelTypeComposite<any>
+      container?: IModelTypeComposite<any>
     ) => {
+      if (!container) return 0;
       return matcher(container, fieldName, flavor, container) * qualityFactor;
     }; 
   }
@@ -232,14 +233,14 @@ export interface IMetamodelMatchMaker<T> {
     type: IModelType<any>, 
     fieldName:string, 
     flavor:string, 
-    container: IModelTypeComposite<any>
+    container?: IModelTypeComposite<any>
   ) : [ T, MetamodelMatchFun ];
   findTopN(
     n: number,
     type: IModelType<any>, 
     fieldName:string, 
     flavor:string, 
-    container: IModelTypeComposite<any>
+    container?: IModelTypeComposite<any>
   ) : [ T, number, MetamodelMatchFun ][];
 
   getAll(): [T, MetamodelMatchFun][];
@@ -299,7 +300,7 @@ class MetamodelMatchMaker<T> implements IMetamodelMatchMaker<T> {
     type: IModelType<any>, 
     fieldName: string, 
     flavor: string, 
-    container: IModelTypeComposite<any>
+    container?: IModelTypeComposite<any>
   ): [ T, number, MetamodelMatchFun ][] {
     const result = [] as [T, number, MetamodelMatchFun][];
 

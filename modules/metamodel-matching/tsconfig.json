@@ -14,13 +14,13 @@
     "noImplicitAny": true,
     "outDir": "out",
     "declaration": true,
-    "downlevelIteration": true
+    "downlevelIteration": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true
   },
   "include": [
     "src/**/*.ts",
     "test/**/*.ts",
-    "test/model.test.ts",
-    "node_modules/tsunit.external/tsUnit.ts",
-    "node_modules/tsunit.external/tsUnitAsync.ts"
+    "test/model.test.ts"
   ]
 }
