@@ -1,6 +1,6 @@
 {
   "name": "@hn3000/metamodel-matching",
-  "version": "0.9.0",
+  "version": "0.9.2",
   "description": "Meta Model Type Matching logic for dynamic UI construction and type-dependent rendering.",
   "repository": {
     "type": "git",
@@ -12,11 +12,12 @@
     "pretest": "tsc",
     "test": "mocha out/test/allTests.js",
     "pretest-debug": "tsc",
+    "prepare": "tsc",
     "test-debug": "mocha --inspect-brk out/test/allTests.js",
     "cover": "nyc npm test"
   },
-  "main": "out/src/model.js",
-  "typings": "out/src/model.d.ts",
+  "main": "out/src/index.js",
+  "typings": "out/src/index.d.ts",
   "keywords": [
     "model",
     "driven",
