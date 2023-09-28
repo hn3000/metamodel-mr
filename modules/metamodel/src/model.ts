@@ -24,11 +24,16 @@ import {
   ModelTypeRegistry
 } from "./model.registry";
 
+import {
+  ModelTypeConstraintPossibleValues
+} from "./model.base";
+
 export {
   ModelTypeConstrainable,
   ModelTypeItem,
   ModelConstraints,
   ModelTypeConstraintOptional,
+  ModelTypeConstraintPossibleValues,
   ClientProps
 } from "./model.base";
 
@@ -44,7 +49,6 @@ import {
 
 import {
     ModelTypeString,
-    ModelTypeConstraintPossibleValues,
     ModelTypeConstraintLength,
     ModelTypeConstraintRegex
 } from "./model.string";
@@ -79,7 +83,6 @@ export {
 
 export {
     ModelTypeString,
-    ModelTypeConstraintPossibleValues,
     ModelTypeConstraintLength,
     ModelTypeConstraintRegex
 } from "./model.string";

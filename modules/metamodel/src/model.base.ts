@@ -8,9 +8,6 @@ import {
   IModelTypeComposite
 } from "./model.api"
 
-import {
-  ModelTypeConstraintPossibleValues
-} from "./model.string"
 
 export class ClientProps implements IClientProps {
 
@@ -193,7 +190,7 @@ export abstract class ModelTypeItem<T>
   abstract lowerBound(): IModelTypeConstraint<T>;
   abstract upperBound(): IModelTypeConstraint<T>;
   possibleValues(): T[] {
-    let candidates = this.findConstraints((x:any)=>null != x["allowedValues"]);
+    let candidates = this.findConstraints((x:any)=> (x instanceof ModelTypeConstraintPossibleValues) && (null != x["allowedValues"]));
     let values = candidates.reduce((pv:T[],c:IModelTypeConstraint<T>) => {
       var cc = c as ModelTypeConstraintPossibleValues<T>;
       return intersectArrays(pv, cc.allowedValues);
@@ -249,3 +246,39 @@ export abstract class ModelTypeConstraintOptional<T> implements IModelTypeConstr
 
   private _onlyWarn: boolean;
 }
+
+export class ModelTypeConstraintPossibleValues<T> extends ModelTypeConstraintOptional<T> {
+  constructor(values:T[]) {
+    super();
+    this._allowedValues = values || [];
+  }
+
+  public get allowedValues():T[] {
+    return this._allowedValues.slice(); // might wanna return a copy
+  }
+
+  protected _id():string { return `oneof[${this._allowedValues.join(',')}]`; }
+
+  checkAndAdjustValue(value:T, ctx:IModelParseContext):T {
+    var result = value;
+    let allowed = this._allowedValues;
+
+    if (null != value) {
+      if (-1 === allowed.indexOf(value)) {
+        if (this.isWarningOnly) {
+          ctx.addWarningEx('not a recommended value', 'value-warning', { value, allowed });
+          result = value;
+        } else {
+          ctx.addErrorEx('not a valid value', 'value-invalid', { value, allowed });
+          result = null;
+        }
+      }
+    }
+
+    return result;
+  }
+
+
+  private _allowedValues:T[];
+}
+

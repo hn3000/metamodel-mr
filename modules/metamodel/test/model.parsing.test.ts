@@ -12,7 +12,7 @@ import {
 
 export class ModelParsingTest extends TestClass {
   testSimpleSchema() {
-    var parser = new ModelSchemaParser();
+    const parser = new ModelSchemaParser();
 
     parser.addSchemaObject('ExampleObject', {
       type: "object",
@@ -37,8 +37,8 @@ export class ModelParsingTest extends TestClass {
       }
     });
 
-    var type = parser.type('ExampleObject');
-    var ctx = new ModelParseContext({
+    const type = parser.type('ExampleObject');
+    const ctx = new ModelParseContext({
       blah: '123a',
       tgt3: '12',
       tlt5: '123456',
@@ -53,7 +53,7 @@ export class ModelParsingTest extends TestClass {
   }
 
   testSimpleNumericConstraints() {
-    var parser = new ModelSchemaParser();
+    const parser = new ModelSchemaParser();
 
     parser.addSchemaObject('NumbersObject', {
       type: "object",
@@ -80,24 +80,24 @@ export class ModelParsingTest extends TestClass {
       required: [ 'lt0', 'gt0', 'le0', 'ge0' ]
     });
 
-    var type = parser.type('NumbersObject');
+    const type = parser.type('NumbersObject');
 
-    var ctx = new ModelParseContext({
+    let ctx = new ModelParseContext({
       gt0: 0.1,
       lt0: -0.1,
       ge0: 0,
       le0: 0
     }, type, true, false)
-    type.validate(ctx);
+    ctx.validate();
     this.areIdentical(0, ctx.errors.length);
 
-    var ctx = new ModelParseContext({
+    ctx = new ModelParseContext({
       gt0: 0,
       lt0: 0,
       ge0: -0.0001,
       le0: 0.0001
     }, type, true, false)
-    type.validate(ctx);
+    ctx.validate();
 
     this.areIdentical(4, ctx.messages.length);
     this.areIdentical('expected 0 > 0.', ctx.messages[0].msg);

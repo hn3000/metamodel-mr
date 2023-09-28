@@ -60,42 +60,6 @@ export class ModelTypeString extends ModelTypeItem<string> {
 
 }
 
-export class ModelTypeConstraintPossibleValues<T> extends ModelTypeConstraintOptional<T> {
-  constructor(values:T[]) {
-    super();
-    this._allowedValues = values || [];
-  }
-
-  public get allowedValues():T[] {
-    return this._allowedValues; // might wanna return a copy
-  }
-
-  protected _id():string { return `oneof[${this._allowedValues.join(',')}]`; }
-
-  checkAndAdjustValue(value:T, ctx:IModelParseContext):T {
-    var result = value;
-    let allowed = this._allowedValues;
-
-    if (null != value) {
-      if (-1 === allowed.indexOf(value)) {
-        if (this.isWarningOnly) {
-          ctx.addWarningEx('not a recommended value', 'value-warning', { value, allowed });
-          result = value;
-        } else {
-          ctx.addErrorEx('not a valid value', 'value-invalid', { value, allowed });
-          result = null;
-        }
-      }
-    }
-
-    return result;
-  }
-
-
-  private _allowedValues:T[];
-}
-
-
 export class ModelTypeConstraintLength extends ModelTypeConstraintOptional<string> {
   constructor(minLen: number|undefined, maxLen: number|undefined, message?: string) {
     super();

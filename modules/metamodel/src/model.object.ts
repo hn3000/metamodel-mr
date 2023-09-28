@@ -238,7 +238,7 @@ export class ModelTypeObject<T>
   }
 
   parse(ctx:IModelParseContext):T {
-    let result = this.create();
+    let result = this._create();
 
     let val = ctx.currentValue();
 
@@ -296,8 +296,20 @@ export class ModelTypeObject<T>
     }
     return result;
   }
+  _create():T {
+    const result: any = this._constructFun ? this._constructFun() : <T><any>{};
+    return result;
+  }
   create():T {
-    return this._constructFun ? this._constructFun() : <T><any>{};
+    const result: any = this._create();
+    if (null != result) {
+      for (const e of this._entries) {
+        if (e.required) {
+          result[e.key] = e.type.create();
+        }
+      }
+    }
+    return result;
   }
 
   // null -> no list of allowed values (no known restrictions)

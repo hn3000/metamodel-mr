@@ -4,12 +4,14 @@ import {
     ModelTypeConstraintConditionalValue,
     ModelTypeConstraintCompareProperties,
     ModelTypeConstraintEqualProperties,
-    ModelTypeObject
+    ModelTypeObject,
+    ModelTypeConstraintPossibleValues
 } from "../src/model";
 
 import {
   TestClass
 } from "@hn3000/tsunit-async";
+import { ModelTypeArray, ModelTypeArraySizeConstraint, ModelTypeArrayUniqueElementsConstraint } from "../src/model.array";
 
 export class ModelTypeObjectTest extends TestClass {
 
@@ -27,6 +29,27 @@ export class ModelTypeObjectTest extends TestClass {
     modelTypes.removeType('nested');
     modelTypes.removeType('o');
     modelTypes.removeType('r');
+
+    const numberArrayMinLen3 = modelTypes.itemType('number[]').withConstraints(
+      new ModelTypeArraySizeConstraint({ minLength:3, maxLength: 5 })
+      );
+
+    const numberArrayMinLen3Uniq = numberArrayMinLen3.withConstraints(
+      new ModelTypeArrayUniqueElementsConstraint()
+    );
+
+    const numberArrayMinLen3UniqPrimes = new ModelTypeArray(
+        modelTypes.type('number')
+        .asItemType()
+        .withConstraints(
+          new ModelTypeConstraintPossibleValues([2,3,5,7,11,13])
+        )
+      )
+      .withConstraints(
+        new ModelTypeArraySizeConstraint({ minLength:3, maxLength: 5 }),
+        new ModelTypeArrayUniqueElementsConstraint()
+      );
+
     this.modelNested = (
       modelTypes.addObjectType('nested')
         .addItem('p', modelTypes.type('string'))
@@ -40,6 +63,9 @@ export class ModelTypeObjectTest extends TestClass {
           modelTypes.addObjectType('r'))
           .addItem('s', modelTypes.type('string'), true)
           .addItem('n', modelTypes.type('number'), true)
+          .addItem('a', numberArrayMinLen3, true)
+          .addItem('b', numberArrayMinLen3Uniq, true)
+          .addItem('c', numberArrayMinLen3UniqPrimes, true)
         , true)
     );
   }
@@ -384,12 +410,12 @@ export class ModelTypeObjectTest extends TestClass {
       p: ['11','12','13'],
       q: '13',
       o: null,
-      r: { n: 1, s: '#' }
+      r: { n: 1, s: '#', a: [0,0,0], b: [1,2,3], c: [2,3,5] }
     };
     let context = modelTypes.createParseContext(t, model);
     model.validate(context);
 
-    this.areIdentical(0, context.messages.length, "validate should not find errors");
+    this.areIdentical(0, context.messages.length, "validate should not find errors, got "+context.messages.map(x => `${x.property}: ${x.msg} (${x.code})`).join(';'));
 
     context = modelTypes.createParseContext(t, model);
     model.parse(context);
@@ -414,5 +440,17 @@ export class ModelTypeObjectTest extends TestClass {
     this.areIdentical(undefined, model.itemType('r').asCompositeType().itemType('n'));
   }
 
+  testObjectCreateFillsProperties() {
+    const type = this.modelNested.asCompositeType();
+    const obj = type.create();
+    this.isTruthy(obj.r);
+    this.isFalsey(obj.s);
+    this.areIdentical("", obj.r.s, 'obj.r.s should be empty string');
+    this.areIdentical(0, obj.r.n, 'obj.r.n should be zero');
+    this.areIdentical(3, obj.r.a.length, 'obj.r.a should be 3 long array');
+    this.areCollectionsIdentical([0,0,0], obj.r.a, 'obj.r.a should be zero-filled array');
+    this.areCollectionsIdentical([undefined,undefined,undefined], obj.r.b, 'obj.r.b should be array of 3 empty slots');
+    this.areCollectionsIdentical([2,3,5], obj.r.c, 'obj.r.c should be prime-filled array');
+  }
 
 }

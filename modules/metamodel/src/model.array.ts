@@ -56,10 +56,38 @@ export class ModelTypeArray<T> extends ModelTypeConstrainable<T[]> implements IM
     return <any>result;
   }
   create():T[] {
-    return [];
+    const result = [] as T[];
+
+    const constraints = this._getConstraints();
+    const uniqueConstraints = constraints.filter(x => -1 !== x.id.indexOf('uniqueElements'));
+    const lengthConstraints = constraints.filter(x => (x instanceof ModelTypeArraySizeConstraint));
+    if (0 < lengthConstraints.length) {
+      const minLength = Math.max(0, ...lengthConstraints.map(x => (x as ModelTypeArraySizeConstraint).minLength() ?? 0));
+      if (minLength > 0) {
+        const itemType = this.itemType().asItemType();
+        if (0 !== uniqueConstraints.length) {
+          const possibleValues = itemType.possibleValues();
+          if (possibleValues) {
+            for (let i = 0; i < minLength; ++i) {
+              result[i] = possibleValues[i];
+            }
+          } else {
+            // not sure how to make sure we have separate values in this case,
+            // so can't really create a valid object here
+            result.length = minLength;
+          }
+        } else {
+          for (let i = 0; i < minLength; ++i) {
+            result[i] = itemType.create();
+          }
+        }
+      }
+    }
+    return result;
   }
 
   get items():IModelTypeEntry[] {
+    // TODO: maybe check minimum length constraint?
     return [];
   }
   findItem(name: string | number): IModelTypeEntry {
@@ -92,7 +120,7 @@ export interface IArraySizeConstraintOptions {
 
 }
 
-export class ModelTypeArraySizeConstraint<T> extends ModelTypeConstraintOptional<T[]> {
+export class ModelTypeArraySizeConstraint<T = any> extends ModelTypeConstraintOptional<T[]> {
   constructor(options:IArraySizeConstraintOptions) {
     super();
     let { minLength, maxLength } = options;;
@@ -100,6 +128,13 @@ export class ModelTypeArraySizeConstraint<T> extends ModelTypeConstraintOptional
       minLength: null != minLength ? Math.max(0, minLength) : null,
       maxLength: null != maxLength ? Math.max(0, maxLength) : null,
     };
+  }
+
+  minLength(): number|null {
+    return this._settings.minLength;
+  }
+  maxLength(): number|null {
+    return this._settings.maxLength;
   }
 
   _id():string {

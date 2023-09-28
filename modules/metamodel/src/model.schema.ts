@@ -16,7 +16,7 @@ import {
 import {
   ModelConstraints,
   ModelTypeConstrainable,
-
+  ModelTypeConstraintPossibleValues,
 } from "./model.base";
 
 import {
@@ -31,7 +31,6 @@ import {
 
 import {
     ModelTypeString,
-    ModelTypeConstraintPossibleValues,
     ModelTypeConstraintLength,
     ModelTypeConstraintRegex,
     ModelTypeConstraintInvalidRegex
