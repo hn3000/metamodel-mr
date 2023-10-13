@@ -334,5 +334,5 @@ function insertSorted<T,F>(all: [T, number, F][], one: [T, number, F], maxLength
   if (all.length > maxLength) {
     all.splice(maxLength, all.length-maxLength);
   }
-  console.log('insertSorted', all, one);
+  //console.log('insertSorted', all, one);
 }
