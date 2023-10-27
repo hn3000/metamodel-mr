@@ -379,6 +379,11 @@ export class JsonPointerTest extends TestClass {
     this.areIdentical('foo', ptr.get(-1));
   }
 
+  testJsonPointerGetFromStringArray() {
+    const ptr = JsonPointer.get(['a','b']);
+    this.areIdentical('/a/b', ptr.asString());
+  }
+
   testNewJsonPointerEmptyArray() {
     const ptr = new JsonPointer([]);
     const obj = { a: 1 };
@@ -391,6 +396,11 @@ export class JsonPointerTest extends TestClass {
   }
   testJsonPointerGetEmptyString() {
     const ptr = JsonPointer.get("");
+    const obj = { a: 1 };
+    this.areIdentical(obj, ptr.getValue(obj));
+  }
+  testJsonPointerGetEmptyStringArray() {
+    const ptr = JsonPointer.get([]);
     const obj = { a: 1 };
     this.areIdentical(obj, ptr.getValue(obj));
   }

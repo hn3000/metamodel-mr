@@ -23,7 +23,7 @@ export class JsonPointer {
    * 
    * @param path string or JsonPointer
    */
-  static get(path: string|JsonPointer): JsonPointer {
+  static get(path: string|string[]|JsonPointer): JsonPointer {
     if (path instanceof JsonPointer) {
       return path;
     }
