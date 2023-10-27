@@ -23,6 +23,7 @@ import {
 import { createPredicateOrOfAnd, IConditionOptions } from "./model.object";
 import { ClientProps } from "./model.base";
 import { _asKeyString, _asKeyArray } from "./keypath";
+import { JsonPointer } from "@hn3000/json-ref";
 
 // constant, to make sure empty array is always the same instance
 // should be unmodifiable, to be sure
@@ -535,6 +536,26 @@ export class ModelView<T = any> implements IModelView<T> {
     let result = new ModelView<T>(this, newModel);
 
     result._visitedFields[keyString] = true;
+
+    return result;
+  }
+
+  withClearedField(keyPath: string | string[]): IModelView<T> {
+    var path: string[];
+    var keyString:string;
+    if (Array.isArray(keyPath)) {
+      path = keyPath;
+      keyString = keyPath.join('.');
+    } else {
+      path = keyPath.split('.');
+      keyString = keyPath;
+    }
+    const pointer = JsonPointer.get(path)
+    var newModel = pointer.withValue(this._inputModel, undefined);
+
+    let result = new ModelView<T>(this, newModel);
+
+    result._visitedFields[keyString] = false;
 
     return result;
   }

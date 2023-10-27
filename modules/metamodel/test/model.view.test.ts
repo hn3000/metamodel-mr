@@ -180,6 +180,54 @@ export class ModelViewTest extends TestClass {
     this.isFalse(view.isFieldValid('r'), 'field r should not be valid');
   }
 
+  async testClearedField() {
+    var view: IModelView<any> = new ModelView(this._tinyModel);
+
+    this.areIdentical(undefined, view.getFieldValue('a'), "initial state should be undefined");
+
+    view = view.withAddedData({
+      a: '1',
+      r: 'lala'
+    });
+
+    this.areIdentical('1', view.getFieldValue('a'), "addedData should have set field a to '1'");
+    this.areIdentical('lala', view.getFieldValue('r'), "addedData should have set field r to 'lala'");
+
+    view = view.withClearedField('a');
+
+    this.areIdentical(undefined, view.getFieldValue('a'), "withClearedField should have set a to undefined");
+    this.areIdentical('lala', view.getFieldValue('r'), "withClearedField should have kept field r set to 'lala'");
+  }
+
+  async testClearedNestedField() {
+    var view: IModelView<any> = new ModelView(this._nestedModel);
+
+    this.areIdentical(undefined, view.getFieldValue('a'), "initial state should be undefined");
+
+    view = view.withAddedData({
+      flat: '1',
+      sub: {
+        x: 12,
+        s: 'lala'
+      }
+    });
+
+    this.areIdentical('1', view.getFieldValue('flat'), "addedData should have set field flat to '1'");
+    this.areIdentical(12, view.getFieldValue('sub.x'), "addedData should have set field sub.x to 12");
+    this.areIdentical('lala', view.getFieldValue('sub.s'), "addedData should have set field sub.s to 'lala'");
+
+    view = view.withClearedField('sub.s');
+
+    this.areIdentical('1', view.getFieldValue('flat'), "addedData should have set field flat to '1'");
+    this.areIdentical(undefined, view.getFieldValue('sub.s'), "withClearedField should have set sub.s to undefined");
+    this.areIdentical(12, view.getFieldValue('sub.x'), "withClearedField should have kept field sub.x set to 12");
+
+    view = view.withClearedField('sub.x');
+
+    this.areIdentical('1', view.getFieldValue('flat'), "addedData should have set field flat to '1'");
+    this.areIdentical(undefined, view.getFieldValue('sub.s'), "withClearedField should have cleared sub.s");
+    this.areIdentical(undefined, view.getFieldValue('sub.x'), "withClearedField should have cleared sub.x");
+  }
 
   async testValidationRemovesAllMessages(): Promise<void> {
     var view: IModelView<any> = new ModelView(this._tinyModel);

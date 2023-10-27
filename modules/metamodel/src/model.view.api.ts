@@ -45,6 +45,7 @@ export interface IModelView<T = any> {
   getModel():Readonly<T>; // might actually be a read-only view of underlying data
 
   withChangedField(keyPath:string|string[], newValue:Primitive|any[]):IModelView<T>;
+  withClearedField(keyPath:string|string[]):IModelView<T>;
   withAddedData(obj:any):IModelView<T>;
   withFieldEditableFlag(keyPath:string|string[], flag:boolean):IModelView<T>;
   withFieldEditableFlags(flags:{ [keyPath:string]:boolean; }):IModelView<T>;
