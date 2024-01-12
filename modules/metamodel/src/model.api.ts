@@ -101,6 +101,8 @@ export interface IModelType<T = any> extends IClientProps {
 
 export interface IModelTypeConstrainable<T = any> extends IModelType<T> {
   withConstraints(...c:IModelTypeConstraint<T>[]):this;
+  withNameAndConstraints(name: string, ...c:IModelTypeConstraint<T>[]):this;
+
   findConstraints(p:Predicate<IModelTypeConstraint<T>>):IModelTypeConstraint<T>[];
 }
 

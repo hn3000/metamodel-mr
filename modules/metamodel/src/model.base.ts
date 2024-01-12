@@ -127,8 +127,13 @@ export abstract class ModelTypeConstrainable<T>
   asCompositeType() : IModelTypeComposite<T> | undefined { return undefined; }
 
   withConstraints(...c:IModelTypeConstraint<T>[]):this {
+    return this.withNameAndConstraints(undefined, ...c);
+  }
+  withNameAndConstraints(name: string, ...c:IModelTypeConstraint<T>[]):this {
     let result = this._clone(this._constraints.add(...c));
-    if (this.kind != 'object') {
+    if (name !== undefined) {
+      result._setName(name);
+    } else if (this.kind != 'object') {
       result._setName(this.name + '/' + result._constraints.id);
     }
     return result;

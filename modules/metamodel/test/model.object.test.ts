@@ -38,12 +38,15 @@ export class ModelTypeObjectTest extends TestClass {
       new ModelTypeArrayUniqueElementsConstraint()
     );
 
+    const smallPrimeType = modelTypes.type('number')
+    .asItemType()
+    .withNameAndConstraints(
+      'smallprime',
+      new ModelTypeConstraintPossibleValues([2,3,5,7,11,13])
+    );
+    modelTypes.addType(smallPrimeType);
     const numberArrayMinLen3UniqPrimes = new ModelTypeArray(
-        modelTypes.type('number')
-        .asItemType()
-        .withConstraints(
-          new ModelTypeConstraintPossibleValues([2,3,5,7,11,13])
-        )
+        modelTypes.type('smallprime').asItemType()
       )
       .withConstraints(
         new ModelTypeArraySizeConstraint({ minLength:3, maxLength: 5 }),
