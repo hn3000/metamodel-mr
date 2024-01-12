@@ -92,7 +92,7 @@ export class MatchQ {
   }
   /** 
    * Matches by IModelType.kind, the match counts as 1 point by default. 
-   * The quality argument can be used to change the strenght of the match. 
+   * The quality argument can be used to change the strength of the match. 
    */
   static kind(kind:string, quality: number = 1):matchQFun {
     const kk = kind === 'boolean' ? 'bool' : kind;
