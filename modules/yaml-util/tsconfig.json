@@ -1,21 +1,29 @@
 {
   "compilerOptions": {
+    "strict": true,
     "target": "es5",
-    "module": "commonjs",
+    "lib": [
+      "es2015",
+      "dom"
+    ],
+    "module": "ES6",
     "moduleResolution": "node",
+    "sourceMap": true,
+    "inlineSourceMap": false,
+    "inlineSources": false,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
+    "isolatedModules": true,
     "removeComments": false,
     "noImplicitAny": true,
     "outDir": "out",
-    "sourceMap": true,
     "declaration": true,
+    "declarationDir": "out",
     "forceConsistentCasingInFileNames": true,
-    "strict": true
+    "rootDir": "./"
   },
   "include": [
-    "src/**/*.ts",
-    "test/*.ts",
-    "test/*.tsx"
+    "src/index.ts",
+    "src/json-ref-checker.ts"
   ]
 }

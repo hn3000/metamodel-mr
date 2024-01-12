@@ -18,6 +18,11 @@
   },
   "main": "out/src/html-factory.js",
   "types": "out/src/html-factory.d.ts",
+  "exports": {
+    "require": "./out/src/html-factory.js",
+    "import": "./out-esm/src/html-factory.js",
+    "node": "./out/src/html-factory.js"
+  },
   "keywords": [],
   "author": "Harald Niesche",
   "license": "MIT",
@@ -27,5 +32,7 @@
     "nyc": "^15.1.0",
     "typescript": "^4.5.2"
   },
-  "dependencies": {}
+  "dependencies": {
+    "@hn3000/metamodel": "../metamodel"
+  }
 }
