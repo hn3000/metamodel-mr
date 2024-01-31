@@ -94,6 +94,7 @@ export interface IModelType<T = any> extends IClientProps {
   unparse(val:T):any;
 
   create():T;
+  createEmpty():T;
 
   asItemType(): IModelTypeItem<T> | undefined;
   asCompositeType(): IModelTypeComposite<T> | undefined;

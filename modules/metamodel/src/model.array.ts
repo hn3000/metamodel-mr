@@ -86,6 +86,11 @@ export class ModelTypeArray<T> extends ModelTypeConstrainable<T[]> implements IM
     return result;
   }
 
+  createEmpty():T[] {
+    const result = [] as T[];
+    return result;
+  }
+
   get items():IModelTypeEntry[] {
     // TODO: maybe check minimum length constraint?
     return [];

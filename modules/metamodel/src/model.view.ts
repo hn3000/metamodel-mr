@@ -269,7 +269,7 @@ export class ModelViewMeta<T> {
 
   _updatedModelWithType(model:any, keyPath:string[], newValue:Primitive|any[], type:IModelType<any>) {
     var keys = Object.keys(model);
-    var result:any = (null != type && type.create) ? type.create() : {};
+    var result:any = (null != type && type.createEmpty) ? type.createEmpty() : {};
 
     var name = keyPath[0];
     var value:any;
@@ -290,7 +290,7 @@ export class ModelViewMeta<T> {
       let entry = model[name];
       if (null == entry) {
         // use model to create missing entry
-        entry = (null != entryType) ? entryType.create() : {};
+        entry = (null != entryType) ? entryType.createEmpty() : {};
       }
       value = this._updatedModelWithType(entry, keyPath.slice(1), newValue, entryType);
     }

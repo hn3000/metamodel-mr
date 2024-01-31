@@ -311,6 +311,10 @@ export class ModelTypeObject<T>
     }
     return result;
   }
+  createEmpty(): T {
+    const result: any = this._create();
+    return result;
+  }
 
   // null -> no list of allowed values (no known restrictions)
   // empty array -> no values possible

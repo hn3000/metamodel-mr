@@ -28,6 +28,9 @@ export class ModelTypeFile extends ModelTypeConstrainable<IFile> implements IMod
       name: null
     });
   }
+  createEmpty(): IFile {
+    return this.create();
+  }
 
   parse(ctx: IModelParseContext): IFile {
     let val = ctx.currentValue();
