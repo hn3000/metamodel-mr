@@ -8,6 +8,7 @@ import {
   IModelTypeConstraint,
   IModelTypeComposite
 } from "./model.api"
+import { ClientProps } from "./model.base";
 
 export class ModelParseMessage implements IPropertyStatusMessage {
   private _property:string;
@@ -106,8 +107,9 @@ export class ParallelTraversal {
 }
 
 
-export class ModelParseContext implements IModelParseContext {
-  constructor(value:any, type: IModelType<any>, required?:boolean, allowConversion:boolean=true) {
+export class ModelParseContext extends ClientProps implements IModelParseContext {
+  constructor(value:any, type: IModelType<any>, required?:boolean, allowConversion:boolean=true, clientProps?: any) {
+    super(clientProps);
     this._valueTraversal = new ObjectTraversal(value);
     this._currentType = type;
     this._currentRequired = !!required;
