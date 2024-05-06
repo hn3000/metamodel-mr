@@ -56,8 +56,11 @@ export interface IAPIModel extends IClientProps {
 
 export interface IAPIModelBuilder extends IAPIModel {
   add(op: IAPIOperation<any, any>): IAPIModelBuilder;
-  remove(id: string): IAPIModelBuilder;
+  remove(it: string|IAPIOperation<any, any>): IAPIModelBuilder;
   setBase(base: string): void;
+
+  subModel(ids: string[]): IAPIModelBuilder;
+  freeze(): IAPIModel; // create a frozen copy that can no longer be changed
 }
 
 export interface IAPIModelRegistry {

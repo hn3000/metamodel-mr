@@ -229,8 +229,7 @@ function stringRenderer<Req>(name: string): (req: Req) => string[] {
   };
 }
 
-export class APIModel extends ClientProps implements IAPIModel, IAPIModelBuilder {
-
+export class APIModelInternal extends ClientProps implements IAPIModel {
   constructor(
     id: string,
     operations: ReadonlyArray<IAPIOperation<any, any>>, 
@@ -239,61 +238,87 @@ export class APIModel extends ClientProps implements IAPIModel, IAPIModelBuilder
   ) {
     super(props);
     this._id = id;
-    this._operations = operations.slice();
     this._base = base;
     this._operationsById = { };
     let opsById = this._operationsById;
 
-    for (let op of this._operations) {
+    for (let op of operations) {
       if (opsById[op.id]) {
         console.warn(`duplicate id for operation ${op.id}: ${opsById[op.id]} ${op}`);
       }
       opsById[op.id] = op;
     }
-  }
-  get base(): string {
-    return this._base;
-  }
-
-  get id(): string {
-    return this._id;
-  }
-
-  operations() {
-    return Object.freeze(this._operations);
-  }
-
-  operationById(id: string) {
-    return this._operationsById[id];
+    this._operations = Object.freeze(Object.values(opsById));
   }
 
   subModel(keys: string[]) {
-    return new APIModel(this.id+`($keys.join(','))`, keys.map(k => this._operationsById[k]), this._base);
+    return new APIModelInternal(this.id+`($keys.join(','))`, keys.map(k => this._operationsById[k]), this._base);
   }
 
-  add(op: IAPIOperation<any, any>) {
-    this._operationsById[op.id] = op;
-    return this;
-  }
-  remove(id: string) {
-    let op = this._operationsById[id];
-    if (null != op) {
-      let index = this._operations.indexOf(op);
-      if (-1 != index) {
-        this._operations.splice(index, 1);
-      }
-      delete this._operationsById[id];
-    }
-    return this;
+  operations() { return this._operations!; }
+  operationById(id: string): IAPIOperation<any, any> {
+    return this._operationsById[id];
   }
   setBase(base: string) {
     this._base = base;
   }
 
+  get base() { return this._base };
+  get id() { return this._id };
+
   private _id: string;
   private _base: string;
-  private _operations: IAPIOperation<any, any>[];
-  private _operationsById: { [id: string]: IAPIOperation<any, any>; };
+  protected _operations: readonly IAPIOperation<any, any>[] | undefined;
+  protected _operationsById: { [id: string]: IAPIOperation<any, any>; };
+}
+
+
+export class APIModel extends APIModelInternal implements IAPIModel, IAPIModelBuilder {
+
+  constructor(
+    id: string,
+    operations: ReadonlyArray<IAPIOperation<any, any>>, 
+    base: string, 
+    props?: IClientProps|any
+  ) {
+    super(id, operations, base, props);
+  }
+
+  subModel(keys: string[]) {
+    return new APIModel(this.id+`($keys.join(','))`, keys.map(k => this._operationsById[k]), this.base);
+  }
+
+  operations() {
+    if (undefined === this._operations) {
+      this._operations = Object.freeze(Object.values(this._operationsById));
+    }
+    return this._operations;
+  }
+
+
+  freeze(): IAPIModel {
+    return this.subModel(Object.keys(this._operationsById));
+  }
+
+  add(op: IAPIOperation<any, any>) {
+    this.remove(op.id);
+    this._operationsById[op.id] = op;
+    this._operations = undefined;
+    return this;
+  }
+  remove(it: string|IAPIOperation<any,any>) {
+    let id = typeof it === 'string' ? it : it.id;
+    let op = this._operationsById[id];
+    if (id !== it && op !== it) {
+      // console.warn about this?
+    }
+    if (null != op) {
+      delete this._operationsById[id];
+      this._operations = undefined;
+    }
+    return this;
+  }
+
 }
 
 interface IPathOptions {
@@ -530,7 +555,7 @@ function fetchFetcher(url:string): Promise<string> {
       var x = r.text();
       return x;
     }
-    return null;
+    return null; // maybe even throw?
   });
 }
 

@@ -15,6 +15,11 @@ modelTypes.addType(new ModelTypeBool('boolean'));
 modelTypes.addArrayType(modelTypes.itemType('string'));
 modelTypes.addObjectType('response'); // empty object type matches any (ignores all contents)
 
+modelTypes.addObjectType('responseComplex')
+  .addItem('a', modelTypes.type('number'), true)
+  .addItem('b', modelTypes.type('string'), true)
+  ;
+
 let paramsType = modelTypes.addObjectType('requestParams')
   .addItem('q', modelTypes.type('string'), true)
   .addItem('a', new ModelTypeArray(modelTypes.type('string')), true)
@@ -35,6 +40,10 @@ paramsType.itemType('caput').propSet('schema', { in: 'header' });
 paramsType.itemType('param').propSet('schema', { in: 'path' });
 
 let paramsTypeNone = modelTypes.addObjectType('requestParamsNone');
+
+let paramsTypeSingle = modelTypes.addObjectType('requestParamsSingleParam')
+  .addItem('which', modelTypes.type('number'))
+  ;
 
 export let opWithParams = new Operation({
   id: 'withParams',
@@ -104,6 +113,27 @@ export let opNoParams = new Operation({
   }
 });
 
+export let opSingleParamAndResponse = new Operation({
+  id: 'singleParamAndResponse',
+  pathPattern: '/op-single-param-and-response/{which}',
+  method: 'GET',
+  responseModel: { 200: modelTypes.type('responseComplex')},
+  requestModel: {
+    format: 'empty',
+    paramsType: paramsTypeSingle,
+    locationsByParam: {
+      which: 'path'
+    },
+    paramsByLocation: {
+      body: [],
+      header: [],
+      path: ['which'],
+      formData: [],
+      query: []
+    }
+  }
+});
+
 export let opFailure = new Operation({
   id: 'failure',
   pathPattern: '/fail/444',
@@ -127,13 +157,15 @@ export let opFailure = new Operation({
 });
 
 
+
 export let apiModel = new APIModel(
   'test model', 
   [
     opNoParams,
     opWithParams,
     opWithParamsInFormData,
-    opFailure
+    opSingleParamAndResponse,
+    opFailure,
   ], 
   '/base/'
 );

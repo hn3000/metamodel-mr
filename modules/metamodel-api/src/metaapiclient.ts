@@ -76,7 +76,14 @@ export class APIFailure<TResult> implements IAPIResult<TResult> {
   response() { return this._response; }
   requestContext() { return this._requestContext; }
   httpRequest() { return this._httpRequest; }
-  httpResponse() { return this._httpResponse; } 
+  httpResponse() { return this._httpResponse; }
+
+  toString() {
+    const messages: IPropertyStatusMessage[] = this._error.messages ?? [];
+    return `${this._error.toString()}${messages ? ': ':''}` + messages.map(x => `${x.msg}: ${x.property} (${x.code})`).join('; ');
+  }
+  
+
 }
 
 export class MetaApiClient implements IAPIClient {

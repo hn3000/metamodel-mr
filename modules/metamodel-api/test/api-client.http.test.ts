@@ -4,7 +4,7 @@ import * as http from 'http';
 import { TestClass } from "@hn3000/tsunit-async";
 import { IAPIClient } from "../src/api";
 import { MetaApiClient, APIModelRegistry } from "../src/export";
-import { apiModel, opNoParams, opWithParams, opFailure } from "./util-model";
+import { apiModel, opNoParams, opWithParams, opFailure, opSingleParamAndResponse } from "./util-model";
 import { IPropertyStatusMessage } from '@hn3000/metamodel';
 
 export class ApiClientWithServerTest extends TestClass {
@@ -44,6 +44,15 @@ export class ApiClientWithServerTest extends TestClass {
               }
             }
           }));
+        } else if (msg.url?.startsWith('/base/op-single-param-and-response/')) {
+          const isOne = msg.url?.endsWith('/1');
+          console.debug(`request for ${msg.url}, isOne: ${isOne}`);
+          res.setHeader('content-type', 'application/json');
+          res.write(JSON.stringify({
+            a: isOne ? 1 : "something else",
+            b: 'lala'
+          }));
+          msg.read();
         } else if (msg.url?.startsWith('/base/fail/')) {
           let parts = msg.url!.split('/');
           let status = +parts[3];
@@ -110,6 +119,28 @@ export class ApiClientWithServerTest extends TestClass {
 
     this.isTrue(result.isSuccess(), `result: ${result.error()}`);
     this.areIdentical('ok', result.response(), `result not ok: ${JSON.stringify(result.response(), null, 2)}`);
+  }
+
+  async testSimpleRequestGoodResponse() {
+
+    const client = await this._client();
+
+    const result = await client.runOperation(opSingleParamAndResponse, { which: 1 });
+
+    this.isTrue(result.isSuccess(), `result: ${result.error()}`);
+    this.areIdentical(JSON.stringify({a:1, b:'lala'}), JSON.stringify(result.response()), `result not ok: ${JSON.stringify(result.response(), null, 2)}`);
+  }
+
+  async testSimpleRequestBadResponse() {
+
+    const client = await this._client();
+
+    const result = await client.runOperation(opSingleParamAndResponse, { which: -1 });
+
+    this.isFalse(result.isSuccess(), `result: ${result.error()}`);
+    this.areIdentical('invalid response received', result.error()?.message, result.toString());
+    const resultText = result.toString();
+    this.isTruthy(resultText.includes('a (value-invalid)'), `expected message about a, got ${resultText}`);
   }
 
   async testRunOperationForInvalidIdFails() {

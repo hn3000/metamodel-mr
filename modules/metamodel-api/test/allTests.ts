@@ -8,6 +8,7 @@ import {
   TestAsync,
   TestDescription
 } from "@hn3000/tsunit-async";
+import { ApiModelTest } from "./api-model.test";
 
 function parmNum(t:TestDescription) {
   return (null != t.parameterSetNumber) ? `[${t.parameterSetNumber}]` : '';
@@ -23,6 +24,8 @@ export function runTests() {
   console.log("set up PetStoreTest");
   test.addTestClass(new ApiOperationTest(), "ApiOperationTest");
   console.log("set up ApiOperationTest");
+  test.addTestClass(new ApiModelTest(), "ApiModelTest");
+  console.log("set up ApiModelTest");
   test.addTestClass(new ApiClientTest(), "ApiClientTest");
   console.log("set up ApiClientTest");
   test.addTestClass(new ApiClientWithServerTest(), "ApiClientWithServerTest");
