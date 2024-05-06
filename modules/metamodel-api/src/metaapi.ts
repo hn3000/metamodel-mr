@@ -20,7 +20,8 @@ import {
   ModelTypeAny,
   modelTypes,
   ClientProps,
-  IClientProps
+  IClientProps,
+  IModelTypeConstraintFactory
 } from '@hn3000/metamodel';
 
 import { TemplateFactory, Template } from '@hn3000/simpletemplate';
@@ -310,8 +311,8 @@ interface ISecurityTypes {
 type IModelLookup = { [id: string]: IAPIModel; };
 
 export class APIModelRegistry implements IAPIModelRegistry {
-  constructor(fetchFun?: FetchFun) {
-    this._schemas = new ModelSchemaParser();
+  constructor(fetchFun?: FetchFun, constraintFactory?: IModelTypeConstraintFactory) {
+    this._schemas = new ModelSchemaParser(constraintFactory);
     this._fetchFun = fetchFun || fetchFetcher;
     this._jsonRefProcessor = new JsonReferenceProcessor(this._fetchFun);
   }
