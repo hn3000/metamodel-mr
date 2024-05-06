@@ -16,11 +16,17 @@ function parmNum(t:TestDescription) {
 export function runTests() {
   "use strict";
   let test = new TestAsync();
+  console.log("setting up tests");
   test.addTestClass(new PathUtilsTest(), "PathUtilsTest");
+  console.log("set up PathUtilsTest");
   test.addTestClass(new PetStoreTest(), "PetStoreTest");
+  console.log("set up PetStoreTest");
   test.addTestClass(new ApiOperationTest(), "ApiOperationTest");
+  console.log("set up ApiOperationTest");
   test.addTestClass(new ApiClientTest(), "ApiClientTest");
+  console.log("set up ApiClientTest");
   test.addTestClass(new ApiClientWithServerTest(), "ApiClientWithServerTest");
+  console.log("set up ApiClientWithServerTest");
 
   let promise = test.runAsync();
   promise.then((result) => {

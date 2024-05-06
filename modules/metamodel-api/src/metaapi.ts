@@ -165,11 +165,12 @@ export class Operation<Req, Resp> extends ClientProps implements IAPIOperation<R
           case 'pipes': return arraySSVRenderer(name, '|');
           case 'tsv': return arraySSVRenderer(name, '\t');
           case 'ssv': return arraySSVRenderer(name, ' ');
-          case 'csv':
           default:
             if (collectionFormat && collectionFormat != '') {
               console.warn(`unknown collectionFormat ${collectionFormat}, using "csv" for parameter "${name}"`);
             }
+            // fall-through
+          case 'csv':
             return arraySSVRenderer(name, ',');
         }
       }
@@ -345,6 +346,7 @@ export class APIModelRegistry implements IAPIModelRegistry {
       let { name, required } = p;
       let loc = p.in as ParamLocation;
       if (paramsByLocation[loc] == null) {
+        console.warn(`unknown param location type ${loc}`);
         paramsByLocation[loc] = [ name ];
       } else {
         paramsByLocation[loc].push(name);
@@ -364,13 +366,15 @@ export class APIModelRegistry implements IAPIModelRegistry {
       } else if (p.in === 'header') {
         let pp = p as SwaggerSchema.HeaderParameter;
         type = this._schemas.addSchemaObject(`${id}-${name}`, pp);
-      } else {
+      } else if (p.in === 'path') {
         let pp = p as SwaggerSchema.PathParameter;
         type = this._schemas.addSchemaObject(`${id}-${name}`, pp);
         if (!required) {
-          console.warn(`path parameter should be required: ${id}-${name}`);
+          console.warn(`path parameter should be required: ${id}-${name}; treating it as required`);
           required = true;
         }
+      } else {
+        // warning about unknown param location type is issued above
       }
       if (type != null) {
         type.propSet('schema', p);
@@ -517,7 +521,7 @@ export class APIModelRegistry implements IAPIModelRegistry {
 }
 
 
-function fetchFetcher(url:string):Promise<string> {
+function fetchFetcher(url:string): Promise<string> {
   var p = fetch(url);
 
   return p.then(function (r:any) {

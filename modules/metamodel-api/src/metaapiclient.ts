@@ -52,7 +52,7 @@ export class APICallMismatch implements IAPIResult<any> {
   requestContext() { return this._requestContext; }
   
   toString() {
-    return this._messages.join(', ');
+    return `${this._error.toString()}: ` + this._messages.map(x => `${x.msg}: ${x.property} (${x.code})`).join('; ');
   }
   
   private _messages: IPropertyStatusMessage[];

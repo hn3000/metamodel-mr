@@ -21,7 +21,7 @@
     "precover": "tsc",
     "prepublish": "tsc",
     "test": "node out/test/allTests.js",
-    "cover": "nyc node out/test/allTests.js"
+    "cover": "nyc node --max-old-space-size=8192 out/test/allTests.js"
   },
   "keywords": [],
   "author": "Harald Niesche",
@@ -34,11 +34,11 @@
     "swagger-schema-official": "^2.0.0-bab6bed"
   },
   "devDependencies": {
+    "@hn3000/tsunit-async": "github:hn3000/tsunit-async",
     "@types/isomorphic-fetch": "0.0.35",
     "@types/node": "^16.10.2",
     "@types/swagger-schema-official": "^2.0.22",
-    "nyc": "^15.0.0",
-    "@hn3000/tsunit-async": "github:hn3000/tsunit-async",
+    "nyc": "^15.1.0",
     "typescript": "^4.4.3"
   },
   "nyc": {

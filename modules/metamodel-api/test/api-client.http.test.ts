@@ -5,6 +5,7 @@ import { TestClass } from "@hn3000/tsunit-async";
 import { IAPIClient } from "../src/api";
 import { MetaApiClient, APIModelRegistry } from "../src/export";
 import { apiModel, opNoParams, opWithParams, opFailure } from "./util-model";
+import { IPropertyStatusMessage } from '@hn3000/metamodel';
 
 export class ApiClientWithServerTest extends TestClass {
   private apiClient?: IAPIClient;
@@ -144,6 +145,29 @@ export class ApiClientWithServerTest extends TestClass {
     this.areIdentical('POST', response.method, `method not POST: ${JSON.stringify(result.response(), null, 2)}`);
   }
 
+  async testRequestWithBadParams() {
+
+    const client = await this._client();
+
+
+    const result = await client.runOperation(
+      opWithParams, 
+      { param: 'withParam', q: 'x', corpus: { a: 'a'  } }
+    );
+
+    this.isFalse(result.isSuccess(), `result: ${result.error()}`);
+    this.areIdentical(result.error()?.message, 'parameter validation failed');
+    const messages: IPropertyStatusMessage[] = (result.error() as any).messages;
+    this.areIdentical(3, messages.length);
+    this.areIdentical('required-empty', messages[0].code);
+    this.areIdentical('value-invalid', messages[1].code);
+    this.areIdentical('required-empty', messages[2].code);
+    const resultText = result.toString();
+    this.isTrue(resultText.includes('parameter validation failed:'), resultText);
+    this.isTrue(resultText.includes('missing: a'), resultText);
+    this.isTrue(resultText.includes('corpus.a (value-invalid)'), resultText);
+    this.isTrue(resultText.includes('missing: corpus.b'), resultText);
+  }
   async testRequestFailedWithErrorStatus() {
     const client = await this._client();
 
