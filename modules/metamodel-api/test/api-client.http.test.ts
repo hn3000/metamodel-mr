@@ -9,9 +9,10 @@ import { apiModel, opNoParams, opWithParams, opFailure } from "./util-model";
 export class ApiClientWithServerTest extends TestClass {
   private apiClient?: IAPIClient;
   private server?: http.Server;
-  private listeningP!: Promise<any>;
+  private listeningAddressP!: Promise<any>;
 
   private initCount = 0;
+
   setUp() {
     ++this.initCount;
     if (this.initCount > 1) {
@@ -52,11 +53,11 @@ export class ApiClientWithServerTest extends TestClass {
   
       server.listen({ host: '127.0.0.1', port: null });
       this.server = server;
-      this.listeningP = new Promise((resolve, _reject) => {
+      this.listeningAddressP = new Promise((resolve, _reject) => {
         server.addListener('listening', () => {
           const x = server.address() as { port: number; }; // AddressInfo, we're using IP
           console.log('listening: ', x);
-          resolve(x.port);
+          resolve(`127.0.0.1:${x.port}`); // must match host above
         });
       });
     }
@@ -66,7 +67,7 @@ export class ApiClientWithServerTest extends TestClass {
     --this.initCount;
     if (this.initCount == 0) {
       if (null != this.server) {
-        console.log(`shutting down`, this.server, this.server!.address());
+        console.log(`shutting down server at `, this.server!.address());
         if (this.server) {
           this.server.removeAllListeners();
           this.server.close();
@@ -74,13 +75,13 @@ export class ApiClientWithServerTest extends TestClass {
         }
       }
     } else {
-      console.log(`server was null, initialized ${this.initCount} times`)
+      console.log(`server not shut down, initialized ${this.initCount+1} times`)
     }
   }
 
   async _url(path = '/') {
-    const port = await this.listeningP;
-    const url = `http://localhost:${port}${path}`;
+    const address = await this.listeningAddressP;
+    const url = `http://${address}${path}`;
     return url;
   }
 
@@ -103,7 +104,6 @@ export class ApiClientWithServerTest extends TestClass {
   async testSimpleRequest() {
 
     const client = await this._client();
-
 
     const result = await client.runOperation(opNoParams, {});
 
