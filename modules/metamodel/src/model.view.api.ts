@@ -22,7 +22,7 @@ export interface IModelViewField {
 export interface IModelViewPage extends IClientProps {
   alias:string;
   index:number;
-  type:IModelTypeComposite<any>;
+  type:IModelTypeComposite<any>|IModelType<any>;
   fields:string[];
   pages: IModelViewPage[];
   skipPredicate?: Predicate<any>;

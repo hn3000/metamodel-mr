@@ -141,11 +141,14 @@ export class ModelViewPage extends ClientProps implements IModelViewPage {
   get index(): number {
     return this._index;
   }
-  get type():IModelTypeComposite<any> {
+  get type():IModelTypeComposite<any> | IModelType<any> {
     return this._type;
   }
   get fields():string[] {
-    return this._type.items.map((x) => x.key);
+    if ('items' in this._type) {
+      return this._type?.items?.map((x) => x.key) ?? [];
+    }
+    return [];
   }
 
   get pages(): IModelViewPage[] {
@@ -173,7 +176,7 @@ export class ModelViewPage extends ClientProps implements IModelViewPage {
 
   private _alias: string;
   private _index: number;
-  private _type: IModelTypeComposite<any>;
+  private _type: IModelTypeComposite<any> | IModelType<any>;
   private _pages: IModelViewPage[];
   private _flags: IFlagPredicates;
   private _flagNames: string[];
@@ -455,7 +458,7 @@ export class ModelView<T = any> implements IModelView<T> {
 
   validatePage():Promise<IModelView<T>> {
     const page = this.getPage();
-    let modelSlice: IModelTypeComposite<any>;
+    let modelSlice: IModelTypeComposite<any>|IModelType<any>;
     if (null != page) {
       modelSlice = page.type;
     } else if (this.currentPageIndex == 0) {
@@ -475,7 +478,7 @@ export class ModelView<T = any> implements IModelView<T> {
     return this._validateSlice(modelSlice, ValidationScope.FULL);
   }
 
-  private _validateSlice(modelSlice:IModelTypeComposite<T>, kind:ValidationScope):Promise<IModelView<T>> {
+  private _validateSlice(modelSlice:IModelTypeComposite<T>|IModelType<any>, kind:ValidationScope):Promise<IModelView<T>> {
     if (!this._validations[kind]) {
       this._validations[kind] = Promise.resolve(null).then(
         () => {
