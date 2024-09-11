@@ -88,6 +88,24 @@ function Q(x: string) {
   return x.replace(/[\^\$\[\]]/gm, (f)=>'\\'+f);
 }
 
+/** Turn an example of pattern syntax into a regex that can split strings to
+ * extract occurrences of that syntax. `splitPoint` gives the location in the
+ * pattern that matches the variable name to interpolate into the string at
+ * that point. The space between the start and end of the placeholder-pattern
+ * uses non-greedy matching (.?*) and the part in front of the pattern will
+ * attempt to match anything, including newlines etc., as long as it's not the
+ * placeholder pattern. Don't use this with user input. Ensure your pattern
+ * works with the strategy employed here. This function is exported, so it
+ * can be unit tested.
+ * 
+ * This method is used internally to allow instance of this class to create
+ * templates using different placeholder syntax.
+ * 
+ * Examples:
+ *   makePattern('{{X}}', 'X') //creates a regex for matching {{foo}} or {{someName}}
+ *   makePattern(`${X}`, 'X')  //creates a regex for matching ${foo} or ${someName}
+ *   makePattern(`<<X>>`, 'X') //creates a regex for matching <<foo>> or <<someName>>
+ */
 export function makePattern(pattern: string|RegExp, splitPoint: string = 'X'): RegExp {
   if ('string' === typeof pattern) {
     let patternParts = pattern.split(splitPoint);
