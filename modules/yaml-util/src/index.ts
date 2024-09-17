@@ -1,3 +1,0 @@
-
-import YAML from 'yaml';
-

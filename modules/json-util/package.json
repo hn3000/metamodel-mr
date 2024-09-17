@@ -1,7 +1,7 @@
 {
-  "name": "@hn3000/yaml-util",
+  "name": "@hn3000/json-util",
   "version": "0.10.0",
-  "description": "reference checker schemas using json reference",
+  "description": "json utilities",
   "repository": {
     "type": "git",
     "url": "git@github.com:hn3000/metamodel-mr"
@@ -10,14 +10,12 @@
     "tsc": "tsc",
     "tsc:w": "tsc -w",
     "pretest": "tsc",
-    "test": "node out/test/allTests.js",
-    "testonly": "node out/test/allTests.js"
+    "test": "mocha out/test"
   },
   "main": "out/src/index.js",
   "typings": "out/src/index.d.ts",
   "bin": {
-    "yaml2json": "bin/yaml2json.js",
-    "json2yaml": "bin/json2yaml.js"
+    "json-ref-checker": "bin/json-ref-checker.js"
   },
   "type": "module",
   "keywords": [
@@ -35,8 +33,6 @@
     "typescript": "^4.4.3"
   },
   "dependencies": {
-    "isomorphic-fetch": "^3.0.0",
-    "yaml": "^2.1.3",
-    "js-yaml": "^4.1.0"
+    "isomorphic-fetch": "^3.0.0"
   }
 }

@@ -3,3 +3,4 @@ out
 dist
 .nyc_output
 coverage
+not-modules
