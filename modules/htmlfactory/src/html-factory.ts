@@ -8,11 +8,12 @@ export type TAttributes = {
 
 export interface IHTMLFactory {
   [name: string]: (...args: (string|Node|TAttributes)[]) => HTMLElement;
-  _createElement(name: string, ...args: (string|Node|TAttributes)[]): HTMLElement;
 }
 
 export const HTML: IHTMLFactory = {
-  _createElement(name: string, ...args: (string|Node|TAttributes)[]) {
+  _createElement(name?: string|Node|TAttributes, ...args: (string|Node|TAttributes)[]) {
+    if (typeof name !== 'string') throw Error("_createElement needs name to be valid element name");
+
     const result = document.createElement(name);
     args.forEach(x => {
       if (typeof x === 'string' || x instanceof Node) {
@@ -31,14 +32,15 @@ export const HTML: IHTMLFactory = {
     });
     return result;
   }
+
 };
 
 "div|span|p|input|form|button".split('|').forEach(e => HTML[e] = HTML._createElement.bind(HTML, e));
 
 const reCamelToKebab = /([a-z])([0-9A-Z]+)/g;
 
-export function toKebabCase(maybeCamel: string) {
-  if (undefined === maybeCamel || null === maybeCamel) return;
+export function toKebabCase(maybeCamel?: string): string|null {
+  if (undefined === maybeCamel || null === maybeCamel) return null;
   const result = maybeCamel.replace(reCamelToKebab, (_,a,b) => `${a}-${b.toLowerCase()}`);
   return result;
 }
