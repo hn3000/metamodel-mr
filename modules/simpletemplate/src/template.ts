@@ -84,11 +84,17 @@ export class Template {
   }
 }
 
+/** 
+ * Quote a string to make it fit for use as a matching literal in a regular 
+ * expression. Works by quoting meta-characters. Seems incomplete, not sure
+ * why it works for placeholders containing `{` and `}` currently.
+ */
 function Q(x: string) {
-  return x.replace(/[\^\$\[\]]/gm, (f)=>'\\'+f);
+  return x.replace(/[\^\$\[\]\{\}\(\)]/gm, (f)=>'\\'+f);
 }
 
-/** Turn an example of pattern syntax into a regex that can split strings to
+/** 
+ * Turn an example of pattern syntax into a regex that can split strings to
  * extract occurrences of that syntax. `splitPoint` gives the location in the
  * pattern that matches the variable name to interpolate into the string at
  * that point. The space between the start and end of the placeholder-pattern

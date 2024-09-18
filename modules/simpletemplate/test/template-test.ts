@@ -41,6 +41,42 @@ export class TemplateTest extends TestClass {
     );
   }
 
+  testTemplateRendersDynamicTextWithPatternConfig2() {
+    let text = 'XX{who}ZZ';
+    let pattern = '{X}';
+    let template = new Template(text, null, { pattern });
+    this.areIdentical(
+      text.replace(/\{who\}/, 'someone'),
+      template.render({who: 'someone'})
+    );
+    this.areIdentical(
+      'XXsometwoZZ',
+      template.render({who: 'sometwo'})
+    );
+    this.areIdentical(
+      text.replace(/\{who\}/, 'somethree'),
+      template.render({who: 'somethree'})
+    );
+  }
+
+  testTemplateRendersDynamicTextWithPatternConfig3() {
+    let text = 'XX((who))ZZ';
+    let pattern = '((X))';
+    let template = new Template(text, null, { pattern });
+    this.areIdentical(
+      text.replace(/\((who\))/, 'someone'),
+      template.render({who: 'someone'})
+    );
+    this.areIdentical(
+      'XXsometwoZZ',
+      template.render({who: 'sometwo'})
+    );
+    this.areIdentical(
+      text.replace(/\(\(who\)\)/, 'somethree'),
+      template.render({who: 'somethree'})
+    );
+  }
+
   testTemplateRendersMixedDynamicText() {
     let text = 'Hello {{who}}! I hope you are {{what}}.';
     let template = new Template(text);
