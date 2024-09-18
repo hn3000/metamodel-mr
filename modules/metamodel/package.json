@@ -15,7 +15,7 @@
     "pretest-debug": "tsc",
     "test-debug": "node --inspect-brk out/test/allTests.js",
     "precover": "tsc",
-    "cover": "nyc npm test"
+    "cover": "NODE_OPTIONS=\"--max-semi-space-size=1024 --max-old-space-size=31000\" nyc node out/test/allTests.js"
   },
   "main": "out/src/model.js",
   "types": "out/src/model.d.ts",
@@ -33,11 +33,11 @@
     "test/*.ts"
   ],
   "devDependencies": {
-    "@types/isomorphic-fetch": "0.0.35",
-    "@types/node": "^16.10.2",
+    "@types/isomorphic-fetch": "0.0.39",
+    "@types/node": "~20.0.0",
     "nyc": "^15.1.0",
     "@hn3000/tsunit-async": "github:hn3000/tsunit-async",
-    "typescript": "^4.4.3"
+    "typescript": "5.1.6"
   },
   "dependencies": {
     "@hn3000/json-ref": "^1.1.0"
@@ -47,18 +47,19 @@
   },
   "nyc": {
     "all": true,
-    "excludeAfterRemap": false,
+    "excludeAfterRemap": true,
     "extension": [
       ".js",
       ".ts"
     ],
     "include": [
-      "out/**",
+      "out/src/**/*.js",
       "src/*.ts"
     ],
     "exclude": [
       "test/**",
-      "out/test/**"
+      "out/test/**",
+      "node_modules/**"
     ],
     "reporter": [
       "text",

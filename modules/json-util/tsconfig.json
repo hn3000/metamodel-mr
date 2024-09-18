@@ -23,7 +23,8 @@
     "rootDir": "./"
   },
   "include": [
-    "src/index.ts",
-    "src/json-ref-checker.ts"
+    "src/*.ts",
+    "src/*.tsx",
+    "test/*.ts"
   ]
 }

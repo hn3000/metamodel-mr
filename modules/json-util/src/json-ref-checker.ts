@@ -42,7 +42,7 @@ export class JsonRefChecker {
       while (stack.length) {
         const thisPath = stack.shift();
         let cur = thisPath;
-        while (cur.hasParent()) {
+        while (cur?.hasParent()) {
           const curPaths = nodeMap[cur.asString()];
           for (const p of curPaths ?? []) {
             const ps = p.asString();

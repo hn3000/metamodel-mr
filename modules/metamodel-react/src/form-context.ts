@@ -258,9 +258,11 @@ export class MetaFormContext extends ClientProps implements IFormContext, IClien
   }
   _notifyAll() {
       //console.log('notify all', this._viewmodel.currentPageIndex);
+    this._notifying = Promise.resolve();
     this._listeners.all.forEach((x) => {
       x();
     });
+    this._notifying = null;
     //console.log('/notify all');
   }
 
@@ -389,6 +391,7 @@ export class MetaFormContext extends ClientProps implements IFormContext, IClien
   }
 
   private _listeners:ListenerManager<()=>void>;
+  private _notifying: Promise<void> | undefined;
   private _config:IFormConfig;
   private _metamodel: IModelTypeComposite<any>;   //</any>
   private _viewmodel: IModelView<any>;            //</any>

@@ -13,7 +13,7 @@ function jsonReferenceLoader(content) {
     //ctx.emitError(`loading json ref: ${ctx.resource} ${content.substring(0,30)}`);
     var processor = new json_ref_1.JsonReferenceProcessor(fetcher.bind(null, ctx));
     processor.expandRef(ctx.resource).then(function (x) {
-        var result = "module.exports=" + JSON.stringify(x) + ";";
+        var result = "module.exports=".concat(JSON.stringify(x), ";");
         callback(null, result);
     }, function (err) {
         callback(err);
